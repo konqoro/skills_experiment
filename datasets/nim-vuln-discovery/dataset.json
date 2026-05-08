@@ -1,0 +1,144 @@
+{
+  "skill_name": "nim-vuln-discovery",
+  "source_file": "original_skills/nim-vuln-discovery/SKILL.md",
+  "nim_version": "2.3.1",
+  "mm_mode": "orc",
+  "failure_samples": [
+    {
+      "source_type": "project",
+      "source_task": "COMP431 Nim parser audit",
+      "bucket": "missing rule",
+      "summary": "Models over-claimed confirmed findings from static reasoning without building reproducers.",
+      "evidence": "Kimi labeled all five candidates CONFIRMED, but the project downgraded them to LIKELY because no dynamic reproducers were built.",
+      "check": "CONFIRMED must require executable evidence.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "project",
+      "source_task": "COMP431 Nim parser audit",
+      "bucket": "missing rule",
+      "summary": "Models misread a Nim Defect path that a minimal reproducer would have exposed quickly.",
+      "evidence": "DeepSeek and GLM reasoned that an incomplete protocol version would parse as 0.0; a reproducer showed uncaught IndexDefect.",
+      "check": "Parser crash hypotheses need a bounded minimal-reproducer attempt.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "project",
+      "source_task": "COMP431 Nim parser audit",
+      "bucket": "ambiguous wording",
+      "summary": "Pseudo-probability multiplication added false precision without improving triage.",
+      "evidence": "The old EvidenceFactor * ExploitabilityFactor * ImpactFactor rubric still allowed weak static claims to look numerically precise.",
+      "check": "Confidence scoring should be coarse and evidence-gated.",
+      "next_action": "skill edit"
+    }
+  ],
+  "summary": {
+    "total_claims": 10,
+    "testable": 5,
+    "passed": 3,
+    "failed": 0,
+    "not_testable": 5,
+    "untested": 2
+  },
+  "claims": [
+    {
+      "claim_id": "C01",
+      "claim_text": "A finding must not be classified as CONFIRMED from source reasoning alone; it needs a reproducer, sanitizer report, fuzz artifact, or deterministic integration test.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Benchmark-level claim. The project model outputs showed this rule is needed because static-only claims were over-labeled confirmed."
+    },
+    {
+      "claim_id": "C02",
+      "claim_text": "For Nim parser crash hypotheses, a direct minimal reproducer should be attempted before larger harnesses or fuzzing.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Benchmark-level workflow claim. This project confirmed the real crash with a small direct reproducer."
+    },
+    {
+      "claim_id": "C03",
+      "claim_text": "`Defect` subclasses such as `IndexDefect`, `OverflowDefect`, and `AssertionDefect` are not caught by `except CatchableError`.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-vuln-discovery_verification/test_c03_defect_not_catchable.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Inner `except CatchableError` does not catch `IndexDefect`; outer `except IndexDefect` catches it."
+    },
+    {
+      "claim_id": "C04",
+      "claim_text": "Plain `assert` is compiled out in `-d:danger`, while `doAssert` remains active.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-vuln-discovery_verification/test_c04_assert_vs_doassert.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. In `-d:danger`, `assert false` is skipped while `doAssert false` raises `AssertionDefect`."
+    },
+    {
+      "claim_id": "C05",
+      "claim_text": "Nim parser helpers that return a consumed length can leave trailing input unvalidated unless the caller checks full consumption.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-vuln-discovery_verification/test_c05_consumed_length_trailing_input.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `parseSaturatedNatural(\"12abc\", value)` consumes only the numeric prefix and leaves trailing input."
+    },
+    {
+      "claim_id": "C06",
+      "claim_text": "A bounded confirmation ladder should stop after static trace, minimal reproducer, mode check, sanitizer, or integration/fuzzing once the classification is clear.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Benchmark-level process claim. The project outcome showed unbounded model review produced many likely findings but not better confirmation."
+    },
+    {
+      "claim_id": "C07",
+      "claim_text": "Coarse confidence scores are safer than multiplying pseudo-probability factors for vulnerability triage.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Benchmark-level triage claim supported by observed model over-claiming."
+    },
+    {
+      "claim_id": "C08",
+      "claim_text": "AddressSanitizer checks for Nim unsafe memory code should pass both compiler and linker sanitizer flags and use `-d:noSignalHandler -d:useMalloc`.",
+      "is_testable": true,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": null
+    },
+    {
+      "claim_id": "C09",
+      "claim_text": "For FFI-related vulnerabilities, pointer lifetime, nullability, struct layout, calling convention, and string ownership are required false-positive checks.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Review checklist claim, best evaluated in a targeted FFI benchmark rather than a standalone unit test."
+    },
+    {
+      "claim_id": "C10",
+      "claim_text": "For ownership-hook vulnerabilities, move-after-destroy, self-copy, zero-length allocation, and destroy-after-move are required false-positive checks.",
+      "is_testable": true,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": null
+    }
+  ],
+  "corrections": [
+    {
+      "original_claim": "Confidence = EvidenceFactor * ExploitabilityFactor * ImpactFactor.",
+      "correction": "Use coarse evidence-gated confidence scores; do not multiply pseudo-probabilities."
+    },
+    {
+      "original_claim": "CONFIRMED can be assigned after strong-looking source reasoning.",
+      "correction": "CONFIRMED requires executable evidence such as a reproducer, sanitizer/fuzzer artifact, or deterministic integration test."
+    }
+  ],
+  "uncovered_topics": [
+    "benchmark coverage for async resource-exhaustion findings",
+    "benchmark coverage for FFI memory-safety findings",
+    "benchmark coverage for ownership-hook security findings"
+  ],
+  "needs_stronger_tests": [
+    "C08 and C10 need normal Phase 2 verification tests.",
+    "C01, C02, C06, and C07 need benchmark validation rather than unit tests."
+  ]
+}

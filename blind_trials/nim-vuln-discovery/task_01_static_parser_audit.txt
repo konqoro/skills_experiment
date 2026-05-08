@@ -1,0 +1,59 @@
+# Task
+
+Audit a small Nim message parser for security-relevant bugs. This is a static
+audit plus targeted confirmation task, not a fuzzing task.
+
+## Deliverables
+
+Create:
+
+- `audit_report.md`
+- any minimal reproducers you need under `reproducers/`
+
+## Inputs and Fixtures
+
+The parser source is staged at:
+
+```text
+fixtures/message_parser.nim
+```
+
+Treat the input string passed to `handleMessage` as attacker-controlled.
+
+## Required Behavior
+
+Your report must:
+
+- identify security-relevant findings only
+- classify each finding as `CONFIRMED`, `LIKELY`, `LOW`, `FALSE_POSITIVE`, or `NON_SECURITY`
+- include a static trace from attacker-controlled input to the failure
+- include expected behavior, actual behavior, exploitability, and confidence
+- include exact commands and observed output for every `CONFIRMED` finding
+- avoid fuzzing or long-running search
+
+If you think a suspicious path is blocked by a guard, mention it only as a
+false-positive reduction note.
+
+## Required Commands
+
+Run any reproducer commands you include in `audit_report.md` from the trial
+directory.
+
+At minimum, the parser itself must compile:
+
+```bash
+nim c --nimcache:nimcache fixtures/message_parser.nim
+```
+
+## Judge Checklist
+
+- `audit_report.md` exists.
+- The report identifies the incomplete `WIRE/` version token crash as a `CONFIRMED` or equivalently high-confidence crash/DoS finding.
+- The report includes the trigger input shape equivalent to `PING / WIRE/ 0` or a direct call to `parseWireVersion("WIRE/")`.
+- The report explains that the prefix check passes, the first numeric parse consumes no digits, the unconditional separator increment moves the index past the end, and the second numeric parse raises `IndexDefect`.
+- The report explains that `handleMessage` catches `ValueError` but not `IndexDefect`/`Defect`.
+- A reproducer under `reproducers/` exists and can be run with `nim c -r`.
+- Running the reproducer demonstrates the crash or catches and prints the `IndexDefect` evidence.
+- The report does not classify the payload length limit as an unbounded allocation vulnerability, because `maxPayload` blocks oversized parsed lengths.
+- The report does not rely on fuzzing as the confirmation method.
+- The report includes one concrete remediation direction without requiring a target-specific protocol rewrite.
