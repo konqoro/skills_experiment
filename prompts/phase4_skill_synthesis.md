@@ -51,6 +51,13 @@ The skill must not contain:
 - references to dataset internals
 - references to benchmark scores
 
+### Skill writing quality bar
+
+- Use concise, high-signal instructions.
+- Prefer concrete rules and deterministic steps over vague goals.
+- If two instructions conflict, name the conflict and ask for human guidance. Do not invent priority rules or fallback logic.
+- Remove guidance that does not change what an agent should do on a realistic task.
+
 ### Existing skill handling
 
 If `CURRENT_VERIFIED_SKILL` exists:
@@ -101,7 +108,8 @@ If `CURRENT_VERIFIED_SKILL` does not exist, create it from scratch.
 - list each reference file with a one-line description
 
 #### Changelog
-- one flat bullet list with dates and short descriptions
+- one flat bullet list with dates and terse descriptions
+- keep entries short; do not explain rationale or implementation details
 
 ## Reference files
 
