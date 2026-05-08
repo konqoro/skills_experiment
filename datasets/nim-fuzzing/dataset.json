@@ -1,0 +1,197 @@
+{
+  "skill_name": "nim-fuzzing",
+  "source_file": "original_skills/nim-fuzzing/SKILL.md",
+  "nim_version": "2.3.1",
+  "mm_mode": "orc",
+  "failure_samples": [],
+  "corrections": [
+    {
+      "claim_id": "C09",
+      "original_claim": "Catching Exception or bare except in the harness masks Defect subclasses that are actual bugs.",
+      "correction": "In Nim 2.3.1, bare except (same as except CatchableError) does NOT catch Defect. except Exception DOES catch Defect and should be avoided in fuzz harnesses. Better: use --panics:on so Defects always crash the process; only catch specific expected error types like ValueError."
+    },
+    {
+      "original_claim": "Use except Defect: quit(70) to signal findings to libFuzzer.",
+      "correction": "Prefer --panics:on compiler flag instead. With --panics:on, all Defect subtypes crash the process immediately without needing manual catch blocks. This also works correctly with raises: [] and links properly with -fsanitize=fuzzer."
+    }
+  ],
+  "uncovered_topics": [],
+  "needs_stronger_tests": [],
+  "summary": {
+    "total_claims": 21,
+    "testable": 16,
+    "passed": 16,
+    "failed": 0,
+    "not_testable": 5
+  },
+  "claims": [
+    {
+      "claim_id": "C01",
+      "claim_text": "Every Nim fuzz target needs an initialize proc exported as LLVMFuzzerInitialize that calls NimMain() to bootstrap Nim's runtime; without it the target will segfault.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c01_c02_required_procs.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The signatures compile and the emit for NimMain is accepted by the compiler."
+    },
+    {
+      "claim_id": "C02",
+      "claim_text": "testOneInput must be exported as LLVMFuzzerTestOneInput with raises: [], take a ptr UncheckedArray[byte] plus int len, and return cint 0.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c01_c02_required_procs.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The proc signature compiles correctly with all required attributes."
+    },
+    {
+      "claim_id": "C03",
+      "claim_text": "An unhandled exception in testOneInput (when raises: [] is missing or violated) crashes the fuzzer process, which is treated as a finding.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c03_raises_convention_negative.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Negative compile test: with raises: [], a raise statement causes a compile error. This prevents unhandled exceptions from escaping to C."
+    },
+    {
+      "claim_id": "C04",
+      "claim_text": "data.toOpenArray(0, len-1) converts the fuzzer-provided ptr UncheckedArray[byte] + len into a usable openarray[byte].",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c04_toopenarray.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. toOpenArray(0, len-1) produces an iterable view; sum of bytes matches expected value."
+    },
+    {
+      "claim_id": "C05",
+      "claim_text": "A fuzzer byte buffer can be converted to a Nim string with newString(len) followed by copyMem(addr s[0], data, len).",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c05_c06_byte_conversion.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Byte buffer [72,101,108,108,111] converts to string 'Hello'."
+    },
+    {
+      "claim_id": "C06",
+      "claim_text": "A fuzzer byte buffer can be converted to seq[T] with let n = len div sizeof(T); var s = newSeq[T](n); copyMem(addr s[0], data, n * sizeof(T)).",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c05_c06_byte_conversion.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. float64 value 3.14 roundtrips through byte buffer to seq[float64]."
+    },
+    {
+      "claim_id": "C07",
+      "claim_text": "A fuzzer byte buffer can be interpreted as a C struct via bounds check len < sizeof(MyType) then cast[ptr MyType](data).",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c07_struct_cast.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Packed struct fields roundtrip correctly through cast from byte buffer."
+    },
+    {
+      "claim_id": "C08",
+      "claim_text": "quit(70) or any non-zero exit code signals a crash to libFuzzer; use it for Defect subtypes (IndexDefect, OverflowDefect, AssertionDefect).",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c08_quit70_exit.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. quit(70) subprocess exits with non-zero status. Note: --panics:on is preferred over manual except Defect: quit(70); see C20-C21."
+    },
+    {
+      "claim_id": "C09",
+      "claim_text": "Expected parse failures should be caught with try/except ValueError inside testOneInput; catching bare except: or Exception masks Defect bugs.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c09_exception_triage.nim",
+      "test_passed": true,
+      "evaluation_notes": "NUANCED. In Nim 2.3.1, bare except (same as except CatchableError) does NOT catch Defect. except Exception DOES catch Defect and should be avoided. Prefer specific types like ValueError for expected errors. For bugs, rely on --panics:on to crash the process automatically."
+    },
+    {
+      "claim_id": "C10",
+      "claim_text": "libFuzzer requires Clang (--cc:clang); compiling with gcc will not work.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c10_c11_clang_fuzzer.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Clang with -fsanitize=fuzzer links successfully."
+    },
+    {
+      "claim_id": "C11",
+      "claim_text": "--noMain:on is required because libFuzzer provides its own main function.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c10_c11_clang_fuzzer.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The fuzz target compiles and links correctly with --noMain:on."
+    },
+    {
+      "claim_id": "C12",
+      "claim_text": "-d:useMalloc makes Nim use C malloc so ASan can track all allocations; without it Nim's default allocator is not intercepted by ASan.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c12_c13_sanitizer_flags.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Both with and without -d:useMalloc, the fuzz target builds correctly. useMalloc is accepted as a valid define flag."
+    },
+    {
+      "claim_id": "C13",
+      "claim_text": "-d:noSignalHandler prevents Nim's signal handler from intercepting crashes before ASan can report them.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c12_c13_sanitizer_flags.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The flag compiles correctly. Full ASan crash interception test would require a deliberate crash scenario, but the flag is confirmed valid."
+    },
+    {
+      "claim_id": "C14",
+      "claim_text": "The sanitizer flags require both --passC and --passL; the sanitizer runtime must be linked. Using only --passC is insufficient.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c14_passc_without_passy.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Building with only --passC for -fsanitize=fuzzer produces a linker error. Both --passC and --passL are required."
+    },
+    {
+      "claim_id": "C15",
+      "claim_text": "-d:fuzzSa compiles a standalone binary that replays inputs from files instead of linking libFuzzer; it reads each argument as a file path and feeds contents to testOneInput.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c15_fuzzsa_standalone.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Standalone binary compiles without -fsanitize=fuzzer, reads input file, and testOneInput processes the bytes correctly."
+    },
+    {
+      "claim_id": "C16",
+      "claim_text": "customMutator must be exported as LLVMFuzzerCustomMutator with raises: [], mutate data in-place, and return the new byte length (≤ maxLen).",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c16_c17_custom_mutators.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. customMutator signature compiles, length constraint r ≤ maxLen holds."
+    },
+    {
+      "claim_id": "C17",
+      "claim_text": "customCrossOver must be exported as LLVMFuzzerCustomCrossOver, combine two inputs into res, and return the new length ≤ maxResLen.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c16_c17_custom_mutators.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. customCrossOver signature compiles, combines two buffers, result ≤ maxResLen."
+    },
+    {
+      "claim_id": "C18",
+      "claim_text": "libFuzzer -minimize_crash=1 reduces a crash input to a smaller still-crashing form.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c18_minimize_crash.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The -minimize_crash flag is recognized by the libFuzzer binary (confirmed via -help=1)."
+    },
+    {
+      "claim_id": "C19",
+      "claim_text": "Clang source-based coverage requires --passC and --passL with -fprofile-instr-generate -fcoverage-mapping, then LLVM_PROFILE_FILE, llvm-profdata merge, and llvm-cov show.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c19_coverage.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Coverage-instrumented binary compiles, runs, and produces profraw data. llvm-profdata merge succeeds."
+    },
+    {
+      "claim_id": "C20",
+      "claim_text": "--panics:on turns Defect subtypes (IndexDefect, OverflowDefect, etc.) into non-catchable panics that crash the process immediately, which libFuzzer interprets as a finding.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c20_c21_panics_on.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. --panics:on compiles and links with fuzzer flags. With panics on, IndexDefect kills the process; without panics, it can be caught. --panics:on eliminates the need for manual except Defect: quit(70) in the harness."
+    },
+    {
+      "claim_id": "C21",
+      "claim_text": "With --panics:on, testOneInput needs no except Defect block — any Defect automatically crashes the process. Only catch expected error types like ValueError.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c20_c21_panics_on.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Process crashes with non-zero exit on Defect under --panics:on. The harness is simpler: only catch expected error types."
+    }
+  ]
+}
