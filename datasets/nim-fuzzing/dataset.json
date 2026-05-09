@@ -18,9 +18,9 @@
   "uncovered_topics": [],
   "needs_stronger_tests": [],
   "summary": {
-    "total_claims": 21,
-    "testable": 16,
-    "passed": 16,
+    "total_claims": 24,
+    "testable": 19,
+    "passed": 19,
     "failed": 0,
     "not_testable": 5
   },
@@ -139,11 +139,11 @@
     },
     {
       "claim_id": "C15",
-      "claim_text": "-d:fuzzSa compiles a standalone binary that replays inputs from files instead of linking libFuzzer; it reads each argument as a file path and feeds contents to testOneInput.",
+      "claim_text": "-d:fuzzStandalone compiles a standalone binary that replays inputs from files instead of linking libFuzzer; it reads each argument as a file path and feeds contents to testOneInput.",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c15_fuzzsa_standalone.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Standalone binary compiles without -fsanitize=fuzzer, reads input file, and testOneInput processes the bytes correctly."
+      "evaluation_notes": "DETERMINISTIC. Standalone binary compiles without -fsanitize=fuzzer, reads input file, and testOneInput processes the bytes correctly. Define renamed from fuzzSa to fuzzStandalone."
     },
     {
       "claim_id": "C16",
@@ -192,6 +192,30 @@
       "test_file_path": "tests/nim-fuzzing_verification/test_c20_c21_panics_on.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Process crashes with non-zero exit on Defect under --panics:on. The harness is simpler: only catch expected error types."
+    },
+    {
+      "claim_id": "C22",
+      "claim_text": "The standalone replay block, guarded by when defined(fuzzStandalone), compiles into a binary that reads files from argv and feeds each to testOneInput without linking libFuzzer.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c22_fuzzStandalone_replay.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Harness with inline standalone block compiles with -d:fuzzStandalone, reads input file, testOneInput processes bytes correctly, exits 0 on valid input."
+    },
+    {
+      "claim_id": "C23",
+      "claim_text": "The standalone replay block crashes (non-zero exit) when testOneInput hits a doAssert failure on bad input, confirming assertions propagate correctly outside libFuzzer.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c22_fuzzStandalone_replay.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Bad input triggers doAssert in testOneInput, standalone binary exits non-zero."
+    },
+    {
+      "claim_id": "C24",
+      "claim_text": "Without -d:fuzzStandalone, the standalone block is excluded at compile time and the harness compiles as a normal Nim program.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-fuzzing_verification/test_c22_fuzzStandalone_replay.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Harness compiles without -d:fuzzStandalone and runs as a normal program, confirming the when branch is excluded."
     }
   ]
 }

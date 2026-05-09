@@ -27,6 +27,7 @@ proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
 
 ```nim
 --cc: clang
+--panics: on
 --define: noSignalHandler
 --define: useMalloc
 --noMain: on

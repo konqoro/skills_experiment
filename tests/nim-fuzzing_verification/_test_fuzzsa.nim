@@ -7,12 +7,9 @@ proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
 proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
   {.emit: "N_CDECL(void, NimMain)(void); NimMain();".}
 
-when defined(fuzzSa):
-  include standalone
-import std/[os, strformat]
-
-proc standaloneFuzzTarget* =
-  stderr.write &"StandaloneFuzzTarget: running {paramCount()} inputs\n"
+when defined(fuzzStandalone):
+  import std/[cmdline, syncio]
+  stderr.write "StandaloneFuzzTarget: running " & $paramCount() & " inputs\n"
   for i in 1..paramCount():
     var buf = readFile(paramStr(i))
     discard testOneInput(cast[ptr UncheckedArray[byte]](cstring(buf)), buf.len)
