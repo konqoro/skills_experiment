@@ -104,38 +104,30 @@ proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
 
 ### Build config file (recommended)
 
-Place a `fuzztarget.nims` next to the harness:
+Name the config file `<harnessname>.nims` (e.g. `my_fuzzer.nims` for
+`my_fuzzer.nim`) or `config.nims`.
 
 ```nim
---cc:clang
---panics:on
---define:noSignalHandler
---define:useMalloc
---noMain:on
---passC:"-fsanitize=fuzzer,address,undefined"
---passL:"-fsanitize=fuzzer,address,undefined"
---debugger:native
+--cc: clang
+--panics: on
+--define: noSignalHandler
+--define: useMalloc
+--noMain: on
+--passC: "-fsanitize=fuzzer,address,undefined"
+--passL: "-fsanitize=fuzzer,address,undefined"
+--debugger: native
 ```
 
 | Flag                   | Purpose |
 |------------------------|---------|
 | `--cc: clang`          | libFuzzer requires Clang. |
-| `--panics: on`         | Turns Defect into immediate crashes — no manual catch needed in harness. |
+| `--panics: on`         | Defects crash the process immediately. |
 | `--noMain: on`         | libFuzzer provides its own `main`. |
-| `--define: noSignalHandler` | Prevents Nim's signal handler from intercepting crashes before ASan. |
+| `--define: noSignalHandler` | Prevents Nim's signal handler from masking crashes before ASan. |
 | `--define: useMalloc`  | Uses C malloc so ASan tracks all allocations. |
-| `--passC:"-fsanitize=fuzzer,address,undefined"` | Enables libFuzzer + ASan + UBSan in compiler. |
+| `--passC:"-fsanitize=fuzzer,address,undefined"` | Enables libFuzzer + ASan + UBSan. |
 | `--passL:"-fsanitize=fuzzer,address,undefined"` | Links the sanitizer runtimes. |
-| `--debugger: native`   | Embeds DWARF debug info for source locations in reports. |
-
-### Single-command compilation (no config file)
-
-```bash
-nim c --cc:clang --panics:on -d:noSignalHandler -d:useMalloc --noMain:on \
-  --passC:"-fsanitize=fuzzer,address,undefined" \
-  --passL:"-fsanitize=fuzzer,address,undefined" \
-  -g my_fuzzer.nim
-```
+| `--debugger: native`   | Embeds DWARF debug info in crash reports. |
 
 ## Corpus management
 
@@ -324,10 +316,9 @@ llvm-cov show ./my_fuzzer -instr-profile=fuzz.profdata --format=html \
    a single entry point.
 
 2. **Set up project files.** Create the harness `.nim` file with
-   `initialize` and `testOneInput`. Add a `fuzztarget.nims` config file
-   (see Compilation). Add the standalone replay block at the bottom of
-   the harness if reproduction without libFuzzer is needed
-   (see Standalone mode).
+   `initialize` and `testOneInput`. Create a `<harnessname>.nims`
+   config with the fuzzer flags. Optionally add the `fuzzStandalone`
+   replay block at the bottom of the harness.
 
 3. **Create a seed corpus.** Provide 1–5 minimal valid inputs in `corpus/`.
 
