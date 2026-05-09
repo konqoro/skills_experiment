@@ -1,6 +1,6 @@
 {
-  "skill_name": "nim-vuln-discovery",
-  "source_file": "original_skills/nim-vuln-discovery/SKILL.md",
+  "skill_name": "nim-defect-analysis",
+  "source_file": "original_skills/nim-defect-analysis/SKILL.md",
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "failure_samples": [
@@ -61,7 +61,7 @@
       "claim_id": "C03",
       "claim_text": "`Defect` subclasses such as `IndexDefect`, `OverflowDefect`, and `AssertionDefect` are not caught by `except CatchableError`.",
       "is_testable": true,
-      "test_file_path": "tests/nim-vuln-discovery_verification/test_c03_defect_not_catchable.nim",
+      "test_file_path": "tests/nim-defect-analysis_verification/test_c03_defect_not_catchable.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Inner `except CatchableError` does not catch `IndexDefect`; outer `except IndexDefect` catches it."
     },
@@ -69,7 +69,7 @@
       "claim_id": "C04",
       "claim_text": "Plain `assert` is compiled out in `-d:danger`, while `doAssert` remains active.",
       "is_testable": true,
-      "test_file_path": "tests/nim-vuln-discovery_verification/test_c04_assert_vs_doassert.nim",
+      "test_file_path": "tests/nim-defect-analysis_verification/test_c04_assert_vs_doassert.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. In `-d:danger`, `assert false` is skipped while `doAssert false` raises `AssertionDefect`."
     },
@@ -77,7 +77,7 @@
       "claim_id": "C05",
       "claim_text": "Nim parser helpers that return a consumed length can leave trailing input unvalidated unless the caller checks full consumption.",
       "is_testable": true,
-      "test_file_path": "tests/nim-vuln-discovery_verification/test_c05_consumed_length_trailing_input.nim",
+      "test_file_path": "tests/nim-defect-analysis_verification/test_c05_consumed_length_trailing_input.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. `parseSaturatedNatural(\"12abc\", value)` consumes only the numeric prefix and leaves trailing input."
     },
@@ -91,7 +91,7 @@
     },
     {
       "claim_id": "C07",
-      "claim_text": "Coarse confidence scores are safer than multiplying pseudo-probability factors for vulnerability triage.",
+      "claim_text": "Coarse confidence scores are safer than multiplying pseudo-probability factors for defect triage.",
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
@@ -135,7 +135,7 @@
   "uncovered_topics": [
     "benchmark coverage for async resource-exhaustion findings",
     "benchmark coverage for FFI memory-safety findings",
-    "benchmark coverage for ownership-hook security findings"
+    "benchmark coverage for ownership-hook defect findings"
   ],
   "needs_stronger_tests": [
     "C08 and C10 need normal Phase 2 verification tests.",
