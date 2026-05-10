@@ -112,7 +112,7 @@ nim c \
 
 Key points:
 
-- Each test file is self-contained with its own `block` scopes and direct assertions.
+- Each test file is self-contained and uses `block` scopes with `doAssert` / `doAssertRaises`.
 - The runner auto-discovers all `tests/t*.nim` files. Adding a new test file requires no runner changes — just create `tests/t<name>.nim`.
 - Each test file compiles and runs as a separate process. A crash in one file does not prevent others from running.
 - `config.nims` uses `$projectdir` to resolve the path relative to the test file's directory.
