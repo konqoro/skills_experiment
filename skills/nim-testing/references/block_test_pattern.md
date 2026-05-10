@@ -70,24 +70,21 @@ block add_negative:
 ## `tests/tester.nim`
 
 ```nim
-import std/[algorithm, os]
+import std/os
+
+proc fatal(msg: string) = quit "FAILURE " & msg
 
 proc exec(cmd: string) =
-  echo "Running: " & cmd
-  if execShellCmd(cmd) != 0:
-    quit "FAILURE: " & cmd, 1
+  echo "Running: ", cmd
+  if execShellCmd(cmd) != 0: fatal cmd
 
 let testDir = getCurrentDir() / "tests"
-var testFiles: seq[string]
 for f in walkFiles(testDir / "t*.nim"):
-  testFiles.add f
-testFiles.sort()
-
-for f in testFiles:
   let name = f.extractFilename
   if name == "tester.nim":
-    continue
-  exec "nim c -r " & testDir / name
+    discard
+  else:
+    exec "nim c -r " & quoteShell(testDir / name)
 
 echo ""
 echo "All test files completed."

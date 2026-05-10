@@ -5,20 +5,15 @@ description: Write and run deterministic Nim tests, including isolated test file
 
 # Nim Testing
 
-Write isolated, deterministic Nim tests with `block`, `doAssert`, and `doAssertRaises`. Covers project layout, an auto-discovering runner, multi-configuration builds, and AddressSanitizer.
+Write deterministic Nim tests with direct assertions, isolated test files, multi-configuration runs, and optional AddressSanitizer checks.
 
 Extended examples and CI workflows live in `references/`.
 
 ## Rules
 
-### Use Direct Assertions
+### Use `block`-based tests with `doAssert`
 
-Import `std/assertions` and use `block` scopes with its assertion templates:
-
-```nim
-template doAssert(cond: untyped; msg = "")
-template doAssertRaises(exception: typedesc; code: untyped)
-```
+Import `std/assertions`. Use `block` scopes with `doAssert` and `doAssertRaises`:
 
 ```nim
 import std/assertions
@@ -34,7 +29,7 @@ block parse_bad_input:
     discard parseThing("")
 ```
 
-`doAssert` raises `AssertionDefect` on failure. For catchable exceptions, `doAssertRaises` fails if the code does not raise the requested exception type. Either failure exits the test file with a non-zero code.
+`doAssert` raises `AssertionDefect` on failure. For catchable exceptions, `doAssertRaises` passes only when the requested exception type is raised; otherwise the test exits non-zero.
 
 ### `doAssert` vs `assert`
 
@@ -79,24 +74,21 @@ The compiler loads this config automatically when compiling files in `tests/`.
 ### `tests/tester.nim`
 
 ```nim
-import std/[algorithm, os]
+import std/os
+
+proc fatal(msg: string) = quit "FAILURE " & msg
 
 proc exec(cmd: string) =
-  echo "Running: " & cmd
-  if execShellCmd(cmd) != 0:
-    quit "FAILURE: " & cmd, 1
+  echo "Running: ", cmd
+  if execShellCmd(cmd) != 0: fatal cmd
 
 let testDir = getCurrentDir() / "tests"
-var testFiles: seq[string]
 for f in walkFiles(testDir / "t*.nim"):
-  testFiles.add f
-testFiles.sort()
-
-for f in testFiles:
   let name = f.extractFilename
   if name == "tester.nim":
-    continue
-  exec "nim c -r " & testDir / name
+    discard
+  else:
+    exec "nim c -r " & quoteShell(testDir / name)
 
 echo "All test files completed."
 ```
