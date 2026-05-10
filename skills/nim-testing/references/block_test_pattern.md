@@ -1,4 +1,4 @@
-Full worked example showing project layout, block-based tests, a helper module, and the auto-discovering runner.
+Full worked example showing project layout, block-based tests, direct assertions, and the auto-discovering runner.
 
 ## Project layout
 
@@ -9,7 +9,6 @@ project/
   tests/
     config.nims
     tester.nim
-    thelper.nim
     tbasic.nim
     tedge.nim
 ```
@@ -19,6 +18,11 @@ project/
 ```nim
 proc add*(a, b: int): int = a + b
 proc greet*(name: string): string = "hello " & name
+
+proc requireName*(name: string): string =
+  if name.len == 0:
+    raise newException(ValueError, "name is empty")
+  greet(name)
 ```
 
 ## `tests/config.nims`
@@ -27,76 +31,46 @@ proc greet*(name: string): string = "hello " & name
 switch("path", "$projectdir/../src")
 ```
 
-## `tests/thelper.nim`
-
-```nim
-var failures* = 0
-var passed* = 0
-
-proc check*(condition: bool; msg: string) =
-  if condition:
-    passed += 1
-  else:
-    failures += 1
-    echo "  FAIL: " & msg
-
-proc summary*() =
-  echo "Passed: " & $passed & "  Failed: " & $failures
-  if failures > 0:
-    quit "TESTS FAILED", 1
-  else:
-    echo "ALL TESTS PASSED"
-```
-
 ## `tests/tbasic.nim`
 
 ```nim
+import std/assertions
+
 import mylib
-import thelper
 
 block add_basic:
-  check add(1, 2) == 3, "add(1, 2) should be 3"
-  check add(-1, 1) == 0, "add(-1, 1) should be 0"
-  check add(0, 0) == 0, "add(0, 0) should be 0"
+  doAssert add(1, 2) == 3, "add should sum positive integers"
+  doAssert add(-1, 1) == 0, "add should handle signs"
+  doAssert add(0, 0) == 0, "add should handle zero"
 
 block greet_basic:
-  check greet("world") == "hello world", "greet world"
-  check greet("") == "hello ", "greet empty"
+  doAssert greet("world") == "hello world"
+  doAssert greet("") == "hello "
 
-block add_overflow:
-  when defined(danger):
-    check true, "overflow checks skipped in danger mode"
-  else:
-    let big = high(int) - 1
-    var raised = false
-    try:
-      discard add(big, 2)
-    except OverflowDefect:
-      raised = true
-    check raised, "overflow raises OverflowDefect"
-
-summary()
+block require_name:
+  doAssert requireName("world") == "hello world"
+  doAssertRaises ValueError:
+    discard requireName("")
 ```
 
 ## `tests/tedge.nim`
 
 ```nim
+import std/assertions
+
 import mylib
-import thelper
 
 block greet_with_spaces:
-  check greet("  ") == "hello   ", "greet spaces"
+  doAssert greet("  ") == "hello   "
 
 block add_negative:
-  check add(-5, -3) == -8, "negative addition"
-
-summary()
+  doAssert add(-5, -3) == -8
 ```
 
 ## `tests/tester.nim`
 
 ```nim
-import std/os
+import std/[algorithm, os]
 
 proc exec(cmd: string) =
   echo "Running: " & cmd
@@ -104,9 +78,14 @@ proc exec(cmd: string) =
     quit "FAILURE: " & cmd, 1
 
 let testDir = getCurrentDir() / "tests"
+var testFiles: seq[string]
 for f in walkFiles(testDir / "t*.nim"):
+  testFiles.add f
+testFiles.sort()
+
+for f in testFiles:
   let name = f.extractFilename
-  if name == "tester.nim" or name == "thelper.nim":
+  if name == "tester.nim":
     continue
   exec "nim c -r " & testDir / name
 
@@ -136,7 +115,7 @@ nim c \
 
 Key points:
 
-- Each test file is self-contained with its own `block` scopes and calls `summary()` at the end.
+- Each test file is self-contained with its own `block` scopes and direct assertions.
 - The runner auto-discovers all `tests/t*.nim` files. Adding a new test file requires no runner changes — just create `tests/t<name>.nim`.
 - Each test file compiles and runs as a separate process. A crash in one file does not prevent others from running.
 - `config.nims` uses `$projectdir` to resolve the path relative to the test file's directory.

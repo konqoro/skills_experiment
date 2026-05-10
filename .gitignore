@@ -9,32 +9,17 @@ nimcache/
 crash-*
 tea_debug.log
 
-# Compiled test binaries (no extension on Linux)
-tests/nim-api-design_verification/test_c*
-tests/nim-api-design_verification/test_ref_*
-tests/nim-api-design_verification/test_c20_since_pragma
-tests/nim-c-bindings_verification/test_c*
-tests/nim-c-wrappers_verification/test_c*
-tests/nim-c-wrappers_verification/test_ref_*
+# Compiled verification binaries (no extension on Linux)
+tests/*_verification/test_c*
+!tests/*_verification/test_c*.nim
+tests/*_verification/test_ref_*
+!tests/*_verification/test_ref_*.nim
+tests/*_verification/test_exp*
+!tests/*_verification/test_exp*.nim
+tests/*_verification/tmp_test_fuzz_*
+!tests/*_verification/tmp_test_fuzz_*.nim
 tests/nim-c-wrappers_verification/libc12_dynlib_helper.so
-tests/nim-code-organization_verification/test_c*
-tests/nim-code-organization_verification/test_ref_*
-tests/nim-debugging_verification/test_c*
-tests/nim-doc-comments_verification/test_c*
-tests/nim-doc-comments_verification/test_ref_*
-tests/nim-error-handling_verification/test_c*
-tests/nim-error-handling_verification/test_ref_*
 tests/nim-error-handling_verification/test_exception_vs_defect
-tests/nim-fuzzing_verification/test_c*
-tests/nim-fuzzing_verification/tmp_test_fuzz_*
-tests/nim-ownership-hooks_verification/test_c*
-tests/nim-ownership-hooks_verification/test_exp*
-tests/nim-ownership-hooks_verification/test_ref_*
-tests/nim-style-guide_verification/test_c*
-tests/nim-style-guide_verification/test_ref_*
-tests/nim-testing_verification/test_c*
-tests/nim-vuln-discovery_verification/test_c*
-tests/nimonyplugins_verification/test_c*
 tests/nimonyplugins_verification/test_examples
 tests/nimonyplugins_verification/test_practical_examples
 tests/nimonyplugins_verification/test_reference_examples

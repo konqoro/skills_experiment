@@ -25,11 +25,15 @@
     }
   ],
   "uncovered_topics": [],
-  "needs_stronger_tests": [],
+  "needs_stronger_tests": [
+    "C09 is testable but has no dedicated nim-testing verification file.",
+    "C10 is testable but has no dedicated nim-testing verification file.",
+    "C11 is testable but has no dedicated nim-testing verification file."
+  ],
   "summary": {
-    "total_claims": 19,
-    "testable": 19,
-    "passed": 18,
+    "total_claims": 20,
+    "testable": 20,
+    "passed": 19,
     "failed": 1,
     "not_testable": 0
   },
@@ -185,6 +189,14 @@
       "test_file_path": "tests/nim-testing_verification/test_c19b_defect_catch.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Bare except: does not catch AssertionDefect. Negative test (test_c19_defect_not_caught_bad.nim) confirms: the test itself fails because except: doesn't catch the Defect."
+    },
+    {
+      "claim_id": "C20",
+      "claim_text": "For catchable exceptions such as ValueError, doAssertRaises fails if the code does not raise the requested exception type, and that failure exits the test file with a non-zero code",
+      "is_testable": true,
+      "test_file_path": "tests/nim-testing_verification/test_c20_doassert_raises_failure.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Matching ValueError passed. Missing exception and wrong catchable exception type both failed with non-zero exit codes."
     }
   ]
 }
