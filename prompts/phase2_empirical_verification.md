@@ -43,6 +43,7 @@ File naming:
 - Single claim: `test_{claim_id_lowercase}_{short_name}.nim`
 - Batched claims: `test_c06_c07_{short_name}.nim`
 - Expected compile failure: include `_bad` or `_negative` in the filename
+- If a test needs companion source files (child modules, helpers, headers), place them in a `{test_name}_src/` directory.
 
 ### Test rules
 

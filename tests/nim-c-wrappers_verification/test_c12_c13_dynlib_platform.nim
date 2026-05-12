@@ -5,19 +5,19 @@ const sourceDir = currentSourcePath.parentDir()
 
 when defined(windows):
   const
-    helperLib = sourceDir / "c12_dynlib_helper.dll"
+    helperLib = sourceDir / "test_c12_c13_dynlib_platform_src/c12_dynlib_helper.dll"
     buildCmd = "cc -shared -o " & quoteShell(helperLib) & " " &
-      quoteShell(sourceDir / "c12_dynlib_helper.c")
+      quoteShell(sourceDir / "test_c12_c13_dynlib_platform_src/c12_dynlib_helper.c")
 elif defined(macosx):
   const
-    helperLib = sourceDir / "libc12_dynlib_helper.dylib"
+    helperLib = sourceDir / "test_c12_c13_dynlib_platform_src/libc12_dynlib_helper.dylib"
     buildCmd = "cc -shared -fPIC -o " & quoteShell(helperLib) & " " &
-      quoteShell(sourceDir / "c12_dynlib_helper.c")
+      quoteShell(sourceDir / "test_c12_c13_dynlib_platform_src/c12_dynlib_helper.c")
 else:
   const
-    helperLib = sourceDir / "libc12_dynlib_helper.so"
+    helperLib = sourceDir / "test_c12_c13_dynlib_platform_src/libc12_dynlib_helper.so"
     buildCmd = "cc -shared -fPIC -o " & quoteShell(helperLib) & " " &
-      quoteShell(sourceDir / "c12_dynlib_helper.c")
+      quoteShell(sourceDir / "test_c12_c13_dynlib_platform_src/c12_dynlib_helper.c")
 
 static:
   let compileResult = gorgeEx(buildCmd)

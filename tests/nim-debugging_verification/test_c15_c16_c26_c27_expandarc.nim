@@ -2,7 +2,7 @@ import std/osproc, std/os, std/strutils
 
 proc main() =
   let here = getCurrentDir()
-  let child = here / "test_c15_c16_c26_c27_expandarc_child.nim"
+  let child = here / "test_c15_c16_c26_c27_expandarc_src/test_c15_c16_c26_c27_expandarc_child.nim"
 
   block C15:
     let (output, _) = execCmdEx("nim c --expandArc:extractCopy " & child & " 2>&1")

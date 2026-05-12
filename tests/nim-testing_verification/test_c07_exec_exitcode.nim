@@ -1,4 +1,3 @@
-import testlib
 
 var failures = 0
 var passed = 0

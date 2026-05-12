@@ -1,4 +1,3 @@
-import testlib
 
 block scope_a:
   let x = 10

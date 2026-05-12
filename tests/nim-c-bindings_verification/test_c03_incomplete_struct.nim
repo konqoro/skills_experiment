@@ -3,7 +3,7 @@
 import std/os
 
 const testDir = currentSourcePath.parentDir
-const headerPath = testDir / "c03_partial.h"
+const headerPath = testDir / "test_c03_incomplete_struct_src/c03_partial.h"
 
 type
   PartialStruct {.importc: "struct PartialStruct", header: headerPath,

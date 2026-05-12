@@ -2,7 +2,7 @@ import std/osproc, std/os, std/strutils
 
 proc main() =
   let here = getCurrentDir()
-  let child = here / "test_c19_c23_c28_asan_oom_child.nim"
+  let child = here / "test_c19_c23_c28_asan_oom_src/test_c19_c23_c28_asan_oom_child.nim"
   let tmpdir = getTempDir()
   let outbin = tmpdir / "test_c24_asan_clang_bin"
 

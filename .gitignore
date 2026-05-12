@@ -9,20 +9,19 @@ nimcache/
 crash-*
 tea_debug.log
 
-# Compiled verification binaries (no extension on Linux)
-tests/*_verification/test_c*
-!tests/*_verification/test_c*.nim
-tests/*_verification/test_ref_*
-!tests/*_verification/test_ref_*.nim
-tests/*_verification/test_exp*
-!tests/*_verification/test_exp*.nim
-tests/*_verification/tmp_test_fuzz_*
-!tests/*_verification/tmp_test_fuzz_*.nim
-tests/nim-c-wrappers_verification/libc12_dynlib_helper.so
-tests/nim-error-handling_verification/test_exception_vs_defect
-tests/nimonyplugins_verification/test_examples
-tests/nimonyplugins_verification/test_practical_examples
-tests/nimonyplugins_verification/test_reference_examples
+# Compiled test binaries (no extension): ignore, but track .nim sources and _src/ dirs
+tests/*_verification/test_*
+!tests/*_verification/test_*.nim
+!tests/*_verification/test_*/
+tests/*_verification/tmp_*
+!tests/*_verification/tmp_*.nim
 tests/nimonyplugins_verification/nimcache/
+
+# Track source files inside _src/ subdirectories, ignore compiled artifacts
+tests/*_verification/*_src/*
+!tests/*_verification/*_src/*.nim
+!tests/*_verification/*_src/*.c
+!tests/*_verification/*_src/*.h
+
 blind_trials/*/fixtures/build/*.so
 tictactoe/libraylib.so

@@ -1,4 +1,3 @@
-import testlib
 
 proc overflow(a, b: int): int = a + b
 

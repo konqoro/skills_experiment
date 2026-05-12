@@ -1,4 +1,3 @@
-import testlib
 
 block:
   var raised = false

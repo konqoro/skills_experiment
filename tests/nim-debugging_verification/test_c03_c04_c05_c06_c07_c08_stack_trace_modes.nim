@@ -1,6 +1,6 @@
 import std/osproc, std/os, std/strutils
 
-const childSrc = staticRead("test_c03_c04_c05_c06_c07_c08_stack_trace_child.nim")
+const childSrc = staticRead("test_c03_c04_c05_c06_c07_c08_stack_trace_modes_src/test_c03_c04_c05_c06_c07_c08_stack_trace_child.nim")
 
 proc checkTrace(mode, expected: string): bool =
   let tmpdir = getTempDir()
