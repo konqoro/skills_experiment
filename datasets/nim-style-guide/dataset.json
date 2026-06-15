@@ -127,11 +127,11 @@
     },
     {
       "claim_id": "C15",
-      "claim_text": "Spaces required around .. and ..< in slice and range expressions. range[0..<n] does not compile; use range[0 .. n-1] instead.",
+      "claim_text": "Use spaces around .. and ..< in slice, loop, and range expressions for readability. Range type constructors use .., not ..<: range[0 ..< n] does not compile; use range[0 .. n-1] instead.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c15_dotdot_spacing.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Positive test with spaced .. and ..< compiles. Negative test (range[0..<n]) fails with 'range types need to be constructed with \"..\"'."
+      "evaluation_notes": "DETERMINISTIC. Positive test with spaced .. and ..< compiles. Negative test (range[0 ..< n]) fails with 'range types need to be constructed with \"..\"'. A separate manual check confirmed no-space slice/loop/range forms compile, so spacing is style guidance, not a language requirement."
     },
     {
       "claim_id": "C16",
@@ -159,7 +159,7 @@
     },
     {
       "claim_id": "C19",
-      "claim_text": "Using ..< in a range type constructor (e.g. range[0..<n]) causes a compile error. Use range[0 .. n-1] instead.",
+      "claim_text": "Using ..< in a range type constructor (e.g. range[0 ..< n]) causes a compile error. Use range[0 .. n-1] instead.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c15_dotdot_range_negative.nim",
       "test_passed": true,

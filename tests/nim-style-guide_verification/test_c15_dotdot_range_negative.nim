@@ -1,4 +1,4 @@
-## C15_BAD: range[0..<n] does not compile.
+## C15_BAD: range[0 ..< n] does not compile.
 ## This file MUST fail to compile.
 
 const size = 6

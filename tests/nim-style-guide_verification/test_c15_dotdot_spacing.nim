@@ -1,5 +1,5 @@
-## C15: Spaces required around .. and ..< in range types.
-## range[0..<n] does not compile; range[0 .. n-1] does.
+## C15: Prefer spaces around .. and ..< in slices, loops, and range expressions.
+## Range type constructors use .., not ..<: range[0 ..< n] does not compile; range[0 .. n-1] does.
 
 import std/[assertions]
 
