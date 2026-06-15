@@ -1,4 +1,4 @@
-# Test C33: resolve nimonyplugins.nim path
+# Test C33: resolve plugins.nim path
 import std/os
 
 let exePath = findExe("nimony")
@@ -16,7 +16,7 @@ while true:
     break
 
 let dir = parentDir(real)
-let pluginPath = dir / "../src/nimony/lib/nimonyplugins.nim"
-doAssert fileExists(pluginPath), "Expected nimonyplugins.nim at: " & pluginPath
+let pluginPath = dir / "../src/nimony/lib/plugins.nim"
+doAssert fileExists(pluginPath), "Expected plugins.nim at: " & pluginPath
 
 echo "C33: PASS"

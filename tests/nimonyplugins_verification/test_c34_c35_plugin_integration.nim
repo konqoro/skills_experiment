@@ -17,14 +17,12 @@ template shout*(spec: string): untyped {.plugin: "shoutplugin".}
 
 writeFile(pluginFile, """
 import std/strutils
-import nimonyplugins
+import plugins
 
 proc extractArg(n: NifCursor): NifCursor =
   result = n
   if result.stmtKind == StmtsS:
-    inc result
-  if result.kind == ParLe and result.exprKind == SufX:
-    inc result
+    result = firstChild(result)
 
 let root = loadPluginInput()
 let arg = extractArg(root)
@@ -46,7 +44,7 @@ assert shout"hello" == "HELLO"
 echo "C34_C35: PASS"
 """)
 
-let cmd = "nimony c -r --path:/usr/lib64/nimony/src --nimcache:/tmp/nimonyplugins-e2e-cache " & appFile.quoteShell
+let cmd = "nimony c -r " & appFile.quoteShell
 let res = execCmdEx(cmd)
 doAssert res.exitCode == 0, res.output
 doAssert res.output.contains("C34_C35: PASS"), res.output

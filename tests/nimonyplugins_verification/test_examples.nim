@@ -1,4 +1,4 @@
-# Test the three reference examples end-to-end: template, module, type plugins.
+# Test the reference examples end-to-end: template, Replacer, type plugins.
 import std/[os, osproc, strutils]
 
 let base = getTempDir() / "nimonyplugins_examples"
@@ -6,13 +6,8 @@ if dirExists(base):
   removeDir(base)
 createDir(base)
 
-let cache = getTempDir() / "nimonyplugins-examples-cache"
-if dirExists(cache):
-  removeDir(cache)
-createDir(cache)
-
 proc runNimony(appFile: string): (string, int) =
-  result = execCmdEx("nimony c -r --path:/usr/lib64/nimony/src --nimcache:" & cache.quoteShell & " " & appFile.quoteShell)
+  result = execCmdEx("nimony c -r " & appFile.quoteShell)
 
 # ── 1. Template plugin: popcount lookup table ───────────────────────
 
@@ -20,7 +15,7 @@ block:
   let d = base / "poplut"; createDir(d)
 
   writeFile(d / "poplut.nim", """
-import nimonyplugins
+import plugins
 proc popc8(i: int): int =
   var v = i; var c = 0
   while v != 0: v = v and (v - 1); inc c
@@ -51,45 +46,122 @@ echo "TEMPLATE: PASS"
   doAssert "TEMPLATE: PASS" in outp, outp
   echo "TEMPLATE: PASS"
 
-# ── 2. Module plugin: strip top-level blocks ────────────────────────
+# ── 2. Replacer template plugin: privacy audit event ────────────────
 
 block:
-  let d = base / "stripblocks"; createDir(d)
+  let d = base / "auditprivacy"; createDir(d)
 
-  writeFile(d / "stripblocks.nim", """
-import nimonyplugins
-proc transform(n: NifCursor): NifBuilder =
+  writeFile(d / "auditplug.nim", """
+import plugins
+import std/strutils
+
+const PolicyStamp = "policy:privacy-audit-v2"
+
+proc callHeadMatches(n: NifCursor; name: string): bool =
+  case n.kind
+  of Ident:
+    result = n.identText == name
+  of Symbol:
+    let text = n.symText
+    result = text == name or text.startsWith(name & ".") or
+        text.endsWith("." & name)
+  else:
+    result = false
+
+proc isCallTo(n: NifCursor; name: string): bool =
+  if n.kind != ParLe or n.exprKind != CallX:
+    return false
+  var child = firstChild(n)
+  result = callHeadMatches(child, name)
+
+proc firstStringArg(n: NifCursor): string =
+  if n.kind != ParLe:
+    return ""
+  var child = firstChild(n)
+  if child.hasMore:
+    skip child
+  if child.hasMore and child.kind == StringLit:
+    result = child.stringValue
+
+proc isEmptyTag(r: var Replacer): bool =
+  var found = false
+  peek r:
+    let c = getCursor(r)
+    if isCallTo(c, "tag"):
+      found = firstStringArg(c) == ""
+  result = found
+
+proc redacted(info: LineInfo): NifBuilder =
   result = createTree()
-  var n = n
-  if n.stmtKind == StmtsS: inc n
-  result.withTree StmtsS, n.info:
-    while n.kind != ParRi:
-      if n.kind == ParLe and n.stmtKind == BlockS: skip n
-      else: result.takeTree n
-var inp = loadPluginInput()
-saveTree transform(inp)
+  result.addStrLit "[redacted]"
+
+proc rewriteArg(r: var Replacer) =
+  if r.isAtom:
+    keep r, Any
+  elif isCallTo(getCursor(r), "pii"):
+    replace r, CallX, redacted(r.info)
+  elif isCallTo(getCursor(r), "internalOnly"):
+    drop r, CallX
+  elif isEmptyTag(r):
+    drop r, CallX
+  else:
+    loopKeepTag r:
+      rewriteArg r
+
+var r = loadReplacer()
+replaceHead r, CallS, r.info:
+  r.dest.addIdent "auditCommit"
+  while getCursor(r).hasMore:
+    rewriteArg r
+  r.dest.addStrLit PolicyStamp
+saveReplacer(r)
+""")
+
+  writeFile(d / "auditapi.nim", """
+var auditTrail* = ""
+
+proc user*(id: string): string =
+  "user:" & id
+
+proc tag*(value: string): string =
+  "tag:" & value
+
+proc pii*(value: string): string =
+  value
+
+proc internalOnly*(value: string): string =
+  value
+
+proc auditCommit*(event, account, detail, label, policy: string) =
+  auditTrail.add event
+  auditTrail.add "|"
+  auditTrail.add account
+  auditTrail.add "|"
+  auditTrail.add detail
+  auditTrail.add "|"
+  auditTrail.add label
+  auditTrail.add "|"
+  auditTrail.add policy
+  auditTrail.add "\n"
+
+template auditEvent*() {.varargs, plugin: "auditplug".}
 """)
 
   writeFile(d / "app.nim", """
 import std/syncio
-{.plugin: "stripblocks".}
-echo "kept_a"
-block:
-  echo "removed_b"
-echo "kept_c"
-block:
-  echo "removed_d"
-  echo "also_removed"
-echo "kept_e"
+import auditapi
+
+auditEvent("payment", user("acct:42"), pii("card:4111"), tag("pci"),
+  internalOnly("trace-99"), tag(""))
+echo auditTrail
 """)
 
   let (outp, code) = runNimony(d / "app.nim")
-  doAssert code == 0, "Module plugin failed:\n" & outp
-  for kept in ["kept_a", "kept_c", "kept_e"]:
-    doAssert kept in outp, "Missing: " & kept & "\n" & outp
-  for removed in ["removed_b", "removed_d", "also_removed"]:
-    doAssert removed notin outp, "Should have been stripped: " & removed & "\n" & outp
-  echo "MODULE: PASS"
+  doAssert code == 0, "Privacy audit plugin failed:\n" & outp
+  doAssert "payment|user:acct:42|[redacted]|tag:pci|policy:privacy-audit-v2" in outp, outp
+  doAssert "card:4111" notin outp, outp
+  doAssert "trace-99" notin outp, outp
+  echo "REPLACER: PASS"
 
 # ── 3. Type plugin: identity passthrough with paramStr(3) ───────────
 
@@ -104,14 +176,15 @@ type
 """)
 
   writeFile(d / "traceplugin.nim", """
-import nimonyplugins
+import plugins
 import std/os
 proc transform(n: NifCursor): NifBuilder =
   result = createTree()
   var n = n
-  if n.stmtKind == StmtsS: inc n
+  if n.stmtKind == StmtsS:
+    n = firstChild(n)
   result.withTree StmtsS, n.info:
-    while n.kind != ParRi:
+    while n.hasMore:
       result.takeTree n
 let moduleAst = loadPluginInput()
 let typeAst = loadPluginInput(paramStr(3))

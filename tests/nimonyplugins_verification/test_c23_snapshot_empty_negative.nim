@@ -5,18 +5,17 @@ proc main() =
   let base = getTempDir() / "nimonyplugins_snapshot_empty"
   createDir(base)
   let src = base / "snapshot_empty.nim"
-  let nimcacheDir = base / "nimcache"
-  createDir(nimcacheDir)
+  let pluginDir = parentDir(currentSourcePath())
 
   writeFile(src, """
-import nimony/lib/nimonyplugins
+import std/[syncio, assertions]
+import plugins
 var t = createTree()
 discard snapshot(t)
 """)
 
-  let cmd =
-    "nim c -r --path:/usr/lib64/nimony/src --nimcache:" &
-    quoteShell(nimcacheDir) & " " & quoteShell(src)
+  let cmd = "nimony c -r " & quoteShell("--path:" & pluginDir) & " " &
+      quoteShell(src)
   let res = execCmdEx(cmd)
   doAssert res.exitCode != 0
   doAssert res.output.contains("cannot snapshot empty NifBuilder")

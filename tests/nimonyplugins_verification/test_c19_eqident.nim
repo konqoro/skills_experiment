@@ -1,10 +1,11 @@
 # Test C19: eqIdent exact-name check
-import nimony/lib/nimonyplugins
+import std/[syncio, assertions]
+import plugins
 
 var t = createTree()
 t.addIdent "myName"
 var n = snapshot(t)
-doAssert n.eqIdent("myName")
-doAssert not n.eqIdent("otherName")
+assert n.eqIdent("myName")
+assert not n.eqIdent("otherName")
 
 echo "C19: PASS"

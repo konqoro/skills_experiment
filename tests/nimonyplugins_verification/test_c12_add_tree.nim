@@ -1,5 +1,6 @@
 # Test C12: add(t, childTree) appends another whole NifBuilder
-import nimony/lib/nimonyplugins
+import std/[syncio, assertions]
+import plugins
 
 var child = createTree()
 child.addIdent "hello"
@@ -8,6 +9,6 @@ var parent = createTree()
 parent.withTree(StmtsS, NoLineInfo):
   parent.add(child)
 
-doAssert not parent.isEmpty
+assert not parent.isEmpty
 
 echo "C12: PASS"

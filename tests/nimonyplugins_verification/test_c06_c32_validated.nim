@@ -1,11 +1,12 @@
 # Test C06, C32: validated createTree with kind+children
-import nimony/lib/nimonyplugins
+import std/[syncio, assertions]
+import plugins
 
-# Valid construction: CallX with an ExprChild
+# Valid construction: CallX with a child
 var child = createTree()
 child.addIdent "foo"
 
-var t = createTree(CallX, child)
-doAssert not t.isEmpty
+var t = createTree(CallX, [child])
+assert not t.isEmpty
 
 echo "C06_C32: PASS"
