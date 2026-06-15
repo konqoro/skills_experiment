@@ -55,6 +55,7 @@ The skill must not contain:
 
 - Use concise, high-signal instructions.
 - Prefer concrete rules and deterministic steps over vague goals.
+- Verify uncertain technical claims before writing them into the skill. If the claim cannot be verified, omit it or turn it into a workflow check.
 - Turn verified behavior into instructions an agent can execute: `Do X`, `Do not Y`, or `If A, then B`.
 - Separate required, optional, and conditional behavior. Do not describe a required step as a possibility.
 - If two instructions conflict, name the conflict and ask for human guidance. Do not invent priority rules or fallback logic.
