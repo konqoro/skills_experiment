@@ -55,6 +55,9 @@ The skill must not contain:
 
 - Use concise, high-signal instructions.
 - Prefer concrete rules and deterministic steps over vague goals.
+- State verified facts and required workflows as direct instructions.
+- Do not soften required guidance with hedge words such as `maybe`, `probably`, `might`, or `may not`. If a condition matters, write `If <condition>, <action>`.
+- Do not rewrite every modal word mechanically. Keep `may`, `can`, and `should` when they express permission, capability, or real optionality.
 - If two instructions conflict, name the conflict and ask for human guidance. Do not invent priority rules or fallback logic.
 - Remove guidance that does not change what an agent should do on a realistic task.
 
@@ -133,6 +136,8 @@ Each reference file must:
 
 - Main skill: `skills/{SKILL_NAME}/SKILL.md`
 - Reference examples: `skills/{SKILL_NAME}/references/*.md`
+
+Write only the repo-local skill files above. Do not update an installed copy under an agent home directory unless the user explicitly asks for installation or synchronization.
 
 ## Reusability
 Replace `{SKILL_NAME}`, `{ORIGINAL_SKILL}`, `{DATASET_FILE}`, and `{CURRENT_VERIFIED_SKILL}` with the target values.

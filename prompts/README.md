@@ -45,4 +45,5 @@ Use the smallest prompt that matches the job.
 - `blind_benchmark.md` is run-only.
 - Skills must stay self-contained.
 - Use repo-local skill files only.
+- Do not edit installed agent skill directories from this workspace unless the user explicitly requests that copy to be updated.
 - Prompt files belong under `prompts/`, not at the repo top level.
