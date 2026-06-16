@@ -1,0 +1,201 @@
+{
+  "skill_name": "atlas-package-cloner",
+  "source_file": "original_skills/atlas-package-cloner/SKILL.md",
+  "nim_version": "2.3.1",
+  "mm_mode": "orc",
+  "atlas_version": "0.14.5 (sha: 98da403a58ebd000fc91635c26dea7d0e63200c8)",
+  "failure_samples": [
+    {
+      "source_type": "verification",
+      "source_task": "tests/atlas-package-cloner_verification/test_c01_c06_atlas_init_and_options.nim",
+      "bucket": "incorrect claim",
+      "summary": "The draft treated root-level atlas.config as the project marker, but atlas init writes deps/atlas.config.",
+      "evidence": "atlas init created deps/atlas.config and did not create ./atlas.config.",
+      "check": "Project shape claim",
+      "next_action": "skill edit"
+    }
+  ],
+  "corrections": [
+    {
+      "claim_id": "C04",
+      "original_claim": "Treat a directory containing atlas.config as an Atlas project.",
+      "correction": "For Atlas 0.14.5, `atlas init` creates `<deps>/atlas.config` by default; Atlas also prefers a root `atlas.config` if one already exists."
+    }
+  ],
+  "uncovered_topics": [],
+  "needs_stronger_tests": [
+    "C02/C03/C10/C11 are source-verified because end-to-end dependency cloning needs package-index or network setup in this environment.",
+    "The draft's project-vs-dependency resolution priority sentence was omitted from the extracted claim set because no stable offline fixture was available; do not include it in the verified skill until covered."
+  ],
+  "summary": {
+    "total_claims": 20,
+    "testable": 20,
+    "passed": 19,
+    "failed": 1,
+    "not_testable": 0,
+    "nuanced": 4,
+    "untested": 0
+  },
+  "claims": [
+    {
+      "claim_id": "C01",
+      "claim_text": "Atlas exposes commands for use/install/update/link/pin/rep/env workflows.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c01_c06_atlas_init_and_options.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `atlas --help` lists use, install, update, link, pin, rep, and env commands."
+    },
+    {
+      "claim_id": "C02",
+      "claim_text": "Atlas keeps dependencies in a project-local deps directory by default.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c01_c06_atlas_init_and_options.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `atlas init` creates `deps/atlas.config` and the default config records `deps: \"deps\"`."
+    },
+    {
+      "claim_id": "C03",
+      "claim_text": "Atlas has code paths that patch the Nimble file and nim.cfg for dependency use.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "NUANCED. Source checks confirm `patchNimbleFile` and `patchNimCfg`; end-to-end dependency cloning was not run because package-index download is unavailable in this environment."
+    },
+    {
+      "claim_id": "C04",
+      "claim_text": "An Atlas project is a directory containing a root-level atlas.config file.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c01_c06_atlas_init_and_options.nim",
+      "test_passed": false,
+      "evaluation_notes": "INCORRECT. `atlas init` created `deps/atlas.config` and did not create `./atlas.config`."
+    },
+    {
+      "claim_id": "C05",
+      "claim_text": "`atlas init` turns the current directory into an Atlas project.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c01_c06_atlas_init_and_options.nim",
+      "test_passed": true,
+      "evaluation_notes": "NUANCED. It succeeds and creates `<deps>/atlas.config`; it does not create root `atlas.config` or `nim.cfg` during init."
+    },
+    {
+      "claim_id": "C06",
+      "claim_text": "`atlas init --deps=DIR` and `atlas --deps=DIR init` configure a non-default dependency directory.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c01_c06_atlas_init_and_options.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Both option orders created `<DIR>/atlas.config` with `deps` set to the chosen directory."
+    },
+    {
+      "claim_id": "C07",
+      "claim_text": "The default Atlas config contains deps, nameOverrides, urlOverrides, pkgOverrides, plugins, resolver, and graph fields, with resolver SemVer.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c01_c06_atlas_init_and_options.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The generated JSON contains those fields and `resolver: \"SemVer\"`."
+    },
+    {
+      "claim_id": "C08",
+      "claim_text": "Atlas config supports nameOverrides, urlOverrides, pkgOverrides, plugins, and resolver values.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Source checks confirm JSON fields and read paths for name/url/pkg overrides, plugins, and resolver parsing."
+    },
+    {
+      "claim_id": "C09",
+      "claim_text": "Atlas plugins are read from the project-relative configured plugin directory and include *.nims files.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Source checks confirm `walkDir($(project() / dir))` and `f.endsWith(\".nims\")`."
+    },
+    {
+      "claim_id": "C10",
+      "claim_text": "The nim.cfg patcher uses Atlas begin/end markers, writes --noNimblePath and --path entries, and preserves content outside the Atlas section.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "NUANCED. Source checks confirm marker constants, path generation, and prefix/suffix preservation logic."
+    },
+    {
+      "claim_id": "C11",
+      "claim_text": "`atlas use <package>` resolves package names through packages.json and configured name overrides.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "NUANCED. Source checks confirm package lookup, package-index loading, and nameOverrides substitution; end-to-end package-index use needs network or a package-index fixture."
+    },
+    {
+      "claim_id": "C12",
+      "claim_text": "`atlas use <url>` applies urlOverrides and parses URL inputs directly.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Source checks confirm URL detection and urlOverrides substitution before URL parsing."
+    },
+    {
+      "claim_id": "C13",
+      "claim_text": "Atlas downloads packages.json into the packages directory by default and uses the nim-lang/packages git repo when PackagesGit/--packagesRepo is enabled.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Source checks confirm package-index downloads from `packages.nim-lang.org` with GitHub fallback, local write to `packages.json`, and the PackagesGit branch that clones `https://github.com/nim-lang/packages`."
+    },
+    {
+      "claim_id": "C14",
+      "claim_text": "Atlas supports feature statements in Nimble files and `--feature=<feature>` command-line flags.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Source checks confirm Nimble `feature` parsing and CLI `--feature`/`--features` insertion through `addRequestedFeature`."
+    },
+    {
+      "claim_id": "C15",
+      "claim_text": "Atlas supports MinVer, SemVer, and MaxVer resolver algorithms.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Source checks confirm resolver option parsing and the version-selection procs for MinVer, MaxVer, and SemVer."
+    },
+    {
+      "claim_id": "C16",
+      "claim_text": "`--forceGitToHttps` is the Atlas option to rewrite git:// URLs to https://.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c01_c06_atlas_init_and_options.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC for Atlas 0.14.5. `atlas --forceGitToHttps --help` exits successfully and source checks confirm parser support."
+    },
+    {
+      "claim_id": "C17",
+      "claim_text": "Atlas supports forge aliases such as gh:user/repo, gl:user/repo, srht:~user/repo, and cb:user/repo.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC for Atlas 0.14.5. Source checks confirm forge alias parsing and expansion for GitHub, GitLab, SourceHut, and Codeberg aliases."
+    },
+    {
+      "claim_id": "C18",
+      "claim_text": "Atlas feature flags are not saved as fields in atlas.config.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Source checks confirm the config object has no `features` field while CLI flags populate runtime context."
+    },
+    {
+      "claim_id": "C19",
+      "claim_text": "`--keepFeatures` or `-k` reuses feature defines from the current nim.cfg.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC for Atlas 0.14.5. Help/source expose `--keepFeatures` and `-k`, and source checks confirm parser support."
+    },
+    {
+      "claim_id": "C20",
+      "claim_text": "`atlas env <version>` supports project-local Nim environments and writes activate.sh on Unix or activate.bat on Windows.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Source checks confirm the `atlas env` implementation and activation filename selection. End-to-end env creation requires network cloning of Nim/csources."
+    }
+  ]
+}

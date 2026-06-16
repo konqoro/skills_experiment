@@ -8,6 +8,7 @@ nimcache/
 *.a
 crash-*
 tea_debug.log
+/atlas.md
 
 # Compiled test binaries (no extension): ignore, but track .nim sources and _src/ dirs
 tests/*_verification/test_*
