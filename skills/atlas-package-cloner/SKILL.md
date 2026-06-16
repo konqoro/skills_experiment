@@ -7,7 +7,7 @@ description: Use Atlas to initialize Nim projects, install or update Atlas-manag
 
 Use this skill to manage Nim dependencies with Atlas. Atlas stores dependency state under the configured dependency directory, `deps/` by default, and uses Atlas-managed config plus generated Nim compiler paths to make packages importable.
 
-No reference files are bundled for this skill.
+Task examples live under `references/`.
 
 # Rules
 
@@ -114,6 +114,12 @@ No reference files are bundled for this skill.
 7. Preserve reproducibility.
    If the dependency set must remain stable, run `atlas pin` after successful setup and keep the lockfile with the project when that is the repository policy.
 
+## Task Examples
+
+- For a new project that adds a dependency, read `references/start_project.md`.
+- For custom dependency directories and overrides, read `references/custom_deps_and_overrides.md`.
+- For feature flags, lockfiles, and replay, read `references/features_and_replay.md`.
+
 # Common Mistakes
 
 | Mistake | Why it is wrong |
@@ -125,8 +131,10 @@ No reference files are bundled for this skill.
 
 # References
 
-No reference files.
+- `references/start_project.md`: Start an Atlas project and add a package dependency.
+- `references/custom_deps_and_overrides.md`: Use a custom deps directory and Atlas override fields.
+- `references/features_and_replay.md`: Run feature-aware installs and replay pinned dependencies.
 
 # Changelog
 
-- 2026-06-16: Verified Atlas 0.14.5 workflow.
+- 2026-06-16: Verified Atlas 0.14.5 workflow and examples.

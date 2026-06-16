@@ -28,9 +28,9 @@
     "The draft's project-vs-dependency resolution priority sentence was omitted from the extracted claim set because no stable offline fixture was available; do not include it in the verified skill until covered."
   ],
   "summary": {
-    "total_claims": 20,
-    "testable": 20,
-    "passed": 19,
+    "total_claims": 24,
+    "testable": 24,
+    "passed": 23,
     "failed": 1,
     "not_testable": 0,
     "nuanced": 4,
@@ -196,6 +196,38 @@
       "test_file_path": "tests/atlas-package-cloner_verification/test_c07_c18_atlas_source_behavior.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Source checks confirm the `atlas env` implementation and activation filename selection. End-to-end env creation requires network cloning of Nim/csources."
+    },
+    {
+      "claim_id": "C21",
+      "claim_text": "The verified skill lists reference files for start-project, custom-deps-and-overrides, and features-and-replay task examples.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c21_c24_reference_examples.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The skill References and Task Examples sections point to all three bundled reference files."
+    },
+    {
+      "claim_id": "C22",
+      "claim_text": "The start-project example uses supported Atlas commands and the verified GitHub forge alias syntax.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c21_c24_reference_examples.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test checks the reference text, Atlas help for `init`/`use`, and source support for GitHub forge alias expansion."
+    },
+    {
+      "claim_id": "C23",
+      "claim_text": "The custom-deps-and-overrides example uses supported `--deps`, override fields, and `--forceGitToHttps` syntax.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c21_c24_reference_examples.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test checks the example text, Atlas help for `--deps` and `--forceGitToHttps`, and the expected override field names."
+    },
+    {
+      "claim_id": "C24",
+      "claim_text": "The features-and-replay example uses supported feature, lockfile, replay, and no-exec commands/options.",
+      "is_testable": true,
+      "test_file_path": "tests/atlas-package-cloner_verification/test_c21_c24_reference_examples.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test checks Atlas help for `--feature`, `--features`, `--allFeatures`, `--keepFeatures`, `pin`, `rep`, `replay`, `reproduce`, and `--noexec`."
     }
   ]
 }
