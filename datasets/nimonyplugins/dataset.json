@@ -4,12 +4,12 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 58,
-    "testable": 43,
-    "passed": 43,
+    "total_claims": 61,
+    "testable": 47,
+    "passed": 47,
     "failed": 0,
-    "not_testable": 15,
-    "nuanced": 2,
+    "not_testable": 14,
+    "nuanced": 1,
     "untested": 0
   },
   "claims": [
@@ -145,9 +145,9 @@
       "claim_id": "C17",
       "claim_text": "isValid(info) checks whether source info exists. filePath(info) returns the source path. lineCol(info) returns SourcePos with 1-based line and col.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c02_c17_c21_c28_c30_c31_node_io.nim",
+      "test_file_path": "tests/nimonyplugins_verification/test_c17_real_line_info.nim",
       "test_passed": true,
-      "evaluation_notes": "NUANCED. The invalid NoLineInfo case is verified directly."
+      "evaluation_notes": "DETERMINISTIC. Covers invalid NoLineInfo in the existing node I/O test and real call-site line info in test_c17_real_line_info.nim."
     },
     {
       "claim_id": "C18",
@@ -304,10 +304,10 @@
     {
       "claim_id": "C37",
       "claim_text": "A template plugin input NifCursor is wrapped in a StmtsS node. Use firstChild(n) to skip past this wrapper.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Plugin protocol."
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_c37_template_root_shape.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. End-to-end template plugin fixture verifies StmtsS root and first argument access."
     },
     {
       "claim_id": "C38",
@@ -476,15 +476,35 @@
       "test_file_path": "tests/nimonyplugins_verification/test_examples.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The privacy-audit example compiles and verifies redaction, dropping, preservation, and appended policy output."
+    },
+    {
+      "claim_id": "C59",
+      "claim_text": "Replacer leaf operations assert the expected kind against the current cursor; calling keep r, Expr at a StmtsS root exits with an assertion failure instead of skipping to an expression.",
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_c59_c60_c61_replacer_contracts.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC."
+    },
+    {
+      "claim_id": "C60",
+      "claim_text": "A keepTag body must consume every child of the current node; leaving a child unconsumed exits with a body-must-consume-all-children assertion failure.",
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_c59_c60_c61_replacer_contracts.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC."
+    },
+    {
+      "claim_id": "C61",
+      "claim_text": "peek r: body restores the Replacer source cursor but does not roll back mutations to r.dest; output emitted inside peek persists.",
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_c59_c60_c61_replacer_contracts.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC."
     }
   ],
   "corrections": [],
-  "uncovered_topics": [
-    "Real source line info decoding from a non-synthetic NIF fixture"
-  ],
-  "needs_stronger_tests": [
-    "C17 - add a fixture with real line info so filePath/lineCol are tested beyond NoLineInfo"
-  ],
+  "uncovered_topics": [],
+  "needs_stronger_tests": [],
   "changelog": [
     {
       "date": "2026-04-15",
@@ -493,6 +513,14 @@
     {
       "date": "2026-06-15",
       "action": "Major API update for latest Nimony plugins. Import module changed from nimonyplugins to plugins. Renamed types to NifBuilder/NifCursor. Removed ~/%~/nifFragment template DSL, inc on NifCursor. Added Replacer API, bindSym, firstChild/hasMore/into/loopInto/balancedTokens traversal, copyInto, SourcePos/SymId/TagId types, import plugins, Nimony self-compilation. All 43 testable claims pass."
+    },
+    {
+      "date": "2026-06-17",
+      "action": "Refinement pass: added real call-site line info coverage for C17 and removed the recorded source line-info coverage gap."
+    },
+    {
+      "date": "2026-06-17",
+      "action": "Refinement pass: verified template plugin root shape and Replacer misuse contracts for the Replacer API reference rewrite."
     }
   ]
 }

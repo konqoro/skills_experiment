@@ -40,7 +40,7 @@ import std / assertions
 import std / syncio
 import shoutdsl
 
-assert shout"hello" == "HELLO"
+assert shout("hello") == "HELLO"
 echo "C34_C35: PASS"
 """)
 
