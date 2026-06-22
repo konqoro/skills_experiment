@@ -5,9 +5,9 @@
   "mm_mode": "orc",
   "official_docs_version": "2.3.1 (2026-04-07)",
   "summary": {
-    "total_claims": 53,
-    "testable": 45,
-    "passed": 45,
+    "total_claims": 55,
+    "testable": 47,
+    "passed": 47,
     "failed": 0,
     "nuanced": 0,
     "not_testable": 8,
@@ -189,12 +189,12 @@
     },
     {
       "claim_id": "C20",
-      "claim_text": "ensureMove(x) is a compile-time annotation that implies no runtime operation. Works for rvalues and sink params.",
+      "claim_text": "ensureMove(x) works for any value last-use analysis can prove is movable: rvalues, local variables (last use), and sink parameters. The compiler lowers it to a raw assignment plus =wasMoved and elides the source's =destroy. Fails compilation when x would require an implicit copy (not last-use).",
       "source": "skill + official docs",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c20_ensuremove.nim",
       "test_passed": true,
-      "evaluation_notes": "VERIFIED. Works for rvalues. Fails compilation when implicit copy needed."
+      "evaluation_notes": "VERIFIED. Works for rvalues, last-use locals, and sink params. Compiler rejects non-last-use. Source destroy elided (confirmed via --expandArc)."
     },
     {
       "claim_id": "C21",
@@ -473,6 +473,24 @@
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c53_dup_move_only.nim",
       "test_passed": true,
       "evaluation_notes": "VERIFIED in cycle 3 via --expandArc and generated C inspection. With =dup {.error.} defined, the compiler correctly rejects =dup at compile time. Without it, =dup compiles but returns a nil/zero object — compiler-generated C for =copy has empty body under {.error.}."
+    },
+    {
+      "claim_id": "C54",
+      "claim_text": "ensureMove(x) elides the source's =destroy. The compiler lowers it to raw assignment plus =wasMoved, and the source is excluded from the finally-block destructor list. move(x) does not elide the source's =destroy.",
+      "source": "--expandArc analysis (cycle 3)",
+      "is_testable": true,
+      "test_file_path": "tests/nim-ownership-hooks_verification/test_c54_ensuremove_elides_destroy.nim",
+      "test_passed": true,
+      "evaluation_notes": "VERIFIED in cycle 3. ensureMove produces 1 destroy (destination only); move produces 2 destroys (source + destination)."
+    },
+    {
+      "claim_id": "C55",
+      "claim_text": "Prefer ensureMove over move for transferring ownership. ensureMove is a compile-time gate that makes the source dead — any subsequent use is a compile error. move leaves the source alive; accidentally using the moved-from (default) value afterward produces wrong results silently.",
+      "source": "--expandArc analysis (cycle 3)",
+      "is_testable": true,
+      "test_file_path": "tests/nim-ownership-hooks_verification/test_c55_prefer_ensuremove.nim",
+      "test_passed": true,
+      "evaluation_notes": "VERIFIED in cycle 3. Negative test test_c55_ensuremove_use_after_negative.nim confirms compile error on use-after-ensureMove."
     }
   ],
   "uncovered_topics": [

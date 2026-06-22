@@ -70,8 +70,8 @@ Only templates may safely appear between the type definition and the hooks. If a
 
 ### Move semantics
 
-- `move(x)` forces move. Source is left in moved-from state. `=wasMoved` runs on the source.
-- `ensureMove(x)` is a compile-time annotation only. Works for rvalues and `sink` parameters. Fails compilation when applied to lvalues with destructors.
+- Use `ensureMove(x)` to transfer ownership. It only compiles when the source is last-use. If the compiler rejects it, restructure your code until it compiles — do not fall back to `move` as a first resort. After `ensureMove`, the source is dead: any use is a compile error.
+- Use `move(x)` only when restructuring is impractical. `move` always compiles but the source is not consumed — using it afterward compiles and silently reads the moved-from (default) value.
 - `sink` parameters are affine, not linear: the callee may consume the value once, or not at all.
 - Object and tuple fields are separate entities for sink last-use analysis.
 - When the compiler cannot prove a sink argument is last use, it inserts `=copy` or `=dup` before passing.
@@ -133,7 +133,7 @@ Test these scenarios for every custom-hook type:
 | Custom `=sink` when synthesized is fine | Adds unnecessary complexity with no benefit. |
 | `copyMem` in `=sink` or `=dup` | Bypasses child hook semantics and breaks the ownership chain for elements that have their own hooks. |
 | Missing zero-length guard | `alloc(0)` may return nil; subsequent indexing crashes. |
-| `ensureMove` on lvalue with destructor | Compile-time error. Only valid for rvalues and sink params. |
+| Using `move` when `ensureMove` would compile | `move` leaves source alive; accidental use reads the moved-from default silently. `ensureMove` makes source dead — compile error on use. |
 | `alloc` in multi-threaded code | Must use `allocShared`/`deallocShared` instead. |
 | Custom error string in `{.error: "msg"}` on `=copy` | The compiler ignores custom error messages. Use bare `{.error.}`. |
 | Skipping `=dup` on a move-only type | Add `=dup {.error.}`. Without it the compiler synthesizes one that produces nil instead of erroring. |
@@ -150,4 +150,4 @@ Test these scenarios for every custom-hook type:
 - 2026-04-07: Initial version with zero-length guards, non-var destroy, refcounted nuances.
 - 2026-04-08: Restructured. Examples moved to `references/`.
 - 2026-04-17: Removed redundant `cow_string.md`.
-- 2026-06-22: Added `=dup {.error.}` to move-only hook set.
+- 2026-06-22: Move-only `=dup {.error.}`; prefer `ensureMove` over `move`.
