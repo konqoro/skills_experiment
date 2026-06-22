@@ -47,6 +47,7 @@ Custom hooks are needed only for non-managed resources: raw pointers (`ptr T`) t
 - For refcounted types: `=copy` does destroy-then-share. No pointer self-assignment guard needed — the counter increment balances the destroy.
 
 **`=dup`**
+- Move-only types: add `=dup {.error.}`.
 - Deep-owning containers: mark with `{.nodestroy.}` and build a fresh copy. Call `=dup` on each child element (not `copyMem`) so child hooks run.
 - Refcounted types: increment the counter and share the pointer. No `{.nodestroy.}` needed — the counter balances the implicit return-path destroy.
 
@@ -90,7 +91,7 @@ Match the type to exactly one model. Use the hook set that model requires.
 |-------|-------------|
 | Plain / auto-managed | None |
 | Borrowing / view | None. Use `lent T` for accessors. |
-| Move-only owner | `=destroy`, `=wasMoved`, `=copy` as `{.error.}` |
+| Move-only owner | `=destroy`, `=wasMoved`, `=copy` as `{.error.}`, `=dup` as `{.error.}` |
 | Deep-owning container | `=destroy`, `=wasMoved`, `=copy`, `=dup` |
 | Shared / refcounted | `=destroy`, `=wasMoved`, `=dup`, `=copy` |
 
@@ -135,6 +136,7 @@ Test these scenarios for every custom-hook type:
 | `ensureMove` on lvalue with destructor | Compile-time error. Only valid for rvalues and sink params. |
 | `alloc` in multi-threaded code | Must use `allocShared`/`deallocShared` instead. |
 | Custom error string in `{.error: "msg"}` on `=copy` | The compiler ignores custom error messages. Use bare `{.error.}`. |
+| Skipping `=dup` on a move-only type | Add `=dup {.error.}`. Without it the compiler synthesizes one that produces nil instead of erroring. |
 
 ## 5. References
 
@@ -148,3 +150,4 @@ Test these scenarios for every custom-hook type:
 - 2026-04-07: Initial version with zero-length guards, non-var destroy, refcounted nuances.
 - 2026-04-08: Restructured. Examples moved to `references/`.
 - 2026-04-17: Removed redundant `cow_string.md`.
+- 2026-06-22: Added `=dup {.error.}` to move-only hook set.

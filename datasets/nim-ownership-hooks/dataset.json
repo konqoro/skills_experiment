@@ -5,9 +5,9 @@
   "mm_mode": "orc",
   "official_docs_version": "2.3.1 (2026-04-07)",
   "summary": {
-    "total_claims": 52,
-    "testable": 44,
-    "passed": 44,
+    "total_claims": 53,
+    "testable": 45,
+    "passed": 45,
     "failed": 0,
     "nuanced": 0,
     "not_testable": 8,
@@ -464,6 +464,15 @@
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c25_move_optimized.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Test verifies the pattern compiles and runs. Actual move-vs-copy optimization is compiler-dependent."
+    },
+    {
+      "claim_id": "C53",
+      "claim_text": "For move-only types, =dup must also be marked {.error.}. Without an explicit =dup {.error.}, the compiler synthesizes =dup from =destroy and =copy, but =copy's {.error.} is not enforced during synthesis — the generated C body is empty, so =dup silently returns a zero-initialized (moved-from) object instead of triggering a compile-time error.",
+      "source": "reference audit (cycle 3)",
+      "is_testable": true,
+      "test_file_path": "tests/nim-ownership-hooks_verification/test_c53_dup_move_only.nim",
+      "test_passed": true,
+      "evaluation_notes": "VERIFIED in cycle 3 via --expandArc and generated C inspection. With =dup {.error.} defined, the compiler correctly rejects =dup at compile time. Without it, =dup compiles but returns a nil/zero object — compiler-generated C for =copy has empty body under {.error.}."
     }
   ],
   "uncovered_topics": [
