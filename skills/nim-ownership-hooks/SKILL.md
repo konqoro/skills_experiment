@@ -133,7 +133,7 @@ Test these scenarios for every custom-hook type:
 | Custom `=sink` when synthesized is fine | Adds unnecessary complexity with no benefit. |
 | `copyMem` in `=sink` or `=dup` | Bypasses child hook semantics and breaks the ownership chain for elements that have their own hooks. |
 | Missing zero-length guard | `alloc(0)` may return nil; subsequent indexing crashes. |
-| Using `move` when `ensureMove` would compile | `move` leaves source alive; accidental use reads the moved-from default silently. `ensureMove` makes source dead — compile error on use. |
+| Using `move` when `ensureMove` would compile | Source is not consumed — using it afterward compiles and silently reads the default value. |
 | `alloc` in multi-threaded code | Must use `allocShared`/`deallocShared` instead. |
 | Custom error string in `{.error: "msg"}` on `=copy` | The compiler ignores custom error messages. Use bare `{.error.}`. |
 | Skipping `=dup` on a move-only type | Add `=dup {.error.}`. Without it the compiler synthesizes one that produces nil instead of erroring. |
