@@ -44,7 +44,6 @@ The skill may contain:
 - decision tables
 - short workflows
 - code examples
-- a short changelog
 
 The skill must not contain:
 - references to phases or refinement cycles
@@ -80,7 +79,6 @@ If `CURRENT_VERIFIED_SKILL` does not exist, create it from scratch.
 3. `Workflow`
 4. `Common Mistakes`
 5. `References`
-6. `Changelog`
 
 ### Section guidance
 
@@ -109,10 +107,6 @@ If `CURRENT_VERIFIED_SKILL` does not exist, create it from scratch.
 
 #### References
 - list each reference file with a one-line description
-
-#### Changelog
-- one flat bullet list with dates and terse descriptions
-- keep entries short; do not explain rationale or implementation details
 
 ## Reference files
 
