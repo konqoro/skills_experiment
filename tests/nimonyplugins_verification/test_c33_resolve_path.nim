@@ -1,5 +1,12 @@
 # Test C33: resolve plugins.nim path
-import std/os
+import std / [os, strutils]
+
+proc pluginApiPath(executable: string): string =
+  let dir = parentDir(executable)
+  if executable.endsWith("/bin/nimony"):
+    result = dir / "../src/nimony/lib/plugins.nim"
+  else:
+    result = dir / "src/nimony/lib/plugins.nim"
 
 let exePath = findExe("nimony")
 doAssert exePath.len > 0
@@ -15,8 +22,12 @@ while true:
   except OSError:
     break
 
-let dir = parentDir(real)
-let pluginPath = dir / "../src/nimony/lib/plugins.nim"
+let pluginPath = pluginApiPath(real)
 doAssert fileExists(pluginPath), "Expected plugins.nim at: " & pluginPath
+
+doAssert normalizedPath(pluginApiPath("/opt/nimony/bin/nimony")) ==
+  "/opt/nimony/src/nimony/lib/plugins.nim"
+doAssert normalizedPath(pluginApiPath("/opt/nimony/nimony")) ==
+  "/opt/nimony/src/nimony/lib/plugins.nim"
 
 echo "C33: PASS"

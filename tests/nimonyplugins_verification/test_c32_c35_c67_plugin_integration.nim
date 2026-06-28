@@ -22,9 +22,7 @@ import plugins
 let root = loadPluginInput()
 let arg = callArgs(root)
 
-if pluginName(root) != "shout":
-  saveTree errorTree("unexpected plugin name", root)
-elif arg.kind == StrLit:
+if arg.kind == StrLit:
   var resultTree = createTree()
   resultTree.addStrLit(arg.stringValue.toUpperAscii)
   saveTree(resultTree)

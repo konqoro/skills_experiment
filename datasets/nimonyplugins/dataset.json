@@ -199,7 +199,7 @@
     },
     {
       "claim_id": "C30",
-      "claim_text": "First step: resolve nimony executable with readlink -f $(command -v nimony), then open ../src/nimony/lib/plugins.nim relative to it.",
+      "claim_text": "Resolve nimony with readlink -f $(command -v nimony). For a /bin/nimony layout, open ../src/nimony/lib/plugins.nim relative to the executable directory; otherwise open src/nimony/lib/plugins.nim under that directory.",
       "is_testable": true,
       "test_file_path": "tests/nimonyplugins_verification/test_c33_resolve_path.nim",
       "test_passed": true,
@@ -231,7 +231,7 @@
     },
     {
       "claim_id": "C35",
-      "claim_text": "Plugins are compiled with Nimony itself. The compiler invokes a separate nimony c invocation per plugin and caches the result.",
+      "claim_text": "Plugins are compiled with Nimony itself. Each unique plugin path gets a separate nimony c invocation and cached executable, even for identical source; warm builds reuse the cached executable.",
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
