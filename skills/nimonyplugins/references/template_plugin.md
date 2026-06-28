@@ -1,40 +1,63 @@
 # Template Plugin
 
-This example validates the template protocol and generates a compile-time table.
+A complete template plugin that computes a string from literal arguments at
+compile time.
 
 ```nim
-# tableapi.nim
-template squares*(): untyped {.plugin: "squareplug".}
+# repeated.nim
+template repeated*(text: string; count: int): string {.plugin: "repeatedplug".}
 ```
 
 ```nim
-# squareplug.nim
+# repeatedplug.nim
 import plugins
 
-let root = loadPluginInput()
-if pluginName(root) != "squares" or callArgs(root).hasMore:
-  saveTree errorTree("squares takes no arguments", root)
-else:
-  var output = createTree()
-  output.withTree BracketX, root.info:
-    for value in 0..15:
-      output.addIntLit(value * value)
-  saveTree move output
+proc transform(root: NifCursor): NifBuilder =
+  if pluginName(root) != "repeated":
+    return errorTree("unexpected template plugin", root)
+
+  var arg = callArgs(root)
+  if not arg.hasMore or arg.kind != StrLit:
+    return errorTree("repeated expects a string literal", arg)
+  let text = arg.stringValue
+  skip arg
+
+  if not arg.hasMore or arg.kind != IntLit:
+    return errorTree("repeated expects an integer literal count", arg)
+  let count = int(arg.intValue)
+  skip arg
+  if arg.hasMore or count < 0:
+    return errorTree(
+      "repeated expects two arguments and a non-negative count", root)
+
+  var value = ""
+  for _ in 0 ..< count:
+    value.add text
+  result = createTree()
+  result.addStrLit value
+
+let input = loadPluginInput()
+saveTree transform(input)
 ```
 
 ```nim
 # app.nim
-import tableapi
-let table: array[16, int] = squares()
-assert table[5] == 25
+import std / [assertions, syncio]
+import repeated
+
+assert repeated("na", 4) == "nananana"
+echo "TEMPLATE: PASS"
 ```
 
 ## Key points
 
-- Input is `(stmts <template-name> <args...>)`.
-- Use `pluginName` and `callArgs`, even for a zero-argument template.
-- Template output is semantically checked after substitution.
+- `pluginName` identifies the invoked template and `callArgs` starts at its
+  first argument.
+- Invalid call-site input becomes an `errorTree` with source location.
+- A template plugin can return one expression; its output is semantically
+  checked at the call site.
 
 ## When to use
 
-Use a template plugin for a call-site rewrite or synthetic expression.
+Use a template plugin for macro-like call-site generation or a small
+compile-time DSL.

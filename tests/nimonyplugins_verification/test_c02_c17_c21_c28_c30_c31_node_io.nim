@@ -40,7 +40,7 @@ proc main() =
     t.addIdent "echo"
     t.addStrLit "hello"
   let tmpFile = getTempDir() / "nimonyplugins_roundtrip.nif"
-  saveTree(move t, tmpFile)
+  saveTree(t, tmpFile)
 
   let loaded = loadPluginInput(tmpFile)
   assert loaded.exprKind == CallX

@@ -1,47 +1,66 @@
 # For-Loop Plugin
 
-This example validates structured for-loop input and replaces the loop.
+A complete for-loop plugin that repeats a typed loop body a literal number of
+times.
 
 ```nim
-# loopapi.nim
-iterator once*(): int {.plugin: "loopplug".}
+# repeat.nim
+iterator repeat*(count: int): int {.plugin: "repeatplug".}
 ```
 
 ```nim
-# loopplug.nim
+# repeatplug.nim
 import plugins
-import std/syncio
 
-let root = loadPluginInput()
-if pluginName(root) != "once":
-  saveTree errorTree("unexpected iterator plugin", root)
-elif forLoopCallArgs(root).otherKind != CallargsU:
-  saveTree errorTree("expected call arguments", root)
-elif forLoopVars(root).otherKind notin {UnpackflatU, UnpacktupU}:
-  saveTree errorTree("expected loop variables", root)
-else:
-  discard forLoopBody(root) # available as an already typed subtree
-  var output = createTree()
-  output.withTree StmtsS, root.info:
-    output.withTree CallS, root.info:
-      output.bindSym "echo"
-      output.addStrLit "loop plugin ran"
-  saveTree move output
+proc transform(root: NifCursor): NifBuilder =
+  if pluginName(root) != "repeat":
+    return errorTree("unexpected iterator plugin", root)
+
+  var args = firstChild(forLoopCallArgs(root))
+  if not args.hasMore or args.kind != IntLit:
+    return errorTree("repeat expects an integer literal", root)
+  let count = int(args.intValue)
+  skip args
+  if args.hasMore or count < 0:
+    return errorTree("repeat expects one non-negative integer", root)
+
+  let body = forLoopBody(root)
+  if body.stmtKind != StmtsS:
+    return errorTree("repeat expects a statement body", body)
+
+  result = createTree()
+  result.withTree StmtsS, root.info:
+    for _ in 0 ..< count:
+      var statement = firstChild(body)
+      while statement.hasMore:
+        result.addSubtree statement
+        skip statement
+
+let input = loadPluginInput()
+saveTree transform(input)
 ```
 
 ```nim
 # app.nim
-import loopapi
-for ignored in once():
-  discard
+import std / [assertions, syncio]
+import repeat
+
+var runs = 0
+for _ in repeat(3):
+  inc runs
+
+assert runs == 3
+echo "FOR_LOOP: PASS"
 ```
 
 ## Key points
 
-- Input is `(forcall <name> (callargs ...) (unpack...) <typed-body>)`.
-- Use the four protocol helpers instead of positional cursor arithmetic.
-- The body is typed before the plugin runs; generated output is checked again.
+- `forLoopCallArgs` returns the iterator arguments and `forLoopBody` returns
+  the already typed body.
+- Copy the body’s statements, rather than nesting the body’s `StmtsS` node.
+- Generated output is semantically checked after it replaces the loop.
 
 ## When to use
 
-Use a for-loop plugin to unroll or rewrite a loop around an iterator-like DSL.
+Use a for-loop plugin when an iterator-like DSL needs to rewrite, schedule, or
+expand a loop body.

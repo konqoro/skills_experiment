@@ -18,11 +18,12 @@ proc runChild(name, source: string): (string, int) =
 let wrongLevel = runChild("wrong_level.nim", """
 import plugins
 
-var input = createTree()
-input.withTree(StmtsS, NoLineInfo):
-  input.addIntLit 42
+proc createInput(): NifBuilder =
+  result = createTree()
+  result.withTree(StmtsS, NoLineInfo):
+    result.addIntLit 42
 let inFile = "wrong_level_input.nif"
-saveTree(move input, inFile)
+saveTree(createInput(), inFile)
 
 var r = loadReplacer(inFile)
 keep r, Expr
@@ -33,12 +34,13 @@ doAssert wrongLevel[0].contains("expected Expr"), wrongLevel[0]
 let unconsumed = runChild("unconsumed_keep_tag.nim", """
 import plugins
 
-var input = createTree()
-input.withTree(StmtsS, NoLineInfo):
-  input.addIdent "a"
-  input.addIdent "b"
+proc createInput(): NifBuilder =
+  result = createTree()
+  result.withTree(StmtsS, NoLineInfo):
+    result.addIdent "a"
+    result.addIdent "b"
 let inFile = "unconsumed_keep_tag_input.nif"
-saveTree(move input, inFile)
+saveTree(createInput(), inFile)
 
 var r = loadReplacer(inFile)
 keepTag r:
@@ -51,11 +53,12 @@ let peekDest = runChild("peek_dest_persists.nim", """
 import std/[assertions, strutils, syncio]
 import plugins
 
-var input = createTree()
-input.withTree(StmtsS, NoLineInfo):
-  input.addIntLit 42
+proc createInput(): NifBuilder =
+  result = createTree()
+  result.withTree(StmtsS, NoLineInfo):
+    result.addIntLit 42
 let inFile = "peek_dest_input.nif"
-saveTree(move input, inFile)
+saveTree(createInput(), inFile)
 
 var r = loadReplacer(inFile)
 keepTag r:

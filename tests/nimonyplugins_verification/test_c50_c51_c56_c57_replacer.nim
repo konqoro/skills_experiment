@@ -6,18 +6,19 @@ import plugins
 let tmpDir = getTempDir()
 
 # ── C51: loadReplacer / saveReplacer round-trip ──────────────────────
-var inputTree = createTree()
-inputTree.withTree(StmtsS, NoLineInfo):
-  inputTree.addIdent "a"
-  inputTree.withTree(CallX, NoLineInfo):
-    inputTree.addIdent "echo"
-    inputTree.addStrLit "hello"
-  inputTree.addIdent "b"
-  inputTree.withTree(CallX, NoLineInfo):
-    inputTree.addIdent "record"
+proc createMainInput(): NifBuilder =
+  result = createTree()
+  result.withTree(StmtsS, NoLineInfo):
+    result.addIdent "a"
+    result.withTree(CallX, NoLineInfo):
+      result.addIdent "echo"
+      result.addStrLit "hello"
+    result.addIdent "b"
+    result.withTree(CallX, NoLineInfo):
+      result.addIdent "record"
 
 let inFile = tmpDir / "replacer_in.nif"
-saveTree(move inputTree, inFile)
+saveTree(createMainInput(), inFile)
 
 # ── C50: keep, drop, keepTag, loopKeepTag ────────────────────────────
 var r = loadReplacer(inFile)
@@ -41,13 +42,14 @@ var ic1 = firstChild(c1)
 assert ic1.identText == "record"
 
 # ── C57: replaceHead ─────────────────────────────────────────────────
-var input2 = createTree()
-input2.withTree(CallX, NoLineInfo):
-  input2.addIdent "oldfn"
-  input2.addStrLit "arg"
+proc createReplaceHeadInput(): NifBuilder =
+  result = createTree()
+  result.withTree(CallX, NoLineInfo):
+    result.addIdent "oldfn"
+    result.addStrLit "arg"
 
 let rhFile = tmpDir / "replacer_rh.nif"
-saveTree(move input2, rhFile)
+saveTree(createReplaceHeadInput(), rhFile)
 var r2 = loadReplacer(rhFile)
 replaceHead r2, CallS, NoLineInfo:
   keep r2, Any
@@ -57,14 +59,15 @@ var n2 = snapshot(r2.dest)
 assert n2.stmtKind == CallS
 
 # ── C56: peek / getCursor / setCursor ────────────────────────────────
-var input3 = createTree()
-input3.withTree(StmtsS, NoLineInfo):
-  input3.addIdent "x"
-  input3.addIdent "y"
-  input3.addIdent "z"
+proc createPeekInput(): NifBuilder =
+  result = createTree()
+  result.withTree(StmtsS, NoLineInfo):
+    result.addIdent "x"
+    result.addIdent "y"
+    result.addIdent "z"
 
 let pkFile = tmpDir / "replacer_peek.nif"
-saveTree(move input3, pkFile)
+saveTree(createPeekInput(), pkFile)
 var r3 = loadReplacer(pkFile)
 
 loopKeepTag r3:

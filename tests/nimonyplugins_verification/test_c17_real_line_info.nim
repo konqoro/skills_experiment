@@ -34,7 +34,7 @@ else:
   else:
     var resultTree = createTree()
     resultTree.addStrLit("real-line-info-ok")
-    saveTree move resultTree
+    saveTree resultTree
 """)
 
 writeFile(appFile, """

@@ -29,7 +29,7 @@ else:
   else:
     var outp = createTree()
     outp.addStrLit("shape-ok")
-    saveTree move outp
+    saveTree outp
 """)
 
 writeFile(appFile, """

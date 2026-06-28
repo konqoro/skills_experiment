@@ -27,7 +27,7 @@ if pluginName(root) != "shout":
 elif arg.kind == StrLit:
   var resultTree = createTree()
   resultTree.addStrLit(arg.stringValue.toUpperAscii)
-  saveTree(move resultTree)
+  saveTree(resultTree)
 else:
   saveTree errorTree("shout expects a string literal", arg)
 """)

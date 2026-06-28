@@ -1,10 +1,10 @@
 # Replacer API
 
-This example turns `sayIt(x)` into `echo x` while honoring template input shape.
+A complete template plugin that rewrites `sayIt(value)` into `echo value`.
 
 ```nim
-# sayitapi.nim
-template sayIt*(x: untyped): untyped {.plugin: "sayitplug".}
+# sayit.nim
+template sayIt*(value: untyped): untyped {.plugin: "sayitplug".}
 ```
 
 ```nim
@@ -13,43 +13,40 @@ import plugins
 
 var r = loadReplacer()
 replaceHead r, CallS, r.info:
-  drop r, Any # consume the leading template name
-  r.dest.bindSym "echo"
-  while getCursor(r).hasMore:
-    keep r, Expr
+  drop r, Any       # template name
+  r.dest.addIdent "echo"
+  keep r, Expr      # template argument
 saveReplacer r
 ```
 
-Read-only classification uses a copied bounded cursor:
-
 ```nim
-proc isCallTo(n: NifCursor; name: string): bool =
-  if n.kind != TagLit or n.exprKind != CallX:
-    return false
-  var child = firstChild(n)
-  result = child.hasMore and child.eqIdent(name)
+# app.nim
+import std / syncio
+import sayit
+
+sayIt "hello"
 ```
 
 Operation contracts:
 
 | Operation | Effect |
 | --- | --- |
-| `keep r, K` | copy and consume one matching child |
-| `drop r, K` | consume one matching child |
-| `replace r, K, x` | consume one child and emit `x` |
-| `keepTag r:` | preserve a head; body consumes every child |
-| `loopKeepTag r:` | preserve a head and iterate children |
-| `replaceHead r, K, info:` | emit a new head; body consumes every child |
-
-`peek r:` restores the input cursor only. Never emit into `r.dest` inside it.
+| `keep r, K` | Copy and consume one matching child |
+| `drop r, K` | Consume one matching child |
+| `replace r, K, x` | Consume one child and emit `x` |
+| `keepTag r:` | Preserve a head; the body consumes every child |
+| `loopKeepTag r:` | Preserve a head and recursively process its children |
+| `replaceHead r, K, info:` | Emit a new head; the body consumes every child |
 
 ## Key points
 
-- Expected kinds are assertions, not filters.
-- Template input begins with the invoked template name.
-- Use `loopKeepTag` for recursive pass-through and `replaceHead` for a new head.
-- Use `errorTree` for invalid user input; assertions expose plugin bugs.
+- Template input starts with the invoked template name, so the rewrite drops
+  that child before keeping the argument.
+- Kind arguments are assertions about the current child, not search filters.
+- This template output is semantically checked again, so the raw `echo`
+  identifier resolves at the call site.
 
 ## When to use
 
-Use `Replacer` when most input subtrees remain unchanged.
+Use `Replacer` when most input children or subtrees can be kept, dropped, or
+replaced without rebuilding them token by token.

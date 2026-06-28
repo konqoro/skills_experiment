@@ -46,8 +46,8 @@ express the protocol.
 - `NifCursor` is a copyable, reference-counted, bounded read cursor.
 - `snapshot(tree)` borrows a non-empty builder. The cursor keeps its observed
   storage alive; later builder mutation detaches storage as needed.
-- Pass complete builders to `addTree` and `saveTree` with ownership transfer.
-  Use `move` explicitly when Nimony cannot infer the sink.
+- Pass completed builders directly to `addTree` and `saveTree`; their `sink`
+  parameters handle ownership transfer.
 - `SymId` and `TagId` are numeric handles local to shared plugin pools. Resolve
   names with `symText` and `tagText`; `$id` is not a text lookup.
 - Plugin inputs and builders use shared preseeded pools, so handles obtained
@@ -61,7 +61,7 @@ express the protocol.
   tags. There is no validated `createTree(kind, children)` overload.
 - Use `NoLineInfo` only for synthetic output; preserve `n.info` for derived
   output.
-- Use `addTree(dest, move child)` for an entire generated builder.
+- Use `addTree(dest, child)` for an entire final-use local builder.
 - Use `addSubtree(dest, cursor)` to copy without advancing and
   `takeTree(dest, cursor)` to copy and advance.
 - Use `copyInto(dest, cursor):` to copy a node head while transforming all
@@ -129,8 +129,8 @@ express the protocol.
 
 ## References
 
-- `references/template_plugin.md` — template protocol and synthetic output
-- `references/for_loop_plugin.md` — structured for-loop input and typed body
-- `references/module_plugin.md` — full-module pass-through contract
-- `references/type_plugin.md` — module and type-definition inputs
-- `references/replacer_api.md` — selective rewrite contracts
+- `references/template_plugin.md` — generate an expression from literal arguments
+- `references/replacer_api.md` — rewrite a template call while reusing its argument
+- `references/for_loop_plugin.md` — expand an already typed loop body
+- `references/module_plugin.md` — selectively rewrite a complete typed module
+- `references/type_plugin.md` — validate a module using triggering type symbols

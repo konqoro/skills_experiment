@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 62,
-    "testable": 50,
-    "passed": 50,
+    "total_claims": 63,
+    "testable": 51,
+    "passed": 51,
     "failed": 0,
     "not_testable": 12,
     "nuanced": 1,
@@ -439,7 +439,7 @@
     },
     {
       "claim_id": "C65",
-      "claim_text": "addTree consumes and appends every complete top-level value from a NifBuilder.",
+      "claim_text": "addTree consumes and appends every complete top-level value from a NifBuilder; Nimony infers the sink transfer for a final-use local builder without move or ensureMove.",
       "is_testable": true,
       "test_file_path": "tests/nimonyplugins_verification/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
       "test_passed": true,
@@ -508,6 +508,14 @@
       "test_file_path": "tests/nimonyplugins_verification/test_c02_c17_c21_c28_c30_c31_node_io.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC for text lookup; pool locality is source-verified."
+    },
+    {
+      "claim_id": "C74",
+      "claim_text": "The complete template, Replacer, for-loop, module, and type plugin reference examples compile with Nimony and exhibit their documented rewrite or validation behavior.",
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_reference_examples.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test extracts the Nim code blocks from each reference, runs all positive examples, verifies module rewriting, and checks the type-plugin rejection case."
     }
   ],
   "corrections": [],
@@ -535,6 +543,14 @@
     {
       "date": "2026-06-28",
       "action": "Refinement pass for the nifcore-backed API: retained and re-ran the existing suite, corrected stale tests, added C62-C73 ownership/protocol claims and tests, and rewrote the verified skill references."
+    },
+    {
+      "date": "2026-06-28",
+      "action": "Verified with Nimony that addTree and saveTree infer sink transfers for final-use local/plugin-branch builders and returned builder expressions; removed move and ensureMove from plugin consumers, including module-scope fixtures."
+    },
+    {
+      "date": "2026-06-28",
+      "action": "Replaced protocol-probe references with small standard plugin examples for all major plugin shapes and added an executable Markdown example test."
     }
   ]
 }

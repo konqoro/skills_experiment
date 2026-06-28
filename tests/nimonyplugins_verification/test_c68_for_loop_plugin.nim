@@ -29,7 +29,7 @@ else:
     output.withTree CallS, root.info:
       output.bindSym "echo"
       output.addStrLit "loop plugin ran"
-  saveTree move output
+  saveTree output
 """)
 
 writeFile(base / "app.nim", """
