@@ -1,8 +1,9 @@
-# Test C01, C04, C05, C07, C08, C09, C16: NifBuilder basics, createTree, withTree, isEmpty, snapshot, kind/exprKind, renderTree
+# Test C04, C07, C08, C09, C16: empty checks, withTree, snapshot,
+# kind/exprKind, and rendering.
 import std/[syncio, assertions]
 import plugins
 
-# C05: createTree() starts empty
+# C04: createTree() starts empty
 var t = createTree()
 assert t.isEmpty
 
@@ -18,7 +19,7 @@ assert not t.isEmpty
 var n = snapshot(t)
 
 # C08: kind
-assert n.kind == ParLe
+assert n.kind == TagLit
 
 # C09: exprKind
 assert n.exprKind == CallX
@@ -27,4 +28,4 @@ assert n.exprKind == CallX
 let rendered = renderTree(t)
 assert rendered.len > 0
 
-echo "C01_C04_C05_C07_C08_C09_C16: PASS"
+echo "C04_C07_C08_C09_C16: PASS"

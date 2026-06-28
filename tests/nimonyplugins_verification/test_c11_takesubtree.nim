@@ -8,7 +8,7 @@ src.withTree(StmtsS, NoLineInfo):
   src.addIdent "b"
 
 var n = snapshot(src)
-var reader = firstChild(n)  # bounded cursor past StmtsS ParLe
+var reader = firstChild(n)  # bounded cursor past StmtsS TagLit
 
 # addSubtree does not advance
 var dest1 = createTree()

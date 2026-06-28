@@ -1,4 +1,4 @@
-# Test C34, C35: end-to-end plugin entrypoint via template {.plugin.}
+# Test C32, C35, C67: end-to-end plugin entrypoint via template {.plugin.}
 # and default loadPluginInput()/saveTree() overloads.
 import std/[os, osproc, strutils]
 
@@ -19,18 +19,15 @@ writeFile(pluginFile, """
 import std/strutils
 import plugins
 
-proc extractArg(n: NifCursor): NifCursor =
-  result = n
-  if result.stmtKind == StmtsS:
-    result = firstChild(result)
-
 let root = loadPluginInput()
-let arg = extractArg(root)
+let arg = callArgs(root)
 
-if arg.kind == StringLit:
+if pluginName(root) != "shout":
+  saveTree errorTree("unexpected plugin name", root)
+elif arg.kind == StrLit:
   var resultTree = createTree()
   resultTree.addStrLit(arg.stringValue.toUpperAscii)
-  saveTree(resultTree)
+  saveTree(move resultTree)
 else:
   saveTree errorTree("shout expects a string literal", arg)
 """)
@@ -41,12 +38,12 @@ import std / syncio
 import shoutdsl
 
 assert shout("hello") == "HELLO"
-echo "C34_C35: PASS"
+echo "C32_C35_C67: PASS"
 """)
 
 let cmd = "nimony c -r " & appFile.quoteShell
 let res = execCmdEx(cmd)
 doAssert res.exitCode == 0, res.output
-doAssert res.output.contains("C34_C35: PASS"), res.output
+doAssert res.output.contains("C32_C35_C67: PASS"), res.output
 
-echo "C34_C35: PASS"
+echo "C32_C35_C67: PASS"

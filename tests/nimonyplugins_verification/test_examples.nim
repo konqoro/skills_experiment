@@ -69,18 +69,18 @@ proc callHeadMatches(n: NifCursor; name: string): bool =
     result = false
 
 proc isCallTo(n: NifCursor; name: string): bool =
-  if n.kind != ParLe or n.exprKind != CallX:
+  if n.kind != TagLit or n.exprKind != CallX:
     return false
   var child = firstChild(n)
   result = callHeadMatches(child, name)
 
 proc firstStringArg(n: NifCursor): string =
-  if n.kind != ParLe:
+  if n.kind != TagLit:
     return ""
   var child = firstChild(n)
   if child.hasMore:
     skip child
-  if child.hasMore and child.kind == StringLit:
+  if child.hasMore and child.kind == StrLit:
     result = child.stringValue
 
 proc isEmptyTag(r: var Replacer): bool =
@@ -110,6 +110,7 @@ proc rewriteArg(r: var Replacer) =
 
 var r = loadReplacer()
 replaceHead r, CallS, r.info:
+  drop r, Any # template-plugin input starts with the invoked template name
   r.dest.addIdent "auditCommit"
   while getCursor(r).hasMore:
     rewriteArg r
@@ -163,7 +164,7 @@ echo auditTrail
   doAssert "trace-99" notin outp, outp
   echo "REPLACER: PASS"
 
-# ── 3. Type plugin: identity passthrough with paramStr(3) ───────────
+# ── 3. Type plugin: identity passthrough with loadTypeDefinitions ───
 
 block:
   let d = base / "typeplugin"; createDir(d)
@@ -177,7 +178,6 @@ type
 
   writeFile(d / "traceplugin.nim", """
 import plugins
-import std/os
 proc transform(n: NifCursor): NifBuilder =
   result = createTree()
   var n = n
@@ -187,7 +187,7 @@ proc transform(n: NifCursor): NifBuilder =
     while n.hasMore:
       result.takeTree n
 let moduleAst = loadPluginInput()
-let typeAst = loadPluginInput(paramStr(3))
+let typeAst = loadTypeDefinitions()
 discard renderNode(typeAst)
 saveTree transform(moduleAst)
 """)

@@ -22,7 +22,7 @@ var input = createTree()
 input.withTree(StmtsS, NoLineInfo):
   input.addIntLit 42
 let inFile = "wrong_level_input.nif"
-saveTree(input, inFile)
+saveTree(move input, inFile)
 
 var r = loadReplacer(inFile)
 keep r, Expr
@@ -38,14 +38,14 @@ input.withTree(StmtsS, NoLineInfo):
   input.addIdent "a"
   input.addIdent "b"
 let inFile = "unconsumed_keep_tag_input.nif"
-saveTree(input, inFile)
+saveTree(move input, inFile)
 
 var r = loadReplacer(inFile)
 keepTag r:
   keep r, Any
 """)
 doAssert unconsumed[1] != 0, unconsumed[0]
-doAssert unconsumed[0].contains("body must consume all children"), unconsumed[0]
+doAssert unconsumed[0].contains("body did not consume all"), unconsumed[0]
 
 let peekDest = runChild("peek_dest_persists.nim", """
 import std/[assertions, strutils, syncio]
@@ -55,7 +55,7 @@ var input = createTree()
 input.withTree(StmtsS, NoLineInfo):
   input.addIntLit 42
 let inFile = "peek_dest_input.nif"
-saveTree(input, inFile)
+saveTree(move input, inFile)
 
 var r = loadReplacer(inFile)
 keepTag r:

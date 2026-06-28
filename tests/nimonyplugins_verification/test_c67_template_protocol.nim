@@ -1,4 +1,4 @@
-# Test C37: a template plugin receives call-site arguments wrapped in StmtsS.
+# C67: template input is `(stmts <name> <args...>)`.
 import std/[os, osproc, strutils]
 
 let base = getTempDir() / "nimonyplugins_template_root_shape"
@@ -21,13 +21,15 @@ let root = loadPluginInput()
 if root.stmtKind != StmtsS:
   saveTree errorTree("template plugin input root was not StmtsS", root)
 else:
-  var child = firstChild(root)
-  if not child.hasMore or child.kind != IntLit or child.intValue != 42:
-    saveTree errorTree("template plugin first child was not the call argument", child)
+  var child = callArgs(root)
+  if pluginName(root) != "checkShape":
+    saveTree errorTree("template plugin name was not preserved", root)
+  elif not child.hasMore or child.kind != IntLit or child.intValue != 42:
+    saveTree errorTree("callArgs did not point at the call argument", child)
   else:
     var outp = createTree()
     outp.addStrLit("shape-ok")
-    saveTree outp
+    saveTree move outp
 """)
 
 writeFile(appFile, """
@@ -35,11 +37,11 @@ import std/[assertions, syncio]
 import shapeapi
 
 assert checkShape(42) == "shape-ok"
-echo "C37_TEMPLATE_ROOT_SHAPE: PASS"
+echo "C67_TEMPLATE_PROTOCOL: PASS"
 """)
 
 let res = execCmdEx("nimony c -r " & appFile.quoteShell)
 doAssert res.exitCode == 0, res.output
-doAssert res.output.contains("C37_TEMPLATE_ROOT_SHAPE: PASS"), res.output
+doAssert res.output.contains("C67_TEMPLATE_PROTOCOL: PASS"), res.output
 
-echo "C37_TEMPLATE_ROOT_SHAPE: PASS"
+echo "C67_TEMPLATE_PROTOCOL: PASS"

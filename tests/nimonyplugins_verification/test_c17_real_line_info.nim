@@ -20,9 +20,7 @@ import plugins
 import std/strutils
 
 proc firstArg(root: NifCursor): NifCursor =
-  result = root
-  if result.stmtKind == StmtsS:
-    result = firstChild(result)
+  result = callArgs(root)
 
 let arg = firstArg(loadPluginInput())
 let info = arg.info
@@ -36,7 +34,7 @@ else:
   else:
     var resultTree = createTree()
     resultTree.addStrLit("real-line-info-ok")
-    saveTree resultTree
+    saveTree move resultTree
 """)
 
 writeFile(appFile, """

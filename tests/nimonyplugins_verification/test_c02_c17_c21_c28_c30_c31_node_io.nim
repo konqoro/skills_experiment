@@ -30,9 +30,9 @@ proc main() =
   assert pos.line == 0
   assert pos.col == 0
 
-  # C21: raw tag helpers inspect the current ParLe token.
-  assert n.tagText == $n.tag
-  assert n.tagText == $n.tagId
+  # C21: IDs are pool-local handles; text lookup goes through the cursor pool.
+  assert n.tagText == "stmts"
+  assert tagText(n.tagId) == "stmts"
 
   # C30: explicit save/load round-trip through a real .nif file.
   var t = createTree()
@@ -40,7 +40,7 @@ proc main() =
     t.addIdent "echo"
     t.addStrLit "hello"
   let tmpFile = getTempDir() / "nimonyplugins_roundtrip.nif"
-  saveTree(t, tmpFile)
+  saveTree(move t, tmpFile)
 
   let loaded = loadPluginInput(tmpFile)
   assert loaded.exprKind == CallX

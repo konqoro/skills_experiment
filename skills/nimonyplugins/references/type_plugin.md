@@ -1,58 +1,40 @@
-# Type Plugin: Field-Aware Passthrough
+# Type Plugin
+
+This example reads triggering type definitions and preserves the full module.
 
 ```nim
 # traceable.nim
-type
-  Traceable* {.plugin: "traceplugin".} = object
-    id*: int
-    name*: string
+type Traceable* {.plugin: "traceplug".} = object
+  id*: int
 ```
 
 ```nim
-# traceplugin.nim
+# traceplug.nim
 import plugins
-import std/os
 
-proc transform(n: NifCursor): NifBuilder =
-  result = createTree()
-  var n = n
-  if n.stmtKind == StmtsS:
-    n = firstChild(n)
-  result.withTree StmtsS, n.info:
-    while n.hasMore:
-      result.takeTree n
-
-proc typeTransform(n: NifCursor): NifBuilder =
-  result = createTree()
-  var n = n
-  if n.stmtKind == StmtsS:
-    n = firstChild(n)
-  result.withTree StmtsS, n.info:
-    while n.hasMore:
-      result.takeTree n
-
-let moduleAst = loadPluginInput()          # paramStr(1): the module
-let typeAst = loadPluginInput(paramStr(3)) # paramStr(3): the type def
-discard renderNode(typeAst)                # inspect fields here
-
-saveTree transform(moduleAst)
+let moduleRoot = loadPluginInput()
+let definitions = loadTypeDefinitions()
+if definitions.stmtKind != StmtsS:
+  saveTree errorTree("expected triggering type definitions", definitions)
+elif moduleRoot.stmtKind != StmtsS:
+  saveTree errorTree("expected a module statement list", moduleRoot)
+else:
+  discard renderNode(definitions) # inspect fields before deciding the rewrite
+  let rootInfo = moduleRoot.info
+  var statements = firstChild(moduleRoot)
+  var output = createTree()
+  output.withTree StmtsS, rootInfo:
+    while statements.hasMore:
+      output.takeTree statements
+  saveTree move output
 ```
 
-```nim
-# app.nim
-import std/syncio
-import traceable
+## Key points
 
-var item = Traceable(id: 1, name: "test")
-item.id = 2
-echo item.id
-echo item.name
-```
+- `loadPluginInput()` reads the full module.
+- `loadTypeDefinitions()` reads `(stmts <triggering-type-symbols...>)`.
+- Return the complete module; type-plugin output is not checked again.
 
-Key points
-- Declared on the type: `type T {.plugin: "name".} = object ...`.
-- Fires for every module that imports and uses the type, not just the defining module.
-- `loadPluginInput()` reads the module AST; `loadPluginInput(paramStr(3))` reads the type definition.
-- The type definition AST contains field names and types — parse it to know what to intercept.
-- Must return the complete module; use `takeTree` for unchanged statements, `skip` + construction for rewrites.
-- Real extensions: inject `echo` on field writes, generate `==`/`$` from fields, add serialization hooks.
+## When to use
+
+Use a type plugin when a marked type should affect modules that use it.

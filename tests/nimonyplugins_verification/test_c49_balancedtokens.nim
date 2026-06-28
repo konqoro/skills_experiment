@@ -15,7 +15,7 @@ t.withTree(StmtsS, NoLineInfo):
 
 var n = snapshot(t)
 
-# balancedTokens visits every ParLe inside the subtree (not the root itself)
+# balancedTokens visits every TagLit inside the subtree (not the root itself)
 var parLeCount = 0
 balancedTokens n:
   parLeCount += 1

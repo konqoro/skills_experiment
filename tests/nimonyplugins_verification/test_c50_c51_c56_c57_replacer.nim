@@ -17,7 +17,7 @@ inputTree.withTree(StmtsS, NoLineInfo):
     inputTree.addIdent "record"
 
 let inFile = tmpDir / "replacer_in.nif"
-saveTree(inputTree, inFile)
+saveTree(move inputTree, inFile)
 
 # ── C50: keep, drop, keepTag, loopKeepTag ────────────────────────────
 var r = loadReplacer(inFile)
@@ -47,7 +47,7 @@ input2.withTree(CallX, NoLineInfo):
   input2.addStrLit "arg"
 
 let rhFile = tmpDir / "replacer_rh.nif"
-saveTree(input2, rhFile)
+saveTree(move input2, rhFile)
 var r2 = loadReplacer(rhFile)
 replaceHead r2, CallS, NoLineInfo:
   keep r2, Any
@@ -64,7 +64,7 @@ input3.withTree(StmtsS, NoLineInfo):
   input3.addIdent "z"
 
 let pkFile = tmpDir / "replacer_peek.nif"
-saveTree(input3, pkFile)
+saveTree(move input3, pkFile)
 var r3 = loadReplacer(pkFile)
 
 loopKeepTag r3:

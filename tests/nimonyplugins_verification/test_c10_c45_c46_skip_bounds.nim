@@ -1,4 +1,4 @@
-# Test C10: skip skips whole subtree; firstChild + hasMore for token stepping
+# Test C10, C45, C46: skip and bounded firstChild/hasMore traversal.
 import std/[syncio, assertions]
 import plugins
 
@@ -15,8 +15,8 @@ var child = firstChild(n)
 assert child.kind == Ident  # "echo"
 assert child.identText == "echo"
 skip child  # past Ident (atom skip = one token)
-assert child.kind == StringLit  # "hello"
-skip child  # past StringLit
+assert child.kind == StrLit  # "hello"
+skip child  # past StrLit
 assert not child.hasMore  # end of children
 
 # Now test skip on a fresh tree with nested structure
@@ -38,4 +38,4 @@ assert body.exprKind == CallX
 skip body
 assert not body.hasMore  # end of StmtsS body
 
-echo "C10: PASS"
+echo "C10_C45_C46: PASS"

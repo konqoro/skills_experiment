@@ -1,50 +1,40 @@
-# Template Plugin: Compile-Time Lookup Table
+# Template Plugin
+
+This example validates the template protocol and generates a compile-time table.
+
+```nim
+# tableapi.nim
+template squares*(): untyped {.plugin: "squareplug".}
+```
+
+```nim
+# squareplug.nim
+import plugins
+
+let root = loadPluginInput()
+if pluginName(root) != "squares" or callArgs(root).hasMore:
+  saveTree errorTree("squares takes no arguments", root)
+else:
+  var output = createTree()
+  output.withTree BracketX, root.info:
+    for value in 0..15:
+      output.addIntLit(value * value)
+  saveTree move output
+```
 
 ```nim
 # app.nim
-import std/syncio
-
-template buildPopcountLut(): untyped {.plugin: "poplut".}
-
-let PopLut: array[256, int] = buildPopcountLut()
-
-proc popcnt(x: int): int =
-  var u = cast[uint64](x)
-  var s = 0
-  for k in 0..7:
-    s += PopLut[int((u shr (k * 8)) and 0xFF'u64)]
-  s
-
-echo popcnt(13)   # 3
-echo popcnt(255)  # 8
-echo popcnt(-1)   # 64
+import tableapi
+let table: array[16, int] = squares()
+assert table[5] == 25
 ```
 
-```nim
-# poplut.nim
-import plugins
+## Key points
 
-proc popc8(i: int): int =
-  var v = i
-  var c = 0
-  while v != 0:
-    v = v and (v - 1)
-    inc c
-  c
+- Input is `(stmts <template-name> <args...>)`.
+- Use `pluginName` and `callArgs`, even for a zero-argument template.
+- Template output is semantically checked after substitution.
 
-proc tr(n: NifCursor): NifBuilder =
-  result = createTree()
-  result.withTree BracketX, n.info:
-    for i in 0..<256:
-      result.addIntLit popc8(i)
+## When to use
 
-var inp = loadPluginInput()
-saveTree tr(inp)
-```
-
-Key points
-- Template plugins replace a bodiless `template ... {.plugin: "name".}` at each call site.
-- The plugin runs real computation and emits NIF that the compiler splices in.
-- `withTree BracketX` builds an array literal; `addIntLit` emits each element.
-- The caller types the result (`array[256, int]`) to constrain what the plugin must produce.
-- Same pattern works for CRC tables, Base64 alphabets, sine approximations — any compile-time table.
+Use a template plugin for a call-site rewrite or synthetic expression.

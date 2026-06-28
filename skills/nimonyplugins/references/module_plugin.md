@@ -1,34 +1,36 @@
-# Module Plugin: Full-Module Transform
+# Module Plugin
+
+This example preserves a complete module with the low-level cursor API.
 
 ```nim
 # app.nim
-import std/syncio
 {.plugin: "modulepass".}
-
-echo "module plugin input"
+echo "kept"
 ```
 
 ```nim
 # modulepass.nim
 import plugins
 
-proc passModule(n: NifCursor): NifBuilder =
-  result = createTree()
-  var n = n
-  if n.stmtKind == StmtsS:
-    n = firstChild(n)
-  result.withTree StmtsS, n.info:
-    while n.hasMore:
-      result.takeTree n
-
-var inp = loadPluginInput()
-saveTree passModule(inp)
+let root = loadPluginInput()
+if root.stmtKind != StmtsS:
+  saveTree errorTree("expected a module statement list", root)
+else:
+  let rootInfo = root.info
+  var statements = firstChild(root)
+  var output = createTree()
+  output.withTree StmtsS, rootInfo:
+    while statements.hasMore:
+      output.takeTree statements
+  saveTree move output
 ```
 
-Key points
-- Declared as `{.plugin: "name".}` at the top of a module — no template needed.
-- Input is the whole module wrapped in `StmtsS`. Skip the wrapper with `firstChild`.
-- `while n.hasMore` walks all top-level children (bounded, safe).
-- Must return the complete module — cannot return an empty tree.
-- Use this low-level shape when constructing or reordering at the top level.
-- For selective recursive rewrites that keep most of the module, use `references/replacer_api.md`.
+## Key points
+
+- A module plugin receives a semantically checked full module.
+- It must return the full module, including unchanged statements.
+- Its output is not semantically checked again.
+
+## When to use
+
+Use a module plugin for whole-module auditing, instrumentation, or lowering.
