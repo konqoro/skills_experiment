@@ -15,12 +15,12 @@ import plugins
 proc transform(root: NifCursor): NifBuilder =
   var arg = callArgs(root)
   if not arg.hasMore or arg.kind != StrLit:
-    return errorTree("repeated expects a string literal", arg)
+    return errorTree("repeated expects a string literal", root)
   let text = arg.stringValue
   skip arg
 
   if not arg.hasMore or arg.kind != IntLit:
-    return errorTree("repeated expects an integer literal count", arg)
+    return errorTree("repeated expects an integer literal count", root)
   let count = int(arg.intValue)
   skip arg
   if arg.hasMore or count < 0:

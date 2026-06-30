@@ -21,16 +21,17 @@ proc transform(root: NifCursor): NifBuilder =
   if extra.hasMore:
     return errorTree("echoFresh expects one argument", root)
 
+  let info = value.info
   let local = genSym()
   result = createTree()
   result.withTree StmtsS, root.info:
-    result.withTree LetS, value.info:
-      result.addSymDef local, value.info
-      result.addEmptyNode3(value.info)
+    result.withTree LetS, info:
+      result.addSymDef local, info
+      result.addEmptyNode3(info)
       result.takeTree value
     result.withTree CallS, root.info:
       result.addIdent "echo"
-      result.addSymUse local, value.info
+      result.addSymUse local, info
 
 let input = loadPluginInput()
 saveTree transform(input)
