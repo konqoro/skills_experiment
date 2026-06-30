@@ -39,11 +39,10 @@ saveTree transform(input)
 
 ```nim
 # app.nim
-import std / [assertions, syncio]
+import std / assertions
 import repeated
 
 assert repeated("na", 4) == "nananana"
-echo "TEMPLATE: PASS"
 ```
 
 ## Key points

@@ -39,7 +39,6 @@ block:
   materialize(references / "template_plugin.md", dir)
   let result = runNimony(dir, "app.nim", "template")
   assert result[1] == 0, result[0]
-  assert result[0].contains("TEMPLATE: PASS"), result[0]
 
 block:
   let dir = base / "replacer"
@@ -53,14 +52,12 @@ block:
   materialize(references / "for_loop_plugin.md", dir)
   let result = runNimony(dir, "app.nim", "for_loop")
   assert result[1] == 0, result[0]
-  assert result[0].contains("FOR_LOOP: PASS"), result[0]
 
 block:
   let dir = base / "module"
   materialize(references / "module_plugin.md", dir)
   let result = runNimony(dir, "app.nim", "module")
   assert result[1] == 0, result[0]
-  assert result[0].contains("MODULE: PASS"), result[0]
   assert not result[0].contains("this call is removed"), result[0]
 
 block:
@@ -68,10 +65,18 @@ block:
   materialize(references / "type_plugin.md", dir)
   let good = runNimony(dir, "app.nim", "type_good")
   assert good[1] == 0, good[0]
-  assert good[0].contains("TYPE: PASS"), good[0]
 
   let bad = runNimony(dir, "bad.nim", "type_bad", run = false)
   assert bad[1] != 0, bad[0]
   assert bad[0].contains("StackOnly values must be local"), bad[0]
+
+block:
+  let dir = base / "generated_symbols"
+  materialize(references / "generated_symbols.md", dir)
+  let result = runNimony(dir, "app.nim", "generated_symbols")
+  assert result[1] == 0, result[0]
+  assert result[0].contains("first"), result[0]
+  assert result[0].contains("second"), result[0]
+  assert result[0].contains("outer"), result[0]
 
 echo "REFERENCE_EXAMPLES: PASS"

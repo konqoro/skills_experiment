@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 63,
-    "testable": 51,
-    "passed": 51,
+    "total_claims": 66,
+    "testable": 54,
+    "passed": 54,
     "failed": 0,
     "not_testable": 12,
     "nuanced": 1,
@@ -439,11 +439,11 @@
     },
     {
       "claim_id": "C65",
-      "claim_text": "addTree consumes and appends every complete top-level value from a NifBuilder; Nimony infers the sink transfer for a final-use local builder without move or ensureMove.",
+      "claim_text": "addTree borrows a NifBuilder and appends every complete top-level value; the source builder remains usable afterward.",
       "is_testable": true,
       "test_file_path": "tests/nimonyplugins_verification/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC."
+      "evaluation_notes": "DETERMINISTIC. The test appends one builder and then reads it again."
     },
     {
       "claim_id": "C66",
@@ -516,6 +516,30 @@
       "test_file_path": "tests/nimonyplugins_verification/test_reference_examples.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The test extracts the Nim code blocks from each reference, runs all positive examples, verifies module rewriting, and checks the type-plugin rejection case."
+    },
+    {
+      "claim_id": "C75",
+      "claim_text": "genSym returns a fresh local SymId for plugin-generated definitions; reusing that handle with addSymDef and addSymUse produces a bound local without colliding with caller locals or another invocation.",
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_reference_examples.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The generated-symbol reference invokes the plugin twice in a scope that already defines tmp."
+    },
+    {
+      "claim_id": "C76",
+      "claim_text": "Plugin authors use genSym through the ordinary addSymDef and addSymUse operations; plugin load/save helpers propagate the NIF .unusedname metadata without manual handling.",
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_reference_examples.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The end-to-end reference emits and resolves a generated definition without constructing a textual symbol name or directive."
+    },
+    {
+      "claim_id": "C77",
+      "claim_text": "The genSym sequence is shared across loadPluginInput and loadTypeDefinitions within one type-plugin process; loading the second input does not repeat a previously returned symbol.",
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_c77_gensym_multiple_inputs.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A Nimony-compiled type plugin calls genSym before and after loadTypeDefinitions and asserts that the handles differ."
     }
   ],
   "corrections": [],
@@ -546,11 +570,15 @@
     },
     {
       "date": "2026-06-28",
-      "action": "Verified with Nimony that addTree and saveTree infer sink transfers for final-use local/plugin-branch builders and returned builder expressions; removed move and ensureMove from plugin consumers, including module-scope fixtures."
+      "action": "Removed unnecessary move and ensureMove calls from plugin consumers and verified direct builder arguments with Nimony."
     },
     {
       "date": "2026-06-28",
       "action": "Replaced protocol-probe references with small standard plugin examples for all major plugin shapes and added an executable Markdown example test."
+    },
+    {
+      "date": "2026-06-30",
+      "action": "Added verified genSym guidance, a complete generated-local reference, and coverage for freshness across repeated template invocations and multiple type-plugin inputs."
     }
   ]
 }

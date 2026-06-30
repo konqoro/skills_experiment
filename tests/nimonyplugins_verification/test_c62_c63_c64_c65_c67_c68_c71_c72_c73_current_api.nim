@@ -17,17 +17,18 @@ raw.addStrLit "payload"
 raw.closeTree()
 assert snapshot(raw).tagText == "custom"
 
-# addTree consumes a complete final-use local without an explicit move helper.
-proc testAddTreeSinkInference() =
+# addTree borrows its child builder.
+proc testAddTreeBorrow() =
   var child = createTree()
   child.addIntLit 7
   var parent = createTree()
   parent.withTree StmtsS, NoLineInfo:
     parent.addTree(child)
+  assert renderTree(child) == "7"
   var item = firstChild(snapshot(parent))
   assert item.kind == IntLit and item.intValue == 7
 
-testAddTreeSinkInference()
+testAddTreeBorrow()
 
 # Template input includes the invoked name before the call arguments.
 var templateInput = createTree()
