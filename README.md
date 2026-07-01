@@ -112,6 +112,7 @@ Use repo-local skill files only. Do not point prompts at installed skills or hom
 
 These commands use `nim-ownership-hooks` as a concrete example.
 Use `nim c -r` by default.
+Use `nimony c -r` for tests under a `nimony/` subfolder (they `import plugins` directly).
 Add `--mm:arc` or `--mm:atomicArc` only for manager-specific claims.
 Add `--threads:off` only for `compileOption("threads")` claims.
 

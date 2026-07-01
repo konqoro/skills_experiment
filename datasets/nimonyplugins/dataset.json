@@ -466,43 +466,5 @@
   "uncovered_topics": [],
   "needs_stronger_tests": [
     "C70 is source-verified but would benefit from dedicated positive/negative fixtures for each re-semantic-checking boundary."
-  ],
-  "changelog": [
-    {
-      "date": "2026-04-15",
-      "action": "Initial audit pass."
-    },
-    {
-      "date": "2026-06-15",
-      "action": "Major API update for latest Nimony plugins. Import module changed from nimonyplugins to plugins. Renamed types to NifBuilder/NifCursor. Removed ~/%~/nifFragment template DSL, inc on NifCursor. Added Replacer API, bindSym, firstChild/hasMore/into/loopInto/balancedTokens traversal, copyInto, SourcePos/SymId/TagId types, import plugins, Nimony self-compilation. All 43 testable claims pass."
-    },
-    {
-      "date": "2026-06-17",
-      "action": "Refinement pass: added real call-site line info coverage for C17 and removed the recorded source line-info coverage gap."
-    },
-    {
-      "date": "2026-06-17",
-      "action": "Refinement pass: verified template plugin root shape and Replacer misuse contracts for the Replacer API reference rewrite."
-    },
-    {
-      "date": "2026-06-28",
-      "action": "Refinement pass for the nifcore-backed API: retained and re-ran the existing suite, corrected stale tests, added C62-C73 ownership/protocol claims and tests, and rewrote the verified skill references."
-    },
-    {
-      "date": "2026-06-28",
-      "action": "Removed unnecessary move and ensureMove calls from plugin consumers and verified direct builder arguments with Nimony."
-    },
-    {
-      "date": "2026-06-28",
-      "action": "Replaced protocol-probe references with small standard plugin examples for all major plugin shapes and added an executable Markdown example test."
-    },
-    {
-      "date": "2026-07-01",
-      "action": "Refinement pass: verified the compiler enforces template arity before plugin invocation (C78). Removed redundant argument-count guards from generated_symbols.md and template_plugin.md and added a mistake-table row."
-    },
-    {
-      "date": "2026-06-30",
-      "action": "Added verified genSym guidance, a complete generated-local reference, and coverage for freshness across repeated template invocations and multiple type-plugin inputs."
-    }
   ]
 }
