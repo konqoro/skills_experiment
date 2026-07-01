@@ -1,4 +1,4 @@
-import std/osproc, std/os, std/strutils
+import std/[assertions, os, osproc, strutils]
 
 proc main() =
   let tmpdir = getTempDir()
@@ -7,16 +7,14 @@ proc main() =
 
   block C01:
     let (output, exitCode) = execCmdEx("nim c -r " & childFile & " 2>&1")
-    if output.contains("DEBUG BUILD") and exitCode == 0:
-      echo "C01: PASS"
-    else:
-      echo "C01: FAIL: expected DEBUG BUILD in default mode output"
+    doAssert exitCode == 0, output
+    doAssert output.contains("DEBUG BUILD"), output
+    echo "C01: PASS"
 
   block C02:
     let (output, exitCode) = execCmdEx("nim c -r -d:debug " & childFile & " 2>&1")
-    if output.contains("DEBUG BUILD") and exitCode == 0:
-      echo "C02: PASS"
-    else:
-      echo "C02: FAIL: expected DEBUG BUILD in -d:debug output"
+    doAssert exitCode == 0, output
+    doAssert output.contains("DEBUG BUILD"), output
+    echo "C02: PASS"
 
 main()

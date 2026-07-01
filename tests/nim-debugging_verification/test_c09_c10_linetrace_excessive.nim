@@ -1,4 +1,4 @@
-import std/osproc, std/os, std/strutils
+import std/[assertions, os, osproc, strutils]
 
 proc main() =
   let tmpdir = getTempDir()
@@ -6,11 +6,10 @@ proc main() =
   block C09:
     let childFile = tmpdir / "TestC09_child.nim"
     writeFile(childFile, "proc inner() = raise newException(ValueError, \"err\")\nproc main() = inner()\nmain()")
-    let (output, _) = execCmdEx("nim c -r -d:release --lineTrace:on " & childFile & " 2>&1")
-    if output.contains("inner"):
-      echo "C09: PASS"
-    else:
-      echo "C09: FAIL: --lineTrace:on should imply --stackTrace:on"
+    let executed = execCmdEx(
+      "nim c -r -d:release --lineTrace:on " & childFile.quoteShell)
+    doAssert executed.output.contains("inner"), executed.output
+    echo "C09: PASS"
 
   block C10:
     let src = "proc inner() = raise newException(ValueError, \"err\")\nproc outer() = inner()\nproc main() = outer()\nmain()"
@@ -25,9 +24,8 @@ proc main() =
     let (outputOff, _) = execCmdEx("nim c -r -f --excessiveStackTrace:off -d:release --stackTrace:on --lineTrace:on " & childOff & " 2>&1")
     let offHasFullPath = outputOff.contains("/TestC10_off_child.nim(")
 
-    if onHasFullPath and not offHasFullPath:
-      echo "C10: PASS"
-    else:
-      echo "C10: FAIL: on_full_path=", onHasFullPath, " off_full_path=", offHasFullPath
+    doAssert onHasFullPath, outputOn
+    doAssert not offHasFullPath, outputOff
+    echo "C10: PASS"
 
 main()

@@ -1,38 +1,38 @@
-import std/osproc, std/os, std/strutils
+import std/[assertions, os, osproc, strutils]
 
-proc main() =
-  let here = getCurrentDir()
-  let child = here / "test_c15_c16_c26_c27_expandarc_src/test_c15_c16_c26_c27_expandarc_child.nim"
+let here = parentDir(currentSourcePath())
+let child = here /
+  "test_c15_c16_c26_c27_expandarc_src/test_c15_c16_c26_c27_expandarc_child.nim"
 
-  block C15:
-    let (output, _) = execCmdEx("nim c --expandArc:extractCopy " & child & " 2>&1")
-    if output.contains("=copy") and output.contains("end of expandArc"):
-      echo "C15: PASS"
-    else:
-      echo "C15: FAIL: expected =copy in expandArc output"
+proc expand(target: string; mm = ""): string =
+  var command = "nim c --expandArc:" & target
+  if mm.len > 0:
+    command.add " --mm:" & mm
+  command.add " " & child.quoteShell
+  let executed = execCmdEx(command)
+  doAssert executed.exitCode == 0, executed.output
+  result = executed.output
 
-  block C16:
-    let (outputOrc, _) = execCmdEx("nim c --expandArc:extractCopy --mm:orc " & child & " 2>&1")
-    let (outputArc, _) = execCmdEx("nim c --expandArc:extractCopy --mm:arc " & child & " 2>&1")
-    let (outputAtomic, _) = execCmdEx("nim c --expandArc:extractCopy --mm:atomicArc " & child & " 2>&1")
-    let allSame = outputOrc.contains("=copy") and outputArc.contains("=copy") and outputAtomic.contains("=copy")
-    if allSame:
-      echo "C16: PASS"
-    else:
-      echo "C16: FAIL: expandArc output differs across mm modes"
+block copyExpansion:
+  let output = expand("extractCopy")
+  doAssert output.contains("=copy"), output
+  doAssert output.contains("end of expandArc"), output
+  echo "C15: PASS"
 
-  block C26:
-    let (output, _) = execCmdEx("nim c --expandArc:extractMove " & child & " 2>&1")
-    if output.contains("move") and not output.contains("=copy"):
-      echo "C26: PASS"
-    else:
-      echo "C26: FAIL: expected move without =copy"
+block memoryManagers:
+  for mm in ["orc", "arc", "atomicArc"]:
+    let output = expand("extractCopy", mm)
+    doAssert output.contains("=copy"), mm & ":\n" & output
+  echo "C16: PASS"
 
-  block C27:
-    let (output, _) = execCmdEx("nim c --expandArc:main " & child & " 2>&1")
-    if output.contains("=destroy") and output.contains("finally"):
-      echo "C27: PASS"
-    else:
-      echo "C27: FAIL: expected =destroy in finally block"
+block moveExpansion:
+  let output = expand("extractMove")
+  doAssert output.contains("move"), output
+  doAssert not output.contains("=copy"), output
+  echo "C26: PASS"
 
-main()
+block destructionExpansion:
+  let output = expand("main")
+  doAssert output.contains("=destroy"), output
+  doAssert output.contains("finally"), output
+  echo "C27: PASS"

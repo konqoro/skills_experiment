@@ -1,29 +1,23 @@
-import std/osproc, std/os, std/strutils
+import std/[assertions, os, osproc]
 
-proc main() =
-  let here = getCurrentDir()
-  let tmpdir = getTempDir()
-  let childFile = tmpdir / "TestC21_child.nim"
-  writeFile(childFile, """
-proc main() =
-  var p = alloc(16)
-  var arr = cast[ptr UncheckedArray[int]](p)
-  arr[0] = 42
-  discard arr[5]
-  dealloc(p)
-main()
+let tmpDir = getTempDir()
+let source = tmpDir / "test_c21_child.nim"
+let output = tmpDir / "test_c21_passc_only"
+
+writeFile(source, """
+let memory = alloc(16)
+let values = cast[ptr UncheckedArray[int]](memory)
+values[0] = 42
+discard values[5]
+dealloc(memory)
 """)
 
-  block C21_passC_only:
-    let outbin = here / "test_c21_passC_only"
-    let (compOut, compExit) = execCmdEx("nim c --passC:\"-fsanitize=address -fno-omit-frame-pointer\" -d:noSignalHandler -d:useMalloc -o:" & outbin & " " & childFile & " 2>&1")
-    if compExit != 0:
-      echo "C21: PASS (compile fails without --passL)"
-    else:
-      let (runOut, _) = execCmdEx(outbin & " 2>&1")
-      if runOut.contains("AddressSanitizer"):
-        echo "C21: NUANCED: ASan works with only --passC (linker auto-links on this system)"
-      else:
-        echo "C21: PASS (compiled but ASan not active without --passL)"
+let flags = "-fsanitize=address -fno-omit-frame-pointer"
+let command = "nim c --passC:" & flags.quoteShell &
+  " -d:noSignalHandler -d:useMalloc -o:" & output.quoteShell &
+  " " & source.quoteShell
+let built = execCmdEx(command)
 
-main()
+doAssert built.exitCode != 0,
+  "ASan unexpectedly linked without --passL:\n" & built.output
+echo "C21: PASS"

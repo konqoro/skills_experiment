@@ -1,13 +1,12 @@
-import std/osproc, std/os, std/strutils
+import std/[assertions, os, osproc, strutils]
 
 proc main() =
   let tmpdir = getTempDir()
   let childFile = tmpdir / "TestC17_child.nim"
   writeFile(childFile, "echo \"ok\"")
-  let (output, _) = execCmdEx("nim c -r " & childFile & " 2>&1")
-  if output.contains("mm: orc"):
-    echo "C17: PASS"
-  else:
-    echo "C17: FAIL: expected 'mm: orc' in default build output"
+  let executed = execCmdEx("nim c -r " & childFile.quoteShell)
+  doAssert executed.exitCode == 0, executed.output
+  doAssert executed.output.contains("mm: orc"), executed.output
+  echo "C17: PASS"
 
 main()

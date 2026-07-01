@@ -1,4 +1,4 @@
-import std/osproc, std/os
+import std/[assertions, os, osproc]
 
 proc main() =
   let tmpdir = getTempDir()
@@ -8,11 +8,8 @@ proc main() =
   let (outA, exitA) = execCmdEx("nim c --debugger:native -o:" & tmpdir / "test_c18_a" & " " & childFile & " 2>&1")
   let (outB, exitB) = execCmdEx("nim c --debuginfo --linedir:on -o:" & tmpdir / "test_c18_b" & " " & childFile & " 2>&1")
 
-  if exitA == 0 and exitB == 0:
-    echo "C18: PASS"
-  else:
-    echo "C18: FAIL: --debugger:native or --debuginfo --linedir:on failed"
-    echo "  native: ", outA
-    echo "  explicit: ", outB
+  doAssert exitA == 0, outA
+  doAssert exitB == 0, outB
+  echo "C18: PASS"
 
 main()

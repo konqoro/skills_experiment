@@ -4,11 +4,11 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 30,
-    "testable": 28,
-    "passed": 28,
+    "total_claims": 31,
+    "testable": 29,
+    "passed": 29,
     "failed": 0,
-    "nuanced": 3,
+    "nuanced": 2,
     "not_testable": 2
   },
   "claims": [
@@ -178,7 +178,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-debugging_verification/test_c21_asan_passL_required.nim",
       "test_passed": true,
-      "evaluation_notes": "NUANCED. With only --passC (no --passL), compile fails on this system. The linker needs the sanitizer runtime."
+      "evaluation_notes": "DETERMINISTIC for the verified GCC toolchain. With only --passC and no --passL, linking fails because the sanitizer runtime is missing."
     },
     {
       "claim_id": "C22",
@@ -186,7 +186,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-debugging_verification/test_c22_valgrind.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Valgrind reports 'ERROR SUMMARY: 0 errors' for clean program."
+      "evaluation_notes": "DETERMINISTIC. A clean C-allocation path reports 0 errors; an intentionally leaked 64-byte allocation exits non-zero and reports it as definitely lost."
     },
     {
       "claim_id": "C23",
@@ -194,7 +194,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-debugging_verification/test_c19_c23_c28_asan_oom.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. ASan report appears with no mention of Nim signal handler."
+      "evaluation_notes": "DETERMINISTIC. Without -d:noSignalHandler, the same invalid pointer read produces Nim's SIGSEGV trace and no ASan DEADLYSIGNAL report. With the flag, ASan reports the signal and Nim source location."
     },
     {
       "claim_id": "C24",
@@ -251,6 +251,14 @@
       "test_file_path": "tests/nim-debugging_verification/test_c30_compiles.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. compiles(1 + 2) == true, compiles(1 + \"string\") == false, compiles works for generic instantiations and type conversions."
+    },
+    {
+      "claim_id": "C31",
+      "claim_text": "-d:useMalloc is required for ASan to observe out-of-bounds access on memory obtained through Nim's alloc/dealloc API.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-debugging_verification/test_c19_c23_c28_asan_oom.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The full recipe reports heap-buffer-overflow; the same instrumented program without -d:useMalloc does not report the overflow."
     }
   ],
   "corrections": [

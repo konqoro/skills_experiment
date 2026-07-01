@@ -1,4 +1,4 @@
-import std/strutils
+import std/[assertions, strutils]
 
 type
   MyRef = ref object
@@ -17,21 +17,11 @@ proc main() =
   let reprP = repr(p)
   dealloc(p)
 
-  var ok = true
-  if not reprR.contains("x: 42") or not reprR.contains("s: \"hello\""):
-    echo "C11: FAIL: ref repr unexpected: ", reprR
-    ok = false
-  if not reprSeq.contains("@[1, 2, 3]"):
-    echo "C11: FAIL: seq repr unexpected: ", reprSeq
-    ok = false
-  if reprStr != "\"world\"":
-    echo "C11: FAIL: string repr unexpected: ", reprStr
-    ok = false
-  if reprP.len < 4:
-    echo "C11: FAIL: pointer repr too short: ", reprP
-    ok = false
-
-  if ok:
-    echo "C11: PASS"
+  doAssert reprR.contains("x: 42"), reprR
+  doAssert reprR.contains("s: \"hello\""), reprR
+  doAssert reprSeq.contains("@[1, 2, 3]"), reprSeq
+  doAssert reprStr == "\"world\"", reprStr
+  doAssert reprP.len >= 4, reprP
+  echo "C11: PASS"
 
 main()
