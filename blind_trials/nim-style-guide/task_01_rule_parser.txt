@@ -88,8 +88,7 @@ printf ' user = Alice \n\n#note\nuser=alice\nbad!\npath = Docs/Guide\n' | ./subj
   ordinary `camelCase`. Initialisms use word casing such as `parseAscii` and
   `AsciiScanner`, rather than all-caps fragments.
 - Ordinary parsing and validation helpers use `proc` or `func`. The file has
-  no `method`; any `template` or `macro` has a call-site substitution or syntax
-  transformation role that cannot be expressed with ordinary call semantics.
+  no `method`, `template`, or `macro` used in place of ordinary call semantics.
 - Every local `var` is mutated after initialization or passed to a `var`
   parameter. Locals that remain unchanged use `let`.
 - The source contains no `continue`. Normal loop processing is expressed with
@@ -102,6 +101,3 @@ printf ' user = Alice \n\n#note\nuser=alice\nbad!\npath = Docs/Guide\n' | ./subj
 - Multi-line declarations, conditions, and calls use continued indentation.
   Calls that fit naturally within 80 characters are not expanded into
   one-argument-per-line blocks.
-- Object constructors omit fields whose declared defaults are intended to
-  apply. Field-by-field initialization of a defaulted object begins from an
-  explicit `TypeName()` value.
