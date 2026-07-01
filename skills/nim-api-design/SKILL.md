@@ -40,8 +40,8 @@ Reference examples live in `references/`.
 
 ### Parameter ownership
 
-- Use `T` for read-only inputs, `var T` to mutate the caller, and `sink T` when the callee takes ownership. Reserve `lent T` for borrowed returns.
-- Pass sink arguments normally. Nim moves proven last-use values and copies others. Use `ensureMove(x)` only to reject a copy at compile time; avoid `move(x)`.
+- Use `T` when the caller's variable stays unchanged, `var T` when the proc changes it, and `sink T` when the proc takes ownership. Use `lent T` only for borrowed returns.
+- Pass sink arguments normally. Nim moves proven last-use values and copies others. Use `ensureMove(x)` only to reject a copy at compile time.
 
 ### Lookup surface
 
@@ -75,9 +75,9 @@ Reference examples live in `references/`.
 4. Design the lookup surface.
    Provide one strict path for required data and one explicit safe path for optional data.
 5. Choose parameter modes and borrowed access.
-   Use `T` to read, `var T` to mutate the caller, `sink T` to accept ownership, and `lent T` only for borrowed returns. Do not return `var T` when mutation requires validation or bookkeeping.
+   Use `T` when the caller's variable stays unchanged, `var T` when the proc changes it, `sink T` when the proc takes ownership, and `lent T` to return a borrow. Use mutation procs when changes need validation or related updates.
 6. Verify the contract.
-   Compile normally. Test retained and temporary arguments for sink APIs. If you use `lent` or `var` accessors, verify the borrow compiles. If you use `func`, make sure the body stays pure. If you gate by Nim version, use `when` guards.
+   Compile public examples. Exercise each mutation, ownership, and failure path.
 
 ## Common Mistakes
 

@@ -223,7 +223,7 @@
     },
     {
       "claim_id": "C28",
-      "claim_text": "In public proc signatures, use `T` for read-only inputs and reserve `lent T` for borrowed return types; the compiler rejects `lent T` parameters.",
+      "claim_text": "In public proc signatures, use `T` when the caller's variable stays unchanged and reserve `lent T` for borrowed return types; the compiler rejects `lent T` parameters.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c28_lent_parameter_negative.nim",
       "test_passed": true,
@@ -239,7 +239,7 @@
     },
     {
       "claim_id": "C30",
-      "claim_text": "Pass arguments to `sink T` parameters normally. Use `ensureMove(x)` only as a compile-time assertion that a copy must not occur, not around routine sink calls; use `move(x)` only as a last resort because the moved-from source remains usable.",
+      "claim_text": "Pass sink arguments normally. Use `ensureMove(x)` only when a copy must be a compile-time error. `move(x)` forces transfer but leaves the source usable in its moved-from state.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c30_ownership_transfer.nim",
       "test_passed": true,
@@ -247,7 +247,7 @@
     },
     {
       "claim_id": "C31",
-      "claim_text": "Return `var T` only when every mutation allowed by `T` preserves the owner's invariants; when mutation requires validation or bookkeeping, expose mutation procs instead.",
+      "claim_text": "Return `var T` only when callers may freely modify the value. If changes require validation or related updates, expose mutation procs instead.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c31_mutation_invariants.nim",
       "test_passed": true,

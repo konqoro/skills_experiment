@@ -41,8 +41,8 @@ when isMainModule:
 
 ## Key points
 
-- Use `T` for read-only input and `var T` only for caller-visible mutation.
+- Use `T` when the caller's variable stays unchanged and `var T` when the proc changes it.
 - Use `sink T` when the callee stores, forwards, or otherwise takes ownership of the value.
-- A retained sink argument may be copied; a temporary can move directly.
+- Sink moves proven last-use values and copies others.
 - Use `lent T` only for a borrowed return tied to storage owned by the receiver.
 - Pass routine sink arguments normally. Use `ensureMove` only when a possible copy must be a compile-time error.
