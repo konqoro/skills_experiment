@@ -9,9 +9,8 @@ Debug by reducing uncertainty: preserve the failure, state one hypothesis, and
 collect the smallest piece of evidence that can reject it. Find the first
 violated invariant rather than stopping at the final crash.
 
-Commands and observed defaults were verified with Nim 2.3.1 and GCC 15 on
-Linux. Project configuration can override compiler defaults. Complete examples
-live under `references/`.
+Project configuration can override compiler defaults. Complete examples live
+under `references/`.
 
 # Rules
 
@@ -41,7 +40,7 @@ live under `references/`.
 
 ## Stack traces and build modes
 
-Nim 2.3.1 produced these defaults in the verified environment:
+Default build behavior:
 
 | Mode | Unhandled exception trace | `writeStackTrace()` |
 | --- | --- | --- |
@@ -83,8 +82,8 @@ Nim 2.3.1 produced these defaults in the verified environment:
 - Treat expansion output as evidence about generated operations, not as a
   reason to optimize by itself. `move` is destructive and requires deliberate
   last use plus behavior tests.
-- Nim 2.3.1 defaults to ORC in this environment. Read the compiler build hint
-  because project configuration may select ARC or atomic ARC.
+- Nim defaults to ORC. Read the compiler build hint because project
+  configuration may select ARC or atomic ARC.
 
 ## AddressSanitizer
 
