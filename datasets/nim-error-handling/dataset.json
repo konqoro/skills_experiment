@@ -23,11 +23,11 @@
   "mm_mode": "orc",
   "summary": {
     "total_claims": 31,
-    "testable": 22,
-    "passed": 22,
+    "testable": 23,
+    "passed": 23,
     "failed": 0,
     "nuanced": 0,
-    "not_testable": 9,
+    "not_testable": 8,
     "refinement_cycle": 7
   },
   "claims": [
@@ -185,9 +185,12 @@
     },
     {
       "claim_id": "C21",
-      "claim_text": "Never let exceptions escape a batch/orchestrator boundary \u2014 catch and record per-item.",
-      "source": "runPipeline in all 3 projects",
-      "is_testable": false
+      "claim_text": "At a batch boundary, catch and record recoverable per-item failures. Let failures of the reporting path escape to the application boundary.",
+      "source": "runPipeline patterns; error-handling benchmark task",
+      "is_testable": true,
+      "test_file_path": "tests/nim-error-handling_verification/test_ref_batch_preview_boundary.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The reference test records processing failures as ordered outcomes and confirms that translated audit failure escapes the batch."
     },
     {
       "claim_id": "C22",
@@ -293,6 +296,11 @@
     "The previous verified skill over-preferred `except X as e`. Evidence only supports using `as e` when the handler needs the exception object; otherwise `getCurrentExceptionMsg()` is enough.",
     "The previous refinement recommended exception-list annotations on raising procs. Use `{.raises: [].}` when a proc must not raise and leave raising procs unannotated.",
     {
+      "claim_id": "C21",
+      "original_claim": "Never let exceptions escape a batch/orchestrator boundary.",
+      "correction": "Record recoverable per-item failures at the batch boundary, but let failures of the reporting path escape to the application boundary."
+    },
+    {
       "claim_id": "batch_preview_boundary reference",
       "original_claim": "cast[seq[byte]](page.toOpenArrayByte(0, page.high)) converts a string to seq[byte].",
       "correction": "This cast segfaults at runtime. Use @(page.toOpenArrayByte(0, page.high)) instead \u2014 the @ operator materializes the openArray into a seq."
@@ -300,6 +308,6 @@
   ],
   "uncovered_topics": [],
   "needs_stronger_tests": [
-    "C17-C21, C24, C25, and C29 are still best exercised by the manual benchmark task because they are mostly about architectural code shape rather than runtime exception semantics."
+    "C17-C20, C24, C25, and C29 are still best exercised by the manual benchmark task because they are mostly about architectural code shape rather than runtime exception semantics."
   ]
 }

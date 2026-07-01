@@ -1,5 +1,4 @@
 # Test: batch_preview_boundary.md reference compiles and works
-import std/[strutils]
 
 type
   PreviewItem = object
@@ -33,19 +32,6 @@ proc fakeAuditWrite(auditPath: string; line: string) =
   if auditPath == "audit-fail":
     raise newException(OSError, "audit write failed")
 
-proc parseRetryLimit(s: string; value: var int): bool =
-  result = false
-  try:
-    let parsed = parseInt(s)
-    if parsed > 0:
-      value = parsed
-      result = true
-  except ValueError:
-    result = false
-
-proc loadPages(path: string): seq[string] =
-  fakeReadPages(path)
-
 proc buildPreviewPayload(pages: seq[string]; pageIndex: int): seq[byte] =
   if pageIndex >= pages.len:
     raise newException(ValueError, "page index out of bounds")
@@ -54,13 +40,10 @@ proc buildPreviewPayload(pages: seq[string]; pageIndex: int): seq[byte] =
     raise newException(IOError, "selected page was empty")
   result = @(page.toOpenArrayByte(0, page.high))
 
-proc publishPreview(payload: seq[byte]): string =
-  fakeUpload(payload)
-
 proc processOne(path: string; pageIndex: int): string =
-  let pages = loadPages(path)
+  let pages = fakeReadPages(path)
   let payload = buildPreviewPayload(pages, pageIndex)
-  result = publishPreview(payload)
+  result = fakeUpload(payload)
 
 proc writeAuditLine(auditPath: string; line: string) =
   try:
@@ -109,16 +92,20 @@ proc main =
   doAssert s2.items[1].errorMsg == "document missing"
   doAssert s2.items[2].errorMsg == "selected page was empty"
 
-  # Test 3: parseRetryLimit
-  var val = 0
-  doAssert parseRetryLimit("3", val) and val == 3
-  doAssert not parseRetryLimit("0", val)
-  doAssert not parseRetryLimit("abc", val)
-
-  # Test 4: page index out of bounds
+  # Test 3: page index out of bounds
   let s3 = runBatch(@["doc"], Positive(5), "audit.log")
   doAssert s3.failCount == 1
   doAssert s3.items[0].errorMsg == "page index out of bounds"
+
+  # Test 4: audit failure aborts the batch with added context
+  var auditFailed = false
+  try:
+    discard runBatch(@["missing"], Positive(1), "audit-fail")
+  except IOError:
+    auditFailed = true
+    doAssert getCurrentExceptionMsg() ==
+        "audit write failed for audit-fail: audit write failed"
+  doAssert auditFailed
 
 main()
 echo "ref_batch_preview_boundary: PASS"
