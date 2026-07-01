@@ -1,6 +1,6 @@
 ---
 name: nim-error-handling
-description: Design clear Nim error-handling flows; when to raise exceptions vs return `Option`/`bool`, how to enforce non-raising contracts, and where to translate or record failures. Use when reviewing failure behavior, parse errors, exception boundaries, or batch processing that needs per-item error reporting.
+description: Design clear Nim error-handling flows; when to raise exceptions vs return `Option`/`bool`, how to enforce non-raising contracts, and where to translate or record failures. Use when reviewing failure behavior, exception boundaries, recovery, or batch processing that needs per-item error reporting.
 ---
 
 # Nim Error Handling
@@ -10,9 +10,9 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 ### Choose the Failure Channel
 
 - Raise when the caller must handle an outcome as failure, such as invalid data or failed I/O.
-- Return `bool` for an expected miss when the caller needs success or failure. Add a `var` out-parameter when success produces a value.
-- Return `Option[T]` when expected absence should be returned as a value.
-- Return consumed length as `int` with `0` for no match only when a scanner must tell the caller how far to advance.
+- Return `bool` when success or failure is the whole result.
+- Return `Option[T]` when success produces a value but absence is expected.
+- Use `bool` with a `var` parameter only when filling or mutating caller-owned storage is part of the API.
 - Convert per-item failures into structured outcomes at the batch boundary. Keep intermediate steps exception-based.
 
 ### Place Boundaries
