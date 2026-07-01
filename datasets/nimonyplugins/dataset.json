@@ -4,11 +4,11 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 66,
-    "testable": 54,
-    "passed": 54,
+    "total_claims": 56,
+    "testable": 47,
+    "passed": 47,
     "failed": 0,
-    "not_testable": 12,
+    "not_testable": 9,
     "nuanced": 1,
     "untested": 0
   },
@@ -17,7 +17,7 @@
       "claim_id": "C02",
       "claim_text": "NifCursor is an owned read handle into a frozen NIF tree. Copying a NifCursor creates another read handle to the same underlying tree snapshot.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c02_c17_c21_c28_c30_c31_node_io.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c02_c17_c21_c28_c30_c31_node_io.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -25,7 +25,7 @@
       "claim_id": "C03",
       "claim_text": "snapshot(tree) requires a non-empty tree and takes var NifBuilder (borrows, does not consume).",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c04_c07_c08_c09_c16_basics.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c04_c07_c08_c09_c16_basics.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -33,7 +33,7 @@
       "claim_id": "C04",
       "claim_text": "isEmpty(tree) is the guard before snapshot(tree).",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c04_c07_c08_c09_c16_basics.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c04_c07_c08_c09_c16_basics.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -41,7 +41,7 @@
       "claim_id": "C07",
       "claim_text": "withTree(kind, info) emits a balanced node: opens tag, runs body, closes tag. kind is an enum type.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c04_c07_c08_c09_c16_basics.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c04_c07_c08_c09_c16_basics.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -49,7 +49,7 @@
       "claim_id": "C08",
       "claim_text": "kind and info tell you the raw token kind and source location on a NifCursor.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c04_c07_c08_c09_c16_basics.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c04_c07_c08_c09_c16_basics.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -57,7 +57,7 @@
       "claim_id": "C09",
       "claim_text": "stmtKind, exprKind, typeKind, otherKind, pragmaKind return the plugin-level node category.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c04_c07_c08_c09_c16_basics.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c04_c07_c08_c09_c16_basics.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -65,7 +65,7 @@
       "claim_id": "C10",
       "claim_text": "skip(node) skips the whole current subtree. firstChild(n) + hasMore provides bounded iteration over children.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c10_c45_c46_skip_bounds.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c10_c45_c46_skip_bounds.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -73,31 +73,7 @@
       "claim_id": "C11",
       "claim_text": "takeTree(t, var node) copies the current subtree and advances the reader. addSubtree(t, node) copies without advancing.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c11_takesubtree.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC."
-    },
-    {
-      "claim_id": "C13",
-      "claim_text": "addDotToken emits a dot placeholder. addStrLit, addIntLit, addUIntLit, addIdent, addCharLit, addFloatLit emit literal atoms.",
-      "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c13_c14_c15_literals.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC."
-    },
-    {
-      "claim_id": "C14",
-      "claim_text": "addSymUse(symId|string, info) emits a symbol-use token.",
-      "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c13_c14_c15_literals.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC."
-    },
-    {
-      "claim_id": "C15",
-      "claim_text": "addEmptyNode, addEmptyNode2, addEmptyNode3, addEmptyNode4 emit one to four dot placeholders. All accept an optional info: LineInfo parameter.",
-      "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c06_c15_c32_validation_edges.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c11_takesubtree.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -105,7 +81,7 @@
       "claim_id": "C16",
       "claim_text": "renderTree(tree) renders raw NIF text for debugging (omits line info). renderNode(node) renders the current subtree (omits line info).",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c04_c07_c08_c09_c16_basics.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c04_c07_c08_c09_c16_basics.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -121,31 +97,7 @@
       "claim_id": "C18",
       "claim_text": "errorTree(msg) builds a synthetic error node. errorTree(msg, info) uses info for location. errorTree(msg, at) uses at NifCursor for location. errorTree(msg, at, orig) uses at for location and orig as embedded source.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c18_errortree.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC."
-    },
-    {
-      "claim_id": "C19",
-      "claim_text": "eqIdent(name) is the quick exact-name check for identifiers and symbols.",
-      "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c19_eqident.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC."
-    },
-    {
-      "claim_id": "C20",
-      "claim_text": "symId, symText, identText, stringValue, charLit, intValue, uintValue, floatValue read the payload of the current token.",
-      "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c20_payload.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC."
-    },
-    {
-      "claim_id": "C21",
-      "claim_text": "tagId, tagText, tag are for raw tag inspection when you need exact NIF shape.",
-      "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c02_c17_c21_c28_c30_c31_node_io.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c18_errortree.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -156,14 +108,6 @@
       "test_file_path": "tests/nimonyplugins_verification/test_c23_snapshot_empty_negative.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Helper program exits non-zero."
-    },
-    {
-      "claim_id": "C25",
-      "claim_text": "Do not use inc on a NifCursor — inc does not exist for NifCursor. Use skip for subtrees, takeTree for atoms, or firstChild+hasMore for iteration.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "inc does not exist on NifCursor in the current API."
     },
     {
       "claim_id": "C26",
@@ -177,7 +121,7 @@
       "claim_id": "C27",
       "claim_text": "loadPluginInput() reads paramStr(1) by default and returns the input root as NifCursor. saveTree(tree) writes to paramStr(2) preserving line info.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c02_c17_c21_c28_c30_c31_node_io.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c02_c17_c21_c28_c30_c31_node_io.nim",
       "test_passed": true,
       "evaluation_notes": "NUANCED. The explicit filename round-trip is verified directly."
     },
@@ -185,7 +129,7 @@
       "claim_id": "C28",
       "claim_text": "NifCursor keeps the backing tree alive for you.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c02_c17_c21_c28_c30_c31_node_io.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c02_c17_c21_c28_c30_c31_node_io.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -193,7 +137,7 @@
       "claim_id": "C29",
       "claim_text": "Emit balanced trees. Match the expected child categories for the tag you are constructing.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c06_c32_validated.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c06_c32_validated.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -246,22 +190,6 @@
       "evaluation_notes": "Compiler resolution behavior."
     },
     {
-      "claim_id": "C39",
-      "claim_text": "Plugins are deterministic: same input produces same output. The compiler caches results.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Compiler caching behavior."
-    },
-    {
-      "claim_id": "C40",
-      "claim_text": "Template plugins can be hidden inside imported modules so callers don't see the .plugin pragma.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Module visibility pattern."
-    },
-    {
       "claim_id": "C41",
       "claim_text": "A module plugin receives the entire module after semantic analysis and must output back the complete module.",
       "is_testable": false,
@@ -281,7 +209,7 @@
       "claim_id": "C44",
       "claim_text": "bindSym(name, rule=brClosed) emits a hygienic symbol reference resolved at plugin definition scope. Emits a fully-qualified Symbol, not a bare Ident.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c44_bindsym.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c44_bindsym.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. bindSym emits a Symbol with module-qualified name."
     },
@@ -289,7 +217,7 @@
       "claim_id": "C45",
       "claim_text": "firstChild(n) returns a cursor bounded to a TagLit's children, usable with hasMore for safe iteration.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c10_c45_c46_skip_bounds.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c10_c45_c46_skip_bounds.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -297,7 +225,7 @@
       "claim_id": "C46",
       "claim_text": "hasMore(n) reports whether a bounded cursor has remaining values; traversal does not expose a closing-token sentinel.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c10_c45_c46_skip_bounds.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c10_c45_c46_skip_bounds.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -305,7 +233,7 @@
       "claim_id": "C47",
       "claim_text": "into n: body enters the current node, requires body to consume its children, and leaves n advanced past the node. loopInto iterates all children.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c47_into_loopinto.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c47_into_loopinto.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. loopInto requires body to advance n (e.g. skip n)."
     },
@@ -313,7 +241,7 @@
       "claim_id": "C48",
       "claim_text": "copyInto(t, var node): body copies the current tag into t, transforms all bounded children, closes output, and advances node past the source subtree.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c48_copyinto.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c48_copyinto.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -321,7 +249,7 @@
       "claim_id": "C49",
       "claim_text": "balancedTokens n: body visits descendant TagLit nodes, excludes the root, and leaves n advanced past the root; body must not advance n.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c49_balancedtokens.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c49_balancedtokens.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -329,7 +257,7 @@
       "claim_id": "C50",
       "claim_text": "The Replacer type bundles NifCursor+ NifBuilder with balanced operations: keep (copy+assert), drop (skip+assert), keepTag (descend into node), loopKeepTag (descend+iterate).",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c50_c51_c56_c57_replacer.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c50_c51_c56_c57_replacer.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -337,7 +265,7 @@
       "claim_id": "C51",
       "claim_text": "loadReplacer() reads input and returns a Replacer. saveReplacer(r) writes output to paramStr(2). Round-trips through .nif files.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c50_c51_c56_c57_replacer.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c50_c51_c56_c57_replacer.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -350,26 +278,10 @@
       "evaluation_notes": "Kind annotations use ChildKind enum or concrete tag enums. Factual."
     },
     {
-      "claim_id": "C53",
-      "claim_text": "renderTree omits line info for debugging. saveTree preserves line info for .nif output.",
-      "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c04_c07_c08_c09_c16_basics.nim",
-      "test_passed": true,
-      "evaluation_notes": "Already covered."
-    },
-    {
-      "claim_id": "C55",
-      "claim_text": "lineCol(info) returns a SourcePos object with line and col fields (1-based integers, or 0 when invalid).",
-      "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c02_c17_c21_c28_c30_c31_node_io.nim",
-      "test_passed": true,
-      "evaluation_notes": "Already tested."
-    },
-    {
       "claim_id": "C56",
       "claim_text": "getCursor(r) returns a copy of the Replacer's current cursor. setCursor(r, c) restores it. peek r: body saves cursor, runs body, restores cursor.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c50_c51_c56_c57_replacer.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c50_c51_c56_c57_replacer.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -377,7 +289,7 @@
       "claim_id": "C57",
       "claim_text": "replaceHead(t, tag, info): body replaces the opening tag of the current node, keeping children processed via body.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c50_c51_c56_c57_replacer.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c50_c51_c56_c57_replacer.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -425,7 +337,7 @@
       "claim_id": "C63",
       "claim_text": "snapshot borrows a non-empty builder and returns a stable cursor; later builder mutation detaches storage without changing the snapshot.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -433,7 +345,7 @@
       "claim_id": "C64",
       "claim_text": "createTree only creates an empty builder; known enum nodes use withTree, while dynamic tags use balanced openTree/closeTree.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -441,7 +353,7 @@
       "claim_id": "C65",
       "claim_text": "addTree borrows a NifBuilder and appends every complete top-level value; the source builder remains usable afterward.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The test appends one builder and then reads it again."
     },
@@ -489,7 +401,7 @@
       "claim_id": "C71",
       "claim_text": "Compound tokens are TagLit and string tokens are StrLit; bounded cursors expose no closing-token sentinel.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -497,7 +409,7 @@
       "claim_id": "C72",
       "claim_text": "balancedTokens visits descendant TagLit nodes, excludes the root, and advances the supplied cursor past the root.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c62_c63_c64_c65_c67_c68_c71_c72_c73_current_api.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC."
     },
@@ -505,7 +417,7 @@
       "claim_id": "C73",
       "claim_text": "SymId and TagId are pool-local numeric handles; resolve their source names with symText and tagText instead of $.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/test_c02_c17_c21_c28_c30_c31_node_io.nim",
+      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c02_c17_c21_c28_c30_c31_node_io.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC for text lookup; pool locality is source-verified."
     },
@@ -540,6 +452,14 @@
       "test_file_path": "tests/nimonyplugins_verification/test_c77_gensym_multiple_inputs.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. A Nimony-compiled type plugin calls genSym before and after loadTypeDefinitions and asserts that the handles differ."
+    },
+    {
+      "claim_id": "C78",
+      "claim_text": "The compiler validates argument count against the template signature at the call site before a template plugin is invoked; wrong-arity calls are rejected as too many/too few arguments and never reach the plugin.",
+      "is_testable": true,
+      "test_file_path": "tests/nimonyplugins_verification/test_c78_template_arity_enforced.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Both too-many and too-few-argument calls fail at the call site with the expected compiler message and never invoke the plugin."
     }
   ],
   "corrections": [],
@@ -575,6 +495,10 @@
     {
       "date": "2026-06-28",
       "action": "Replaced protocol-probe references with small standard plugin examples for all major plugin shapes and added an executable Markdown example test."
+    },
+    {
+      "date": "2026-07-01",
+      "action": "Refinement pass: verified the compiler enforces template arity before plugin invocation (C78). Removed redundant argument-count guards from generated_symbols.md and template_plugin.md and added a mistake-table row."
     },
     {
       "date": "2026-06-30",

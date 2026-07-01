@@ -7,12 +7,14 @@ if dirExists(base):
 createDir(base)
 
 let pluginDir = parentDir(currentSourcePath())
+let srcLibPath = findExe("nimony").parentDir.parentDir / "src" / "nimony" / "lib"
 
 proc runChild(name, source: string): (string, int) =
   let path = base / name
   writeFile(path, source)
   let cmd = "cd " & quoteShell(base) & " && nimony c -r " &
-      quoteShell("--path:" & pluginDir) & " " & quoteShell(path)
+      quoteShell("--path:" & pluginDir) & " " &
+      quoteShell("--path:" & srcLibPath) & " " & quoteShell(path)
   execCmdEx(cmd)
 
 let wrongLevel = runChild("wrong_level.nim", """

@@ -253,7 +253,7 @@
       "claim_text": "Return `bool` when success or failure is the whole result. Return `Option[T]` for an expected optional value. Use `bool` with `var` only when filling or mutating caller-owned storage is part of the API.",
       "source": "Nim stdlib audit at 115ec7a433a7; `nre`, `re`, `tables`, `streams`, and `syncio`",
       "is_testable": false,
-      "evaluation_notes": "DETERMINISTIC. In `lib/pure`, `lib/std`, and `lib/core`, 180 exported procs return `bool`; only 35 mention a `var` parameter, and most of those mutate a receiver or fill caller-owned storage. Modern `nre.match` and `nre.find` return `Option[RegexMatch]`, while legacy `re` capture overloads use `bool` with `var openArray`. Table `pop` and stream `readLine` use `bool` with `var` because mutation or caller-owned storage is central to the operation."
+      "evaluation_notes": "DETERMINISTIC. In `lib/pure`, `lib/std`, and `lib/core`, 172 exported procs return `bool`; only 33 have a `var` parameter, and those APIs mutate a receiver or fill caller-owned storage. Modern `nre.match` and `nre.find` return `Option[RegexMatch]`, while legacy `re` capture overloads use `bool` with `var openArray`. Table `pop` and stream `readLine` use `bool` with `var` because mutation or caller-owned storage is central to the operation."
     },
     {
       "claim_id": "C30",

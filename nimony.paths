@@ -1,0 +1,3 @@
+# Resolved relative to this file's directory.
+# Points to the nimony source lib so `import plugins` works for direct-API tests.
+../Projects/nimony/src/nimony/lib

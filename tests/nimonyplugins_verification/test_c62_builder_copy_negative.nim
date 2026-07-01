@@ -8,6 +8,7 @@ createDir(base)
 
 let source = base / "copy_builder.nim"
 let pluginDir = parentDir(currentSourcePath())
+let srcLibPath = findExe("nimony").parentDir.parentDir / "src" / "nimony" / "lib"
 writeFile(source, """
 import plugins
 var original = createTree()
@@ -17,7 +18,7 @@ discard copied
 """)
 
 let cmd = "nimony c " & quoteShell("--path:" & pluginDir) & " " &
-  quoteShell(source)
+  quoteShell("--path:" & srcLibPath) & " " & quoteShell(source)
 let res = execCmdEx(cmd)
 doAssert res.exitCode != 0, res.output
 doAssert res.output.contains("'=dup' is not available for type <TokenBuf>"),
