@@ -1,24 +1,24 @@
 # Test: constructors.md reference compiles and works
 type
-  Catalog = object
+  Catalog* = object
     items: seq[string]
 
-proc initCatalog(initialSize = 8): Catalog =
+proc initCatalog*(initialSize = 8): Catalog =
   Catalog(items: newSeqOfCap[string](initialSize))
 
-proc toCatalog(items: openArray[string]): Catalog =
+proc toCatalog*(items: openArray[string]): Catalog =
   result = initCatalog(items.len)
   for item in items:
     result.items.add item
 
-proc toCatalog(item: string): Catalog =
+proc toCatalog*(item: string): Catalog =
   result = initCatalog(1)
   result.items.add item
 
 type
-  CatalogRef = ref Catalog
+  CatalogRef* = ref Catalog
 
-proc newCatalog(initialSize = 8): CatalogRef =
+proc newCatalog*(initialSize = 8): CatalogRef =
   new(result)
   result[] = initCatalog(initialSize)
 

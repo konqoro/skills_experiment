@@ -1,12 +1,12 @@
 # Test: parameter_and_result_shapes.md reference compiles and works
 type
-  WalkOptions = object
+  WalkOptions* = object
     relative*: bool
     skipHidden*: bool
     extension*: string
-    maxDepth*: int
+    maxDepth: int
 
-  SearchSummary = object
+  SearchSummary* = object
     root*: string
     matchedPaths*: seq[string]
     skippedCount*: int

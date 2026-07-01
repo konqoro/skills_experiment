@@ -1,30 +1,30 @@
 # Test: collection_accessors.md reference compiles and works
 type
-  PackageId = distinct string
+  PackageId* = distinct string
 
-  PackageMeta = object
-    title: string
-    version: string
-    tags: seq[string]
-    downloads: Natural
+  PackageMeta* = object
+    title*: string
+    version*: string
+    tags*: seq[string]
+    downloads*: Natural
 
-  PackageCatalog = object
+  PackageCatalog* = object
     ids: seq[PackageId]
     entries: seq[PackageMeta]
 
-proc `==`(a, b: PackageId): bool {.borrow.}
-proc `$`(id: PackageId): string {.borrow.}
+proc `==`*(a, b: PackageId): bool {.borrow.}
+proc `$`*(id: PackageId): string {.borrow.}
 
 proc raiseMissingPackage(id: PackageId) {.noinline, noreturn.} =
   raise newException(KeyError, "unknown package: " & $id)
 
-proc initPackageCatalog(initialSize = 8): PackageCatalog =
+proc initPackageCatalog*(initialSize = 8): PackageCatalog =
   PackageCatalog(
     ids: newSeqOfCap[PackageId](initialSize),
     entries: newSeqOfCap[PackageMeta](initialSize)
   )
 
-proc toPackageCatalog(pairs: openArray[(PackageId, PackageMeta)]): PackageCatalog =
+proc toPackageCatalog*(pairs: openArray[(PackageId, PackageMeta)]): PackageCatalog =
   result = initPackageCatalog(pairs.len)
   for (id, meta) in pairs:
     result.ids.add id
@@ -36,19 +36,19 @@ proc findIndex(catalog: PackageCatalog; id: PackageId): int {.inline.} =
       return i
   raiseMissingPackage(id)
 
-proc len(catalog: PackageCatalog): int {.inline.} =
+proc len*(catalog: PackageCatalog): int {.inline.} =
   catalog.ids.len
 
-proc meta(catalog: PackageCatalog; id: PackageId): lent PackageMeta {.inline.} =
+proc meta*(catalog: PackageCatalog; id: PackageId): lent PackageMeta {.inline.} =
   result = catalog.entries[findIndex(catalog, id)]
 
-proc tags(catalog: PackageCatalog; id: PackageId): lent seq[string] {.inline.} =
+proc tags*(catalog: PackageCatalog; id: PackageId): lent seq[string] {.inline.} =
   result = catalog.entries[findIndex(catalog, id)].tags
 
-proc tags(catalog: var PackageCatalog; id: PackageId): var seq[string] {.inline.} =
+proc tags*(catalog: var PackageCatalog; id: PackageId): var seq[string] {.inline.} =
   result = catalog.entries[findIndex(catalog, id)].tags
 
-proc downloads(catalog: PackageCatalog; id: PackageId): Natural {.inline.} =
+proc downloads*(catalog: PackageCatalog; id: PackageId): Natural {.inline.} =
   catalog.entries[findIndex(catalog, id)].downloads
 
 proc main =

@@ -1,10 +1,10 @@
 # Test: representation_default.md reference compiles and works
 type
-  Rect = object
-    x, y, w, h: int
+  Rect* = object
+    x*, y*, w*, h*: int
 
-  RectRef = ref object
-    x, y, w, h: int
+  RectRef* = ref object
+    x*, y*, w*, h*: int
 
 let a = Rect(x: 12, y: 22, w: 40, h: 80)
 var copied = a

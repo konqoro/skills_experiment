@@ -15,8 +15,8 @@ proc rename*(job: var Job; name: string) =
 proc add*(queue: var JobQueue; job: sink Job) =
   queue.jobs.add job
 
-proc last*(queue: JobQueue): lent Job =
-  queue.jobs[queue.jobs.high]
+proc jobs*(queue: JobQueue): lent seq[Job] =
+  queue.jobs
 
 proc example() =
   var queue: JobQueue
@@ -28,7 +28,7 @@ proc example() =
 
   var transferred = Job(name: "transferred", payload: @[3'u8])
   queue.add transferred
-  doAssert queue.last.name == "transferred"
+  doAssert jobs(queue)[^1].name == "transferred"
 
 example()
 echo "ref_parameter_ownership: PASS"

@@ -1,10 +1,10 @@
 # Test: accessor_pair.md reference compiles and works
 type
-  PackageMeta = object
-    version: string
-    tags: seq[string]
+  PackageMeta* = object
+    version*: string
+    tags*: seq[string]
 
-  PackageCatalog = object
+  PackageCatalog* = object
     ids: seq[string]
     entries: seq[PackageMeta]
 

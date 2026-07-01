@@ -1,7 +1,7 @@
 # Test: distinct_types.md reference compiles and works
 type
-  PackageId = distinct string
-  UserId = distinct string
+  PackageId* = distinct string
+  UserId* = distinct string
 
 proc `==`*(a, b: PackageId): bool {.borrow.}
 proc `$`*(id: PackageId): string {.borrow.}
