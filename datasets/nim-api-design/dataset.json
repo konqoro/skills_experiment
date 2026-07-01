@@ -263,7 +263,7 @@
     },
     {
       "claim_id": "C33",
-      "claim_text": "Prefer range types for constrained public parameters. Store validated values in private base-type fields. Range checks apply in debug and release builds but are removed by danger mode or disabled range checks.",
+      "claim_text": "Prefer range types for constrained public parameters. Use base types for stored fields. Range checks apply in debug and release builds but are removed by danger mode or disabled range checks.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c33_range_type_boundaries.nim",
       "test_passed": true,
@@ -331,7 +331,7 @@
       "bucket": "ambiguous wording",
       "summary": "Broad range-type guidance can lead agents to use `Natural` for every stored field.",
       "evidence": "Generated C adds no check after a `Natural` parameter is validated, and the stdlib overwhelmingly uses range types in callable signatures rather than object fields.",
-      "check": "Range types constrain public parameters without spreading mechanically into stored fields.",
+      "check": "Range types constrain public parameters without spreading into stored fields.",
       "next_action": "skill edit"
     }
   ],
@@ -383,7 +383,7 @@
     {
       "claim_id": "C33",
       "original_claim": "Keep constraints in types. Use `Natural`, `Positive`, and ranges instead of weakening to `int`.",
-      "correction": "Prefer range types for constrained public parameters, then store validated values in private base-type fields. Range checks are not enforced in danger mode or when disabled."
+      "correction": "Prefer range types for constrained public parameters and base types for stored fields. Range checks are not enforced in danger mode or when disabled."
     }
   ]
 }

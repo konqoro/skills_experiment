@@ -25,7 +25,7 @@ Reference examples live in `references/`.
 
 ### Contracts
 
-- Prefer range types for constrained public parameters. Store validated values in private base-type fields.
+- Prefer range types for constrained public parameters. Use base types for stored fields.
 - Use `distinct` when two values share a base type but must not mix.
 - Use `func` for pure query operations when purity is part of the public contract.
 - Use `{.raises.}` only when it keeps the public exception surface clear and easy to maintain.

@@ -10,7 +10,7 @@ type
     title*: string
     version*: string
     tags*: seq[string]
-    downloads*: Natural
+    downloads*: int
 
   PackageCatalog* = object
     ids: seq[PackageId]
@@ -52,7 +52,7 @@ proc tags*(catalog: PackageCatalog; id: PackageId): lent seq[string] {.inline.} 
 proc tags*(catalog: var PackageCatalog; id: PackageId): var seq[string] {.inline.} =
   result = catalog.entries[findIndex(catalog, id)].tags
 
-proc downloads*(catalog: PackageCatalog; id: PackageId): Natural {.inline.} =
+proc downloads*(catalog: PackageCatalog; id: PackageId): int {.inline.} =
   catalog.entries[findIndex(catalog, id)].downloads
 ```
 

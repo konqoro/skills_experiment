@@ -48,7 +48,7 @@ proc findFiles*(root: string, relative = false, skipHidden = false, extension = 
 
 - Keep one or two simple optional inputs as plain parameters with plain defaults.
 - Introduce an options object when a proc starts collecting related knobs.
-- Use range types for constrained public parameters, then store validated values in private base-type fields.
+- Use range types for constrained public parameters and base types for stored fields.
 - Use a sentinel default only when that value has one unambiguous domain meaning.
 - Use a named object for semantic results; keep tuples for local glue and iterator yields.
 - Range checks run in debug and release builds, but not in danger mode or when disabled.
