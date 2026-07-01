@@ -1,6 +1,7 @@
 # Parser-Style State Object
 
-Use one explicit state object and top-level procs when a module has a step-by-step orchestration flow.
+Use an explicit state object and top-level procs when an incremental workflow
+preserves invariants between calls.
 
 ```nim
 type
@@ -36,4 +37,5 @@ proc run(ids: openArray[string], completionOrder: openArray[int]): seq[string] =
 - Shared mutable flow lives in one named object.
 - Helper procs mutate `var WriteState` explicitly.
 - The driver proc stays short because the state flow is named and visible.
-- This matches the shape used by stdlib parser-style modules better than nested helper captures.
+- This matches stdlib parser-style modules when state persists across
+  operations.

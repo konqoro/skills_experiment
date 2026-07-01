@@ -1,161 +1,107 @@
-# Task: Implement a small rule parser module in a readable, opinionated Nim style
+# Task
 
-Create a file called `subject_solution.nim`.
+Implement a small command-line rule normalizer in `subject_solution.nim`.
 
-The goal is to judge code style and code shape, not algorithm difficulty.
-The runtime behavior is fixed. The internal decomposition is your choice.
+The program reads rule lines from standard input, validates and normalizes
+them, then prints a summary. Keep the implementation suitable for a small
+maintained Nim utility.
 
-The judge may inspect helper kind, helper placement, loop shape, constructor use, local declarations, and unused code in addition to runtime behavior.
-Small predicate helpers may be concise. Keep the exported parser procs easy to scan.
+## Deliverables
 
-## Required public surface
+- `subject_solution.nim`
 
-These exact exported symbols must exist:
+## Inputs and Fixtures
 
-```nim
-type
-  ParseMode* = enum
-    pmStrict,
-    pmLenient
+The program receives exactly two command-line arguments:
 
-  RuleEventKind* = enum
-    rekEof,
-    rekAccept,
-    rekSkip,
-    rekReject
+1. mode: `strict` or `lenient`
+2. a non-empty summary label
 
-  RuleEvent* = object
-    kind*: RuleEventKind
-    normalized*: string
-    reason*: string = ""
+Rule lines are read from standard input. No fixture files are provided.
 
-  RuleParser* = object
-    mode*: ParseMode = pmStrict
-    label*: string = "default"
-    accepted*: seq[string]
-    skipped*: int
-    rejected*: int
-    duplicates*: int
+## Required Behavior
 
-proc open*(p: var RuleParser; lines: openArray[string]; mode = pmStrict; label = "default")
-proc next*(p: var RuleParser): RuleEvent
-proc close*(p: var RuleParser)
-proc renderSummary*(p: RuleParser): seq[string]
+For each input line:
+
+- Trim spaces and tabs from both ends.
+- An empty line is invalid in strict mode. In lenient mode, count it as
+  skipped.
+- A line whose first non-whitespace character is `#` is a comment and counts
+  as skipped in either mode.
+- A rule contains exactly one `=`.
+- Trim spaces and tabs around both sides of `=`, then lowercase both sides.
+- A key must be non-empty and contain only ASCII letters, digits, `-`, or `_`.
+- A value must be non-empty and contain only ASCII letters, digits, `-`, `_`,
+  or `/`.
+- The normalized form is `<key>=<value>`.
+- The first occurrence of a normalized rule is accepted and retained in input
+  order. Later occurrences count as duplicates.
+- Any other line is invalid. Strict mode exits non-zero on the first invalid
+  line. Lenient mode counts invalid lines as rejected and continues.
+
+After consuming valid lenient or strict input, print exactly:
+
+```text
+summary <label>
+mode <strict|lenient>
+accept <first normalized rule>
+accept <next normalized rule>
+duplicates <N>
+skipped <N>
+rejected <N>
 ```
 
-No other exports are required.
+Print one `accept` line per accepted rule. If argument validation fails, exit
+non-zero.
 
-## Required behavior
+For the lenient input used below, the exact output must be:
 
-Treat the parser as an incremental parser over a fixed input sequence of lines.
-
-`open` rules:
-
-- Store the provided lines inside the parser so `next` can read them later
-- Reset the parser to a fresh state
-- Keep the `mode` argument
-- Keep the `label` argument
-
-`next` rules:
-
-- Read the next unread line and return one event
-- If there are no more unread lines, return `RuleEvent(kind: rekEof)`
-- Trim spaces and tabs around the current line
-- If the trimmed line is empty:
-  - in `pmStrict`, raise `ValueError`
-  - in `pmLenient`, increment `skipped` and return `RuleEvent(kind: rekSkip, reason: "empty")`
-- If the trimmed line starts with `#`, increment `skipped` and return `RuleEvent(kind: rekSkip, reason: "comment")`
-- A valid rule line has exactly one `=`
-- Trim spaces and tabs around both sides of `=`
-- The key must be lowercased and may contain only `{'a'..'z', '0'..'9', '-', '_'}` after trimming
-- The value must be lowercased and may contain only `{'a'..'z', '0'..'9', '-', '_', '/'}` after trimming
-- The normalized accepted form is `<key>=<value>` in lowercase
-- If the line is malformed or uses invalid characters:
-  - in `pmStrict`, raise `ValueError`
-  - in `pmLenient`, increment `rejected` and return `RuleEvent(kind: rekReject, reason: "invalid")`
-- Accepted normalized rules are unique
-- The first accepted occurrence wins
-- If a normalized rule is accepted for the first time:
-  - append it to `accepted`
-  - return `RuleEvent(kind: rekAccept, normalized: <normalized>)`
-- If a normalized rule was already accepted:
-  - increment `duplicates`
-  - return `RuleEvent(kind: rekSkip, normalized: <normalized>, reason: "duplicate")`
-
-`close` rules:
-
-- Reset the parser to its normal empty state
-- After `close`, `accepted.len == 0`, `skipped == 0`, `rejected == 0`, `duplicates == 0`
-- After `close`, `mode == pmStrict` and `label == "default"`
-
-`renderSummary` rules:
-
-- Return the lines in this exact order:
-  - `summary <label>`
-  - `mode <strict|lenient>`
-  - one `accept <normalized>` line per accepted rule in original accepted order
-  - `duplicates <N>`
-  - `skipped <N>`
-  - `rejected <N>`
-
-## Required smoke run
-
-Add a `when isMainModule:` block that checks all of these:
-
-- Opening in lenient mode and calling `next` repeatedly on:
-  `@[" user = Alice ", " ", "#note", "user=alice", "bad!", "path = Docs/Guide"]`
-  yields, in order:
-  - `RuleEvent(kind: rekAccept, normalized: "user=alice")`
-  - `RuleEvent(kind: rekSkip, reason: "empty")`
-  - `RuleEvent(kind: rekSkip, reason: "comment")`
-  - `RuleEvent(kind: rekSkip, normalized: "user=alice", reason: "duplicate")`
-  - `RuleEvent(kind: rekReject, reason: "invalid")`
-  - `RuleEvent(kind: rekAccept, normalized: "path=docs/guide")`
-  - `RuleEvent(kind: rekEof)`
-- After that run:
-  - `accepted == @["user=alice", "path=docs/guide"]`
-  - `skipped == 2`
-  - `duplicates == 1`
-  - `rejected == 1`
-- `renderSummary` then returns:
-  `@["summary batch-a", "mode lenient", "accept user=alice", "accept path=docs/guide", "duplicates 1", "skipped 2", "rejected 1"]`
-- In strict mode:
-  - `open` on `@["bad!"]`
-  - the first `next` raises `ValueError`
-- `close` resets the parser back to the empty default state
-
-Then print:
-
-```nim
-echo "SMOKE: PASS"
+```text
+summary batch-a
+mode lenient
+accept user=alice
+accept path=docs/guide
+duplicates 1
+skipped 2
+rejected 1
 ```
 
-## Critical requirements
+## Required Commands
 
-- Compile and run with `nim c -r subject_solution.nim`
-- Keep the public export surface narrow; do not export internal helpers
-- Remove unused imports
-- Avoid dead declarations left over from refactoring
-
-## Judge checklist
-
-Score only these checks:
-
-- compiles and runs with `nim c -r subject_solution.nim`
-- runtime prints `SMOKE: PASS`
-- `open`, `next`, `close`, and `renderSummary` match the required behavior
-- accepted rules preserve original accepted order and the counters are correct
-- the exported surface contains the required public symbols and no obvious extra exported internals
-- no `continue` statement appears in the file
-- no `type` block appears inside a proc
-- helpers with their own control flow, if present, are `proc` or `func`, not `template`
-- helper procs, if present, are top-level rather than nested inside exported procs
-- no obvious one-argument-per-line call blocks are used where a compact wrapped call would fit naturally
-- object construction does not restate defaulted fields when the defaults are intended to remain unchanged
-- no unused imports are left in the file
-
-After writing, verify it runs:
+Run these commands from the trial directory:
 
 ```bash
-nim c -r subject_solution.nim
+nim c -o:subject_solution subject_solution.nim
+printf ' user = Alice \n\n#note\nuser=alice\nbad!\npath = Docs/Guide\n' | ./subject_solution lenient batch-a
+! printf 'bad!\n' | ./subject_solution strict batch-b
 ```
+
+## Judge Checklist
+
+- `nim c -o:subject_solution subject_solution.nim` succeeds.
+- The required lenient command exits zero and its complete standard output
+  exactly matches the seven specified lines.
+- The required strict command exits non-zero.
+- Every imported standard-library module uses a `std/...` import, and the
+  compiler reports no unused import.
+- User-defined type names use `PascalCase`; other user-defined identifiers use
+  ordinary `camelCase`. Initialisms use word casing such as `parseAscii` and
+  `AsciiScanner`, rather than all-caps fragments.
+- Ordinary parsing and validation helpers use `proc` or `func`. The file has
+  no `method`; any `template` or `macro` has a call-site substitution or syntax
+  transformation role that cannot be expressed with ordinary call semantics.
+- Every local `var` is mutated after initialization or passed to a `var`
+  parameter. Locals that remain unchanged use `let`.
+- The source contains no `continue`. Normal loop processing is expressed with
+  structured branches; `return` is reserved for an actual guard, found value,
+  or fatal exit.
+- Range operators use compact spelling such as `'a'..'z'` and `0..<items.len`;
+  spaces appear only when an operand itself contains an operator.
+- Outside unavoidable long string literals, no line exceeds 80 characters;
+  indentation uses spaces, with no tab characters or hand-aligned columns.
+- Multi-line declarations, conditions, and calls use continued indentation.
+  Calls that fit naturally within 80 characters are not expanded into
+  one-argument-per-line blocks.
+- Object constructors omit fields whose declared defaults are intended to
+  apply. Field-by-field initialization of a defaulted object begins from an
+  explicit `TypeName()` value.

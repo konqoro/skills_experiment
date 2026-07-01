@@ -1,6 +1,5 @@
-Explicit state object vs nested closure pattern for orchestration code.
-
-## Preferred: explicit state object
+Choose state scope based on whether mutation belongs to one local operation or
+spans several orchestration steps.
 
 ```nim
 type
@@ -10,22 +9,34 @@ type
 proc flushReady(state: var WriteState; total: int) =
   if state.nextToWrite < total:
     inc state.nextToWrite
-```
 
-## Avoid (design smell, not a bug): nested closure
+proc runShared(total: int): int =
+  var state: WriteState
+  while state.nextToWrite < total:
+    flushReady(state, total)
+  result = state.nextToWrite
 
-```nim
-proc run() =
-  let total = 10
+proc runLocal(total: int): int =
   var nextToWrite = 0
+
   proc flushReady() =
     if nextToWrite < total:
       inc nextToWrite
+
+  while nextToWrite < total:
+    flushReady()
+  result = nextToWrite
+
+doAssert runShared(10) == 10
+doAssert runLocal(10) == 10
 ```
 
 ### Key points
 
 - Both patterns compile and run correctly under ORC.
-- The explicit state pattern makes data flow visible in the proc signature.
-- Use nested closures only when the capture is short and obvious.
-- For multi-step flows, the explicit state object scales better.
+- A short closure is appropriate when its state and use remain local to one
+  operation.
+- An explicit state object makes mutation shared by several steps visible in
+  their proc signatures.
+- Choose based on state lifetime and invariant scope, not a blanket ban on
+  nested procs.
