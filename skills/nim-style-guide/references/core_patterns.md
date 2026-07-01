@@ -14,7 +14,10 @@ from std/paths import Path, isAbsolute
 
 ## Callable kind
 
-Default to `proc`. Use `func` for obviously pure helpers. Use `template` only for tiny substitutions. Do not use `method` unless runtime dispatch is required. Keep reusable helpers top-level; use nesting for very local logic or intentional closures.
+Default to `proc`. Use `func` when checked purity helps. Use `template` for
+call-site substitution, lazy evaluation, or control-flow abstraction. Use
+`method` for runtime dispatch. Keep reusable helpers top-level; use nesting for
+very local logic or intentional closures.
 
 ```nim
 func isAbsolutePath(path: Path): bool =
