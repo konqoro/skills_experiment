@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 26,
-    "testable": 20,
-    "passed": 20,
+    "total_claims": 29,
+    "testable": 23,
+    "passed": 23,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 5,
@@ -220,6 +220,30 @@
       "test_file_path": "tests/nim-api-design_verification/test_c27_batch_parameter_operations.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. `openArray[int]` accepts arrays, seqs, and literals for reads but rejects mutation. `var openArray[int]` accepts arrays and seqs and propagates element mutation while rejecting `setLen` and replacement. `var seq[int]` permits caller-visible resizing."
+    },
+    {
+      "claim_id": "C28",
+      "claim_text": "In public proc signatures, use `T` for read-only inputs and reserve `lent T` for borrowed return types; the compiler rejects `lent T` parameters.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c28_lent_parameter_negative.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The negative compile test rejects `proc inspect(item: lent Item)` with `invalid type: 'lent Item' in this context`."
+    },
+    {
+      "claim_id": "C29",
+      "claim_text": "Use a `sink T` parameter when the callee takes ownership of a value. Sink permits a move but does not guarantee caller consumption: the compiler copies when it cannot prove last use, and the callee may consume the parameter once or not at all.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c29_sink_parameter_contract.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. An owning value passed to `sink Token` is copied when retained after the call, while a temporary is passed without invoking the copy hook. The ownership-hooks affine-sink test also confirms the callee may consume the parameter or leave it unused."
+    },
+    {
+      "claim_id": "C30",
+      "claim_text": "Pass arguments to `sink T` parameters normally. Use `ensureMove(x)` only as a compile-time assertion that a copy must not occur, not around routine sink calls; use `move(x)` only as a last resort because the moved-from source remains usable.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c30_ownership_transfer.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A normal last-use sink call moves without invoking the copy hook. `ensureMove` accepts a provable move and the companion negative test rejects an expression that would require a copy. `move` transfers the value but leaves the source usable with its moved-from default state."
     }
   ],
   "failure_samples": [
@@ -230,6 +254,33 @@
       "summary": "The blanket batch-input rule led an agent to recommend `openArray` without first checking whether the callee needs mutation or resizing.",
       "evidence": "The response treated `openArray` and `seq` as the only choices, omitting `var openArray` for fixed-length element mutation and omitting that caller-visible resizing requires `var seq`.",
       "check": "Parameter shape matches the operations required by the callee.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "skills/nim-api-design/SKILL.md",
+      "bucket": "missing rule",
+      "summary": "Agents use `lent T` for input parameters instead of reserving it for borrowed returns.",
+      "evidence": "`proc inspect(item: lent Item)` fails to compile because `lent Item` is invalid in parameter position.",
+      "check": "Every public parameter mode is valid and matches caller-visible behavior.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "skills/nim-api-design/SKILL.md",
+      "bucket": "missing rule",
+      "summary": "Agents treat `sink T` as unconditional consumption of the caller's variable.",
+      "evidence": "A retained argument is copied before a sink call; the caller's value remains valid.",
+      "check": "Ownership-taking parameters document move-or-copy behavior accurately.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "skills/nim-api-design/SKILL.md",
+      "bucket": "ambiguous wording",
+      "summary": "Agents wrap routine sink arguments in `ensureMove` even when normal last-use analysis is sufficient.",
+      "evidence": "`t.dest.addTree(ensureMove(replacement))` adds no value when `addTree` accepts `sink T` and `replacement` is already at last use.",
+      "check": "Routine sink calls rely on normal move-or-copy analysis without redundant annotations.",
       "next_action": "skill edit"
     }
   ],
@@ -272,6 +323,11 @@
       "claim_id": "C27",
       "original_claim": "Accept `openArray` for batch inputs when callers naturally have arrays, seqs, or literals.",
       "correction": "Choose by required operations: `openArray[T]` for reads, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing or replacing the caller's sequence."
+    },
+    {
+      "claim_id": "C30",
+      "original_claim": "Use `ensureMove(x)` when transfer must be explicit and last-use checked.",
+      "correction": "Pass routine sink arguments normally. Use `ensureMove(x)` only when compilation should fail rather than permit a copy."
     }
   ]
 }

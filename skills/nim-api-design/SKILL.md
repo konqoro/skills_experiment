@@ -1,6 +1,6 @@
 ---
 name: nim-api-design
-description: Design clear public Nim APIs for libraries and modules, including exported types, constructors, lookup functions, error contracts, and container-style interfaces. Use when creating or reviewing a Nim library API, designing an exported module surface, or deciding how callers should construct, access, and validate data.
+description: Design clear public Nim APIs for libraries and modules, including exported types, constructors, parameter ownership, lookup functions, error contracts, and container-style interfaces. Use when creating or reviewing a Nim library API, designing an exported module surface, or deciding how callers should construct, pass, access, and validate data.
 ---
 
 # Nim API Design
@@ -38,6 +38,12 @@ Reference examples live in `references/`.
 - Choose batch parameters by operation: `openArray[T]` for reads, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing or replacement.
 - Keep the zero-argument path simple with sensible defaults.
 
+### Parameter ownership
+
+- Use `T` for read-only inputs, `var T` to mutate the caller, and `sink T` when the callee takes ownership. Reserve `lent T` for borrowed returns.
+- Treat `sink T` as permission to move, not guaranteed caller consumption. Nim copies an argument when it cannot prove last use, and the callee may consume the parameter once or not at all.
+- Pass sink arguments normally. Use `ensureMove(x)` only when a copy must be rejected at compile time; use `move(x)` only as a last resort.
+
 ### Lookup surface
 
 - Separate required lookup from optional lookup.
@@ -69,10 +75,10 @@ Reference examples live in `references/`.
    Use `initX`, `newX`, and `toX` in the stdlib style.
 4. Design the lookup surface.
    Provide one strict path for required data and one explicit safe path for optional data.
-5. Add borrowed and mutable access.
-   Use `lent` for reads into owned storage. Add mutable access only where the caller must edit stored data.
+5. Choose parameter modes and borrowed access.
+   Use `T` to read, `var T` to mutate the caller, `sink T` to accept ownership, and `lent T` only for borrowed returns.
 6. Verify the contract.
-   Compile normally. If you use `lent` or `var` accessors, verify the borrow compiles. If you use `func`, make sure the body stays pure. If you gate by Nim version, use `when` guards.
+   Compile normally. Test retained and temporary arguments for sink APIs. If you use `lent` or `var` accessors, verify the borrow compiles. If you use `func`, make sure the body stays pure. If you gate by Nim version, use `when` guards.
 
 ## Common Mistakes
 
@@ -84,6 +90,9 @@ Reference examples live in `references/`.
 | Returning a silent default for required data | It hides missing-data bugs |
 | Exporting scalar `var` accessors | It leaks mutable internal state |
 | Returning a `lent` or `var` result through a temp local | ORC rejects the borrow because the temp escapes |
+| Using `lent T` for an input parameter | `lent T` is a borrowed return type; the compiler rejects it in parameter position |
+| Assuming `sink T` always consumes the caller's variable | Nim copies the argument when it cannot prove last use |
+| Wrapping a routine sink argument in `ensureMove` | Sink calls already use last-use analysis; `ensureMove` adds noise and unnecessarily rejects a valid copy |
 
 ## References
 
@@ -93,3 +102,4 @@ Reference examples live in `references/`.
 - `references/accessor_pair.md` — Minimal borrowed and mutable accessor pair with one shared error helper
 - `references/distinct_types.md` — Domain types with `distinct` and borrowed operations
 - `references/parameter_and_result_shapes.md` — Parameter defaults, options objects, and named result objects
+- `references/parameter_ownership.md` — `T`, `var T`, `sink T`, `lent T`, and explicit ownership transfer
