@@ -1,6 +1,6 @@
 ---
 name: nim-error-handling
-description: Design clear Nim error-handling flows; when to raise exceptions vs return `Option`/`bool`, how to define `raises` contracts, and where to translate or record failures. Use when reviewing failure behavior, parse errors, exception boundaries, or batch processing that needs per-item error reporting.
+description: Design clear Nim error-handling flows; when to raise exceptions vs return `Option`/`bool`, how to enforce non-raising contracts, and where to translate or record failures. Use when reviewing failure behavior, parse errors, exception boundaries, or batch processing that needs per-item error reporting.
 ---
 
 # Nim Error Handling
@@ -36,13 +36,9 @@ Use this skill to decide where code should raise, catch, translate, or return st
 - Inherit from a more specific existing base like `ValueError` or `IOError` when the semantic fit is clear.
 - Deriving directly from `CatchableError` or `Defect` is fine when no intermediate base matches.
 
-### Make Contracts Explicit
+### Non-Raising Contracts
 
-- Add explicit `raises` contracts on exported procs only when the exception surface is stable and narrow.
-- Do not annotate every internal helper by default.
-- Use `.raises: []` for a proc that must not raise.
-- Use `.raises: [X]` when one specific exception type is part of the contract.
-- Treat `raises` as a compiler-checked contract, not documentation prose.
+- Use `{.raises: [].}` when a proc must not raise. Leave raising procs unannotated.
 
 ### Translate and Inspect Errors
 
@@ -63,10 +59,8 @@ Use this skill to decide where code should raise, catch, translate, or return st
    Step procs raise. Parse helpers may catch once. Module boundaries may translate. Orchestrators may record per-item failure.
 3. Pick the exception type.
    Start with an existing type. Add a subtype only if callers need distinct handling.
-4. Write the contract.
-   Add `raises` on exported procs when the exception surface is narrow and stable. Keep it accurate.
-5. Verify the shape.
-   Compile the code. Run the repo tests. If you wrote `raises`, ensure the compiler accepts the contract.
+4. Verify the shape.
+   Compile the code and run the repo tests.
 
 ## Minimal Pattern
 

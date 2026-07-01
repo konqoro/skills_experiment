@@ -238,12 +238,12 @@
     },
     {
       "claim_id": "C28",
-      "claim_text": "Treat `.raises: []` and `.raises: [X]` as real compiler-checked contracts, not comments.",
-      "source": "Zen of Nim exception tracking; stdlib parseutils",
+      "claim_text": "Use `{.raises: [].}` when a proc must not raise. Leave raising procs unannotated.",
+      "source": "compiler verification; user feedback on public API noise",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c28_c30_error_contracts.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A `.raises: []` proc that calls a raising proc fails to compile, while a matching `.raises: [ValueError]` contract compiles. This matches the Zen of Nim exception-tracking guidance and stdlib patterns such as parseutils."
+      "evaluation_notes": "DETERMINISTIC. The compiler rejects a `{.raises: [].}` proc that calls a raising proc. An unannotated raising proc compiles without adding an exception-list maintenance contract."
     },
     {
       "claim_id": "C29",
@@ -291,7 +291,7 @@
   ],
   "corrections": [
     "The previous verified skill over-preferred `except X as e`. Evidence only supports using `as e` when the handler needs the exception object; otherwise `getCurrentExceptionMsg()` is enough.",
-    "The previous refinement over-extended `raises` guidance to internal helpers. Keep `raises` focused on exported/public contracts unless an internal proc really needs an explicit contract.",
+    "The previous refinement recommended exception-list annotations on raising procs. Use `{.raises: [].}` when a proc must not raise and leave raising procs unannotated.",
     {
       "claim_id": "batch_preview_boundary reference",
       "original_claim": "cast[seq[byte]](page.toOpenArrayByte(0, page.high)) converts a string to seq[byte].",

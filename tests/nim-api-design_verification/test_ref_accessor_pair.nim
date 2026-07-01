@@ -18,15 +18,15 @@ proc findIndex(catalog: PackageCatalog; id: string): int {.inline.} =
   raiseAccessorError("unknown package id: " & id)
 
 proc meta*(catalog: PackageCatalog; id: string): lent PackageMeta
-    {.inline, raises: [KeyError].} =
+    {.inline.} =
   result = catalog.entries[findIndex(catalog, id)]
 
 proc tags*(catalog: PackageCatalog; id: string): lent seq[string]
-    {.inline, raises: [KeyError].} =
+    {.inline.} =
   result = catalog.entries[findIndex(catalog, id)].tags
 
 proc tags*(catalog: var PackageCatalog; id: string): var seq[string]
-    {.inline, raises: [KeyError].} =
+    {.inline.} =
   result = catalog.entries[findIndex(catalog, id)].tags
 
 proc main =

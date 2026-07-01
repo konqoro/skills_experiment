@@ -1,4 +1,4 @@
-## C28-C30: explicit raises contracts and custom exception base choice
+## C28-C30: non-raising contracts and custom exception base choice
 
 block c28:
   static:
@@ -14,9 +14,9 @@ block c28:
       proc mayRaise(): int =
         raise newException(ValueError, "boom")
 
-      proc main() {.raises: [ValueError].} =
+      proc main() =
         discard mayRaise()
-    ), "matching raises annotations should compile"
+    ), "raising procs need no raises annotation"
 
 block c30:
   type
