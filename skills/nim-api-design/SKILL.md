@@ -41,8 +41,7 @@ Reference examples live in `references/`.
 ### Parameter ownership
 
 - Use `T` for read-only inputs, `var T` to mutate the caller, and `sink T` when the callee takes ownership. Reserve `lent T` for borrowed returns.
-- Treat `sink T` as permission to move, not guaranteed caller consumption. Nim copies an argument when it cannot prove last use, and the callee may consume the parameter once or not at all.
-- Pass sink arguments normally. Use `ensureMove(x)` only when a copy must be rejected at compile time; use `move(x)` only as a last resort.
+- Pass sink arguments normally. Nim moves proven last-use values and copies others. Use `ensureMove(x)` only to reject a copy at compile time; avoid `move(x)`.
 
 ### Lookup surface
 
@@ -92,7 +91,7 @@ Reference examples live in `references/`.
 | Returning a `lent` or `var` result through a temp local | ORC rejects the borrow because the temp escapes |
 | Using `lent T` for an input parameter | `lent T` is a borrowed return type; the compiler rejects it in parameter position |
 | Assuming `sink T` always consumes the caller's variable | Nim copies the argument when it cannot prove last use |
-| Wrapping a routine sink argument in `ensureMove` | Sink calls already use last-use analysis; `ensureMove` adds noise and unnecessarily rejects a valid copy |
+| Wrapping a routine sink argument in `ensureMove` | Sink already performs last-use analysis; use `ensureMove` only when the code must fail instead of copy |
 
 ## References
 
