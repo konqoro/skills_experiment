@@ -35,7 +35,7 @@ Reference examples live in `references/`.
 - Value types use `initX()` and return `T`.
 - Ref types use `newX()` and return `ref T`.
 - Use one `toX()` name for common conversions. Overload on input type.
-- Accept `openArray` for batch inputs when callers naturally have arrays, seqs, or literals.
+- Choose batch parameters by operation: `openArray[T]` for reads, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing or replacement.
 - Keep the zero-argument path simple with sensible defaults.
 
 ### Lookup surface
