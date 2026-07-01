@@ -1,42 +1,53 @@
-Choose state scope based on whether mutation belongs to one local operation or
-spans several orchestration steps.
+Choose local variables for a self-contained calculation and explicit state when
+several operations share an invariant.
 
 ```nim
 type
-  WriteState = object
-    nextToWrite: int
+  ReportState = object
+    accepted: int
+    rejected: int
+    messages: seq[string]
 
-proc flushReady(state: var WriteState; total: int) =
-  if state.nextToWrite < total:
-    inc state.nextToWrite
+proc recordAccepted(state: var ReportState; name: string) =
+  inc state.accepted
+  state.messages.add "accepted " & name
 
-proc runShared(total: int): int =
-  var state: WriteState
-  while state.nextToWrite < total:
-    flushReady(state, total)
-  result = state.nextToWrite
+proc recordRejected(state: var ReportState; name: string) =
+  inc state.rejected
+  state.messages.add "rejected " & name
 
-proc runLocal(total: int): int =
-  var nextToWrite = 0
+proc buildReport(names: openArray[string]): seq[string] =
+  var state: ReportState
+  for name in names:
+    if name.len > 0:
+      state.recordAccepted(name)
+    else:
+      state.recordRejected("<empty>")
 
-  proc flushReady() =
-    if nextToWrite < total:
-      inc nextToWrite
+  result = state.messages
+  result.add "accepted " & $state.accepted
+  result.add "rejected " & $state.rejected
 
-  while nextToWrite < total:
-    flushReady()
-  result = nextToWrite
+proc countNonEmpty(names: openArray[string]): int =
+  for name in names:
+    if name.len > 0:
+      inc result
 
-doAssert runShared(10) == 10
-doAssert runLocal(10) == 10
+doAssert countNonEmpty(["alpha", "", "beta"]) == 2
+doAssert buildReport(["alpha", "", "beta"]) == @[
+  "accepted alpha",
+  "rejected <empty>",
+  "accepted beta",
+  "accepted 2",
+  "rejected 1"
+]
 ```
 
-### Key points
+## Key points
 
-- Both patterns compile and run correctly under ORC.
-- A short closure is appropriate when its state and use remain local to one
-  operation.
-- An explicit state object makes mutation shared by several steps visible in
-  their proc signatures.
-- Choose based on state lifetime and invariant scope, not a blanket ban on
-  nested procs.
+- `countNonEmpty` is linear and needs no state type.
+- `ReportState` is useful because multiple operations maintain related counts
+  and messages.
+- The object exposes shared mutation without introducing reference identity.
+- Extract state and helpers because they express invariants, not merely to
+  shorten the driver.

@@ -79,23 +79,15 @@ live under `references/`.
    Use direct calls and `case` for closed behavior. Introduce runtime dispatch
    for an open subtype-based design.
 
-## Minimal Pattern
+## State Scope
 
-```nim
-type
-  State = object
-    pos: int
-    ready: seq[bool]
-
-proc markReady(state: var State; idx: int) =
-  state.ready[idx] = true
-
-proc flushReady(state: var State; ids: openArray[string];
-    output: var seq[string]) =
-  while state.pos < ids.len and state.ready[state.pos]:
-    output.add ids[state.pos]
-    inc state.pos
-```
+| Situation | Default shape |
+| --- | --- |
+| One linear operation | Local values in one proc |
+| Several operations share an invariant | Plain state object passed by `var` |
+| One caller owns a short captured operation | Nested proc |
+| Several phases share a named operation | Module-level proc |
+| Identity or shared lifetime is required | `ref object` |
 
 # Common Mistakes
 
