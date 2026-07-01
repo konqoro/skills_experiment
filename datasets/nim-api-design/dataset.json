@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 29,
-    "testable": 23,
-    "passed": 23,
+    "total_claims": 30,
+    "testable": 24,
+    "passed": 24,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 5,
@@ -244,6 +244,14 @@
       "test_file_path": "tests/nim-api-design_verification/test_c30_ownership_transfer.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. A normal last-use sink call moves without invoking the copy hook. `ensureMove` accepts a provable move and the companion negative test rejects an expression that would require a copy. `move` transfers the value but leaves the source usable with its moved-from default state."
+    },
+    {
+      "claim_id": "C31",
+      "claim_text": "Return `var T` only when every mutation allowed by `T` preserves the owner's invariants; when mutation requires validation or bookkeeping, expose mutation procs instead.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c31_mutation_invariants.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A `var seq[string]` accessor lets the caller insert invalid data without updating cached length. A mutation proc rejects empty and duplicate values and keeps cached state synchronized."
     }
   ],
   "failure_samples": [
@@ -281,6 +289,15 @@
       "summary": "Agents wrap routine sink arguments in `ensureMove` even when normal last-use analysis is sufficient.",
       "evidence": "`t.dest.addTree(ensureMove(replacement))` adds no value when `addTree` accepts `sink T` and `replacement` is already at last use.",
       "check": "Routine sink calls rely on normal move-or-copy analysis without redundant annotations.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "skills/nim-api-design/SKILL.md",
+      "bucket": "missing rule",
+      "summary": "Agents expose `var` access to state whose mutations require validation or bookkeeping.",
+      "evidence": "A `var seq` accessor can insert invalid values and leave cached state stale.",
+      "check": "Public mutable access cannot bypass owner invariants.",
       "next_action": "skill edit"
     }
   ],

@@ -53,7 +53,7 @@ Reference examples live in `references/`.
 ### Borrowed and mutable access
 
 - Use `lent T` for read accessors that return storage owned by the receiver.
-- Add `var T`, `mitems`, or `mpairs` only when caller mutation is part of the API.
+- Return `var T` only when callers may freely modify the value. If changes require validation or related updates, expose mutation procs instead.
 - Do not expose scalar `var` accessors such as `var int`, `var bool`, or enum fields from internal state.
 - In `lent` and `var` accessors, return directly from storage. Do not route through a temp local.
 
@@ -75,7 +75,7 @@ Reference examples live in `references/`.
 4. Design the lookup surface.
    Provide one strict path for required data and one explicit safe path for optional data.
 5. Choose parameter modes and borrowed access.
-   Use `T` to read, `var T` to mutate the caller, `sink T` to accept ownership, and `lent T` only for borrowed returns.
+   Use `T` to read, `var T` to mutate the caller, `sink T` to accept ownership, and `lent T` only for borrowed returns. Do not return `var T` when mutation requires validation or bookkeeping.
 6. Verify the contract.
    Compile normally. Test retained and temporary arguments for sink APIs. If you use `lent` or `var` accessors, verify the borrow compiles. If you use `func`, make sure the body stays pure. If you gate by Nim version, use `when` guards.
 
@@ -88,9 +88,10 @@ Reference examples live in `references/`.
 | Weakening `Natural` or `Positive` to `int` and re-checking manually | It throws away a stronger type-level contract |
 | Returning a silent default for required data | It hides missing-data bugs |
 | Exporting scalar `var` accessors | It leaks mutable internal state |
+| Returning `var T` for controlled state | Callers can bypass validation and related updates |
 | Returning a `lent` or `var` result through a temp local | ORC rejects the borrow because the temp escapes |
 | Using `lent T` for an input parameter | `lent T` is a borrowed return type; the compiler rejects it in parameter position |
-| Assuming `sink T` always consumes the caller's variable | Nim copies the argument when it cannot prove last use |
+| Assuming a sink call always moves the caller's variable | Nim copies the argument when it cannot prove last use |
 | Wrapping a routine sink argument in `ensureMove` | Sink already performs last-use analysis; use `ensureMove` only when the code must fail instead of copy |
 
 ## References
