@@ -6,9 +6,9 @@ type
   Sku* = distinct string
 
   Product* = object
-    name*: string
-    labels*: seq[string]
-    stock*: int
+    productName: string
+    productLabels: seq[string]
+    productStock: int
 
   Inventory* = object
     ids: seq[Sku]
@@ -16,6 +16,21 @@ type
 
 proc `==`*(a, b: Sku): bool {.borrow.}
 proc `$`*(sku: Sku): string {.borrow.}
+
+proc initProduct*(name: string; labels: openArray[string];
+    stock: Natural): Product =
+  result = Product(productName: name, productStock: stock)
+  for label in labels:
+    result.productLabels.add label
+
+func name*(product: Product): string =
+  product.productName
+
+func stock*(product: Product): int =
+  product.productStock
+
+proc labels*(product: Product): lent seq[string] =
+  product.productLabels
 
 proc raiseMissing(sku: Sku) {.noinline, noreturn.} =
   raise newException(KeyError, "unknown sku: " & $sku)
@@ -45,18 +60,17 @@ proc labels*(inventory: var Inventory; sku: Sku): var seq[string] =
   let idx = inventory.findIndex(sku)
   if idx < 0:
     raiseMissing(sku)
-  result = inventory.products[idx].labels
+  result = inventory.products[idx].productLabels
 
 proc setStock*(inventory: var Inventory; sku: Sku; stock: Natural) =
   let idx = inventory.findIndex(sku)
   if idx < 0:
     raiseMissing(sku)
-  inventory.products[idx].stock = stock
+  inventory.products[idx].productStock = stock
 
 let hammer = Sku("hammer")
 var inventory: Inventory
-inventory.add hammer,
-  Product(name: "Hammer", labels: @["tool"], stock: 4)
+inventory.add hammer, initProduct("Hammer", ["tool"], 4)
 doAssert inventory.contains(hammer)
 doAssert inventory.product(hammer).name == "Hammer"
 inventory.labels(hammer).add "steel"
@@ -70,5 +84,7 @@ doAssert inventory.product(hammer).stock == 6
 - `contains` is the explicit optional path; `product` is the required lookup
   and raises one specific exception.
 - The borrowed result is returned directly from owner storage.
-- Labels are freely editable, so a `var seq[string]` accessor is appropriate.
-- Stock changes use a proc because the public contract constrains the value.
+- Labels are freely editable, so a `var seq[string]` inventory accessor is
+  appropriate.
+- Stock remains private and changes through a proc because its public contract
+  constrains the value.

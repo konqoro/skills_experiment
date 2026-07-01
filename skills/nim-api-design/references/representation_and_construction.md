@@ -4,8 +4,8 @@ session whose shared identity is part of the contract.
 ```nim
 type
   EncoderOptions* = object
-    quality*: int
-    format*: string
+    encoderQuality: int
+    encoderFormat: string
 
   EncoderSession* = ref object
     options: EncoderOptions
@@ -13,22 +13,28 @@ type
 
 proc initEncoderOptions*(quality: range[1..100] = 80;
     format = "png"): EncoderOptions =
-  EncoderOptions(quality: quality, format: format)
+  EncoderOptions(encoderQuality: quality, encoderFormat: format)
 
 proc newEncoderSession*(
     options = initEncoderOptions()): EncoderSession =
   EncoderSession(options: options)
 
 func quality*(session: EncoderSession): int =
-  session.options.quality
+  session.options.encoderQuality
+
+func quality*(options: EncoderOptions): int =
+  options.encoderQuality
+
+func format*(options: EncoderOptions): string =
+  options.encoderFormat
 
 proc recordFrame*(session: EncoderSession) =
   inc session.encodedFrames
 
 let defaults = initEncoderOptions()
-var custom = defaults
-custom.quality = 95
+let custom = initEncoderOptions(95)
 doAssert defaults.quality == 80
+doAssert defaults.format == "png"
 
 let session = newEncoderSession(custom)
 let alias = session
