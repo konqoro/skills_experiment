@@ -226,7 +226,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-debugging_verification/test_c15_c16_c26_c27_expandarc.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. expandArc:main shows =destroy calls for the owning arrays and temporaries."
+      "evaluation_notes": "DETERMINISTIC. expandArc:main shows =destroy calls for the owning arrays."
     },
     {
       "claim_id": "C28",
