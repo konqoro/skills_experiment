@@ -119,7 +119,7 @@ Score only these checks:
 - the raw layer stays thin
 - `subject_wrapper.nim` exports only the required ergonomic surface
 - `subject_wrapper.nim` does not re-export raw `eventkit_*`, `EVENTKIT_*`, or `EventKit*` symbols
-- `EventSession` is move-only with `=destroy`, `=wasMoved`, `=sink`, and `{.error.}` on `=copy` and `=dup`
+- `EventSession` has one close path; copy, duplication, and sink assignment are rejected
 - callback bridging uses a plain `cdecl` proc and supports an installed Nim closure sink
 - the bridge copies callback topic and payload into Nim-managed values before invoking the installed sink
 - wrapper errors are surfaced as Nim exceptions rather than raw result/status objects

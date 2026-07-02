@@ -1,124 +1,79 @@
-# Task: Write raw Nim bindings for one vendored shared library plus one system C symbol
+# Task
 
-Create a file called `subject_solution.nim`.
+Create raw Nim bindings for the supplied `benchffi` C library and a small
+executable that proves the bindings work after relocation.
 
-This is a raw FFI task, not a wrapper-design task. Keep the exported surface close to the C API.
-The benchmark is Linux-only in this repo.
+## Deliverables
 
-## Provided fixture
+- `benchffi_raw.nim`
+- `smoke.nim`
 
-The runner stages these files into the trial directory before you start:
+## Inputs and Fixtures
+
+The trial contains:
 
 - `fixtures/benchffi.h`
 - `fixtures/benchffi.c`
 
-## Required surface roles
+Treat the header as the API specification. The C source is provided to build
+the shared library used by the smoke run.
 
-Near the top of `subject_solution.nim`, add this comment block and replace the names on the right-hand side with the exported names you chose:
+The environment is Linux with a C compiler and Nim available.
 
-```nim
-# API map:
-# opaque handle type:
-# config-bycopy type:
-# snapshot-bycopy type:
-# status-bycopy type:
-# ok status constant:
-# invalid-argument status constant:
-# open proc:
-# close proc:
-# push proc:
-# snapshot proc:
-# label proc:
-# system math proc:
-```
+## Required Behavior
 
-Your exported raw binding surface must be sufficient to:
+`benchffi_raw.nim` must expose a low-level binding for the complete public API
+in `fixtures/benchffi.h`. Keep it as a raw binding module; conversions and
+resource-management wrappers are outside this task.
 
-- represent the helper handle as an opaque handle type
-- represent the helper config struct as a by-value C-compatible type with fields for bias, scale, and label
-- represent the helper snapshot struct as a by-value C-compatible type with fields for count, total, mean, and checksum
-- represent the helper status struct as a by-value C-compatible type with fields for code and message
-- expose the two status codes from the fixture
-- open and close the helper handle
-- push an array of signed 32-bit integers into the helper
-- read the helper snapshot
-- read the helper label
-- call the real C `cos` symbol from `<math.h>`
+`smoke.nim` must import that module and:
 
-## Task constraints
+- create a config with bias `2`, scale `3`, and label `"alpha"`
+- open a handle and check that it is non-nil
+- push `[1, 4, 7]` as signed C integers
+- check the returned status code and message against the header contract
+- read a snapshot and check count `3`, total `54`, mean `18.0`, and checksum
+  `156834`
+- check that the label is `"alpha"`
+- close the handle once
+- print exactly `SMOKE: PASS`
 
-- Keep this as a raw binding surface. Do not add an ergonomic wrapper API on top.
-- The helper library is a vendored local shared library built from the committed fixture source.
-- The executable is later copied into a separate run directory with the helper `.so` copied alongside it and run from there.
-- The solution is judged partly by source inspection for portability decisions around local-vs-system linking and runtime loading.
+The executable and shared library must still work when copied together into a
+fresh run directory. Do not require the caller to set loader environment
+variables.
 
-## Required smoke run
+## Required Commands
 
-Add a `when isMainModule:` block that:
-
-1. Builds this config:
-
-```nim
-var config = <your config-bycopy type>(
-  bias: 2,
-  scale: 3,
-  label: "alpha"
-)
-```
-
-2. Opens the handle and asserts it is non-nil.
-3. Pushes these values:
-
-```nim
-let values = [1.cint, 4.cint, 7.cint]
-```
-
-4. Asserts:
-
-- the push proc returns the exported ok-status constant
-- the push status message is `"ok"`
-- the snapshot count is `3`
-- the snapshot total is `54`
-- `abs(mean - 18.0) < 1e-12`
-- the snapshot checksum is `156834`
-- the label proc yields `"alpha"`
-- `abs(system math proc(0.0) - 1.0) < 1e-12`
-
-5. Closes the handle exactly once.
-6. Prints:
-
-```nim
-echo "SMOKE: PASS"
-```
-
-## Required build and run
-
-Your `subject_solution.nim` must compile and run with these commands from the trial directory:
+Run these commands from the trial directory:
 
 ```bash
 mkdir -p build run
-cc -shared -fPIC fixtures/benchffi.c \
-  -Ifixtures \
-  -o build/libbenchffi.so
-nim c --out:build/subject_solution subject_solution.nim
-cp build/subject_solution run/
-cp build/libbenchffi.so run/
-./run/subject_solution
+cc -shared -fPIC fixtures/benchffi.c -Ifixtures -o build/libbenchffi.so
+nim c --nimcache:build/nimcache --out:build/smoke smoke.nim
+cp build/smoke build/libbenchffi.so run/
+cd run
+./smoke
 ```
 
-## Judge checklist
+## Judge Checklist
 
-Score only these checks:
-
-- compiles with the required commands above
-- the relocated runtime step prints `SMOKE: PASS`
-- the API map is present and matches the exported surface
-- the exported raw surface covers all required roles
-- the handle type is opaque rather than a declared full C struct layout
-- the config, snapshot, and status structs are ABI-faithful by-value representations of the fixture structs
-- the file stays a raw binding layer instead of adding a friendly wrapper API
-- the source does not hardcode a machine-specific or system-library search path for `cos`
-- the source handles the vendored helper library after relocation without depending on `LD_LIBRARY_PATH`, `DYLD_LIBRARY_PATH`, or `PATH`
-- the source does not embed an obvious absolute or build-tree runtime path for the helper library
-
-After writing, verify it with the required build and run commands.
+- The required commands succeed from a fresh trial directory and the relocated
+  executable prints exactly `SMOKE: PASS`.
+- `benchffi_raw.nim` directly imports every public function declared by
+  `fixtures/benchffi.h`; the imported declarations have no Nim bodies.
+- The handle is represented without declaring the private C struct layout.
+- Config, snapshot, and status preserve the C field order and use
+  ABI-compatible field types. Structs passed or returned by value are declared
+  for by-value C ABI use.
+- Both status macros are exposed as raw constants with the header values.
+- Pointer-plus-length input remains pointer-plus-length in the raw module.
+- `smoke.nim` uses the raw declarations directly and closes the opened handle
+  exactly once.
+- Neither deliverable compiles `fixtures/benchffi.c` into the Nim executable or
+  adds a second Nim-bodied binding/wrapper for a public C function.
+- Removing `run/libbenchffi.so` makes `run/smoke` fail to start or load the
+  API, proving the executable uses the staged shared library.
+- The source and executable contain no machine-specific absolute library path
+  or trial build-directory runtime path.
+- Runtime discovery works without `LD_LIBRARY_PATH`, `DYLD_LIBRARY_PATH`, or
+  `PATH` changes.

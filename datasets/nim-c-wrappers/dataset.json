@@ -4,19 +4,19 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 54,
-    "testable": 41,
-    "passed": 40,
+    "total_claims": 58,
+    "testable": 45,
+    "passed": 44,
     "failed": 0,
     "not_testable": 13,
-    "nuanced": 4,
+    "nuanced": 3,
     "untested": 1
   },
   "corrections": [
     {
       "claim_id": "C32",
       "original_claim": "The RC pattern in the skill uses =dup with 'result = src' which triggers implicit =copy in ORC, not =dup as intended. Also =sink does not handle RC correctly for copyable types.",
-      "correction": "The RC pattern compiles and works for basic operations, but the original example's '=dup' body 'result = src' is problematic. Use field-by-field assignment instead. The =sink for RC types should not just transfer ownership \u2014 it should also handle the reference count."
+      "correction": "The current field-by-field `=dup` and transfer-style `=sink` balance the counter across copies, moves, overwrite, and destruction. The older `result = src` form already invokes `=copy`; incrementing again afterward over-counts owners."
     },
     {
       "claim_id": "C18",
@@ -27,16 +27,21 @@
       "claim_id": "C21",
       "original_claim": "C type 'long double' maps to Nim 'clongdouble' which is not truly supported by codegen.",
       "correction": "`clongdouble` exists and has ABI size, but the evidence-backed rule is narrower: practical code generation support is limited and should be validated before real use."
+    },
+    {
+      "claim_id": "C12",
+      "original_claim": "Use {.header.} for static linking and {.dynlib.} for dynamic linking.",
+      "correction": "`header` makes generated C include a declaration for compiler/linker-resolved calls; it is not a synonym for static linking. `dynlib` performs Nim runtime loading, and combining `header` with the same proc defeats runtime-only resolution in the verified configuration."
     }
   ],
   "uncovered_topics": [
     "stdcall calling convention"
   ],
   "needs_stronger_tests": [
-    "C32 - RC pattern still needs allocator-level leak checking (ASan/Valgrind) to verify no double-free or leak",
+    "C32 - LeakSanitizer could not run under the current ptrace environment; allocator counters balance and ASan reports no address errors with leak detection disabled",
     "C36 - Seq reallocation invalidation should get a more deterministic growth/capacity probe",
     "C50 - Add a direct packed/unpacked ABI mismatch test against a real C layout or byte-level round-trip",
-    "C32 - RC pattern: ORC alias analysis means var b = a in same scope does not call =copy/=dup; only proc-return copies trigger =copy. Test covers proc-return path but not same-scope alias analysis."
+    "C32 - ORC alias analysis can elide copies for same-scope last-use assignments; keep proc-return copy coverage in ownership regressions"
   ],
   "claims": [
     {
@@ -129,11 +134,11 @@
     },
     {
       "claim_id": "C12",
-      "claim_text": "Use {.header.} for static linking and {.dynlib.} for dynamic linking.",
+      "claim_text": "Use header for compiler/linker-resolved C declarations and dynlib for Nim runtime loading; do not combine header with the same dynlib-imported proc.",
       "is_testable": true,
       "test_file_path": "tests/nim-c-wrappers_verification/test_c12_c13_dynlib_platform.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. C11 covers `header`; C12/C13 builds a local shared library and loads it through a `dynlib` import."
+      "evaluation_notes": "DETERMINISTIC. C11 covers header-based declarations and C12/C13 loads a local shared library through dynlib. The nim-c-bindings negative test confirms header plus dynlib requires link-time resolution."
     },
     {
       "claim_id": "C13",
@@ -265,11 +270,11 @@
     },
     {
       "claim_id": "C29",
-      "claim_text": "For move-only resources, implement =destroy, =wasMoved, =sink hooks; mark =copy and =dup with {.error.} to prevent double-free.",
+      "claim_text": "For a move-only wrapper resource, implement =destroy and reject =copy, =dup, and =sink with {.error.}.",
       "is_testable": true,
-      "test_file_path": "tests/nim-c-wrappers_verification/test_c29_move_only_hooks.nim",
+      "test_file_path": "tests/nim-c-wrappers_verification/test_c57_sink_error.nim",
       "test_passed": true,
-      "evaluation_notes": "Move-only pattern with {.error.} on =copy/=dup compiles and works. Negative test confirms =copy is blocked. DETERMINISTIC."
+      "evaluation_notes": "DETERMINISTIC. `ensureMove` initializes a new owner, while overwriting an initialized owner from a temporary fails because `=sink` is unavailable."
     },
     {
       "claim_id": "C30",
@@ -291,9 +296,9 @@
       "claim_id": "C32",
       "claim_text": "For reference-counted (copyable) resources, use an RC pattern with a ptr int counter; decrement in =destroy and free when count reaches 0.",
       "is_testable": true,
-      "test_file_path": "tests/nim-c-wrappers_verification/test_c32_rc_pattern.nim",
+      "test_file_path": "tests/nim-c-wrappers_verification/test_c55_rc_stress.nim",
       "test_passed": true,
-      "evaluation_notes": "NUANCED. RC pattern compiles and basic operations work. However, the original skill's example has a subtle issue: '=dup' body uses 'result = src' which triggers =copy not =dup in some contexts. Also =sink for RC types should handle reference counting. See corrections."
+      "evaluation_notes": "DETERMINISTIC. The current field-by-field `=dup`, transfer-style `=sink`, `=copy`, and `=destroy` balance one raw allocation and one counter allocation across copies, overwrite, self-assignment, move, and scope destruction. ASan reports no address errors with the required allocator flags."
     },
     {
       "claim_id": "C33",
@@ -470,6 +475,38 @@
       "test_file_path": "tests/nim-c-wrappers_verification/test_c29_bad_copy_error.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Negative compile test: '=copy' is not available for type <Handle>."
+    },
+    {
+      "claim_id": "C55",
+      "claim_text": "The manual-RC pattern's counter represents owners beyond the first and remains balanced across proc-return copies, overwrite, self-assignment, moves, and destruction.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-wrappers_verification/test_c55_rc_stress.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Runtime allocation counters balance exactly; expandArc shows the custom sink on overwrite and destruction of each remaining owner."
+    },
+    {
+      "claim_id": "C56",
+      "claim_text": "In the older manual-RC `=dup`, `result = src` invokes `=copy`; an additional explicit counter increment therefore over-counts owners.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-wrappers_verification/test_c56_rc_dup_assignment.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Two live owners produce counter value 2 with `result = src` plus an explicit increment, while the convention requires 1. The test normalizes the deliberate over-count before teardown."
+    },
+    {
+      "claim_id": "C57",
+      "claim_text": "Marking =sink with {.error.} rejects sink assignment for a move-only wrapper.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-wrappers_verification/test_c57_sink_error.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Overwriting an initialized owner from a temporary fails with `=sink is not available for type <Handle>`."
+    },
+    {
+      "claim_id": "C58",
+      "claim_text": "The complete module_layout.md raw and ergonomic modules compile and run against a real shared C library.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-wrappers_verification/test_ref_module_layout_real.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test extracts both Nim blocks unchanged, builds `libfoo.so`, loads a texture, checks the returned by-value struct, calls the drawing proc, and destroys the owned texture."
     }
   ]
 }

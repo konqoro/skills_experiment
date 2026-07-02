@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 31,
-    "testable": 14,
-    "passed": 14,
+    "total_claims": 34,
+    "testable": 17,
+    "passed": 17,
     "failed": 0,
     "not_testable": 17,
     "nuanced": 2,
@@ -25,7 +25,6 @@
     }
   ],
   "uncovered_topics": [
-    "Actual dynlib loading at runtime with a custom shared library",
     "Cross-compilation scenarios",
     "Nim config file (nims) integration for linker flags"
   ],
@@ -61,9 +60,9 @@
       "claim_id": "C04",
       "claim_text": "For value structs that Nim must pass by value, use bycopy.",
       "is_testable": true,
-      "test_file_path": "tests/nim-c-bindings_verification/test_c04_bycopy.nim",
+      "test_file_path": "tests/nim-c-bindings_verification/test_c32_raw_abi.nim",
       "test_passed": true,
-      "evaluation_notes": "bycopy struct compiles and can be passed by value to procs. DETERMINISTIC."
+      "evaluation_notes": "DETERMINISTIC. A header-backed `bycopy` struct crosses the C ABI by value in both parameter and return positions; C-reported sizes and offsets match Nim."
     },
     {
       "claim_id": "C05",
@@ -280,6 +279,30 @@
       "test_file_path": null,
       "test_passed": null,
       "evaluation_notes": "CI YAML content \u2014 confirmed (Copy-Item $env:VCPKG_ROOT\\bin\\*.dll)."
+    },
+    {
+      "claim_id": "C32",
+      "claim_text": "Verify imported concrete structs and opaque handles against a real C header and implementation, including C-reported layout and structs passed or returned by value.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-bindings_verification/test_c32_raw_abi.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test imports an incomplete handle, passes and returns `bycopy` structs across C, and compares size and field offsets with C `sizeof` and `offsetof` probes."
+    },
+    {
+      "claim_id": "C33",
+      "claim_text": "A Nim `dynlib` import can load and call a symbol from a real shared library without passing that library to the linker.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-bindings_verification/test_c33_dynlib_import.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test builds a shared helper, imports its symbol with `dynlib`, and calls it successfully without `passL` or an import library."
+    },
+    {
+      "claim_id": "C34",
+      "claim_text": "Do not combine `header` with a proc imported through Nim's runtime `dynlib` mechanism; the generated direct call then requires link-time symbol resolution.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-bindings_verification/test_c34_dynlib_header_bad.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC negative test. The same symbol that loads through `dynlib` alone fails to link when `header` is also applied, with an undefined reference to the C symbol."
     }
   ],
   "failure_samples": [

@@ -25,29 +25,23 @@ proc `=destroy`(h: Handle) =
 proc `=wasMoved`(h: var Handle) =
   h.raw = nil
 
-proc `=sink`(dest: var Handle; src: Handle) =
-  `=destroy`(dest)
-  dest.raw = src.raw
-
+proc `=sink`(dest: var Handle; src: Handle) {.error.}
 proc `=copy`(dest: var Handle; src: Handle) {.error.}
 proc `=dup`(src: Handle): Handle {.error.}
 {.pop.}
 
 proc initHandle(width, height: int): Handle =
-  result.raw = libCreate(cint(width), cint(height))
-  if result.raw == nil:
+  let raw = libCreate(cint(width), cint(height))
+  if raw == nil:
     raise newException(ValueError, "Failed to create handle")
+  Handle(raw: raw)
 
 proc main =
-  var a = initHandle(640, 480)
-
-  # ensureMove transfers ownership
-  var b = ensureMove(a)
-  doAssert b.raw != nil
-  doAssert b.raw.w == 640
-  doAssert b.raw.h == 480
-
-  # b is cleaned up by =destroy
+  var first = initHandle(640, 480)
+  var handle = ensureMove(first)
+  doAssert handle.raw != nil
+  doAssert handle.raw.w == 640
+  doAssert handle.raw.h == 480
 main()
 
 echo "ref_move_only: PASS"
