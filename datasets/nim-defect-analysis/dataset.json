@@ -35,10 +35,10 @@
   "summary": {
     "total_claims": 10,
     "testable": 4,
-    "passed": 3,
+    "passed": 4,
     "failed": 0,
     "not_testable": 6,
-    "untested": 1
+    "untested": 0
   },
   "claims": [
     {
@@ -101,9 +101,9 @@
       "claim_id": "C08",
       "claim_text": "AddressSanitizer checks for Nim unsafe memory code should pass both compiler and linker sanitizer flags and use `-d:noSignalHandler -d:useMalloc`.",
       "is_testable": true,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "UNTESTED. The current environment does not provide clang, so the complete ASan command could not be verified."
+      "test_file_path": "tests/nim-defect-analysis_verification/test_c08_asan.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The full command detects a heap overflow. Without useMalloc the same Nim alloc overflow is missed; without noSignalHandler Nim intercepts a null-write signal; and omitting linker flags fails to link."
     },
     {
       "claim_id": "C09",
@@ -138,7 +138,6 @@
     "benchmark coverage for ownership-hook defect findings"
   ],
   "needs_stronger_tests": [
-    "C08 needs Phase 2 verification in an environment with clang and AddressSanitizer.",
     "C10 needs a targeted ownership-hook review benchmark.",
     "C01, C02, C06, and C07 need benchmark validation rather than unit tests."
   ]

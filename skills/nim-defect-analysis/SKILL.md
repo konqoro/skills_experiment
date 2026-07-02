@@ -151,6 +151,9 @@ stack trace, sanitizer report, or saved artifact.
      -r repro.nim
    ```
 
+   `useMalloc` exposes Nim allocations to ASan. `noSignalHandler` lets ASan
+   report signal-based crashes.
+
 8. **Use fuzzing or integration tests only when direct reproduction is
    insufficient.** Keep the harness narrow and save inputs, commands, and logs.
 9. **Classify and report.** If the reproducer does not confirm the issue,
