@@ -13,21 +13,31 @@
     {
       "original_claim": "Use except Defect: quit(70) to signal findings to libFuzzer.",
       "correction": "Prefer --panics:on compiler flag instead. With --panics:on, all Defect subtypes crash the process immediately without needing manual catch blocks. This also works correctly with raises: [] and links properly with -fsanitize=fuzzer."
+    },
+    {
+      "claim_id": "C05-C06",
+      "original_claim": "copyMem(addr s[0], data, len) works for string and seq extraction.",
+      "correction": "Guard the copy with len > 0 or elementCount > 0. Taking addr s[0] from an empty string or sequence raises IndexDefect."
+    },
+    {
+      "claim_id": "C07",
+      "original_claim": "Cast the fuzzer buffer directly to ptr MyType after checking its length.",
+      "correction": "Copy bytes into a local fixed-layout value. A fuzzer buffer is not guaranteed to satisfy MyType's alignment."
     }
   ],
   "uncovered_topics": [],
   "needs_stronger_tests": [],
   "summary": {
     "total_claims": 24,
-    "testable": 19,
-    "passed": 19,
+    "testable": 24,
+    "passed": 24,
     "failed": 0,
-    "not_testable": 5
+    "not_testable": 0
   },
   "claims": [
     {
       "claim_id": "C01",
-      "claim_text": "Every Nim fuzz target needs an initialize proc exported as LLVMFuzzerInitialize that calls NimMain() to bootstrap Nim's runtime; without it the target will segfault.",
+      "claim_text": "Every Nim fuzz target needs a cdecl initialize proc exported as LLVMFuzzerInitialize that calls NimMain() to bootstrap Nim's runtime; without it the target will segfault.",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c01_c02_required_procs.nim",
       "test_passed": true,
@@ -35,7 +45,7 @@
     },
     {
       "claim_id": "C02",
-      "claim_text": "testOneInput must be exported as LLVMFuzzerTestOneInput with raises: [], take a ptr UncheckedArray[byte] plus int len, and return cint 0.",
+      "claim_text": "testOneInput must use cdecl, be exported as LLVMFuzzerTestOneInput with raises: [], take a ptr UncheckedArray[byte] plus int len, and return cint 0.",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c01_c02_required_procs.nim",
       "test_passed": true,
@@ -51,7 +61,7 @@
     },
     {
       "claim_id": "C04",
-      "claim_text": "data.toOpenArray(0, len-1) converts the fuzzer-provided ptr UncheckedArray[byte] + len into a usable openarray[byte].",
+      "claim_text": "data.toOpenArray(0, len-1) converts the fuzzer-provided ptr UncheckedArray[byte] + len into a usable openArray[byte].",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c04_toopenarray.nim",
       "test_passed": true,
@@ -59,27 +69,27 @@
     },
     {
       "claim_id": "C05",
-      "claim_text": "A fuzzer byte buffer can be converted to a Nim string with newString(len) followed by copyMem(addr s[0], data, len).",
+      "claim_text": "A nonempty fuzzer byte buffer can be converted to a Nim string with newString(len) followed by copyMem(addr s[0], data, len).",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c05_c06_byte_conversion.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Byte buffer [72,101,108,108,111] converts to string 'Hello'."
+      "evaluation_notes": "DETERMINISTIC. Byte buffer [72,101,108,108,111] converts to string 'Hello'. The copy is skipped for an empty string."
     },
     {
       "claim_id": "C06",
-      "claim_text": "A fuzzer byte buffer can be converted to seq[T] with let n = len div sizeof(T); var s = newSeq[T](n); copyMem(addr s[0], data, n * sizeof(T)).",
+      "claim_text": "A fuzzer byte buffer can be converted to seq[T] by allocating len div sizeof(T) elements and copying only when the element count is nonzero.",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c05_c06_byte_conversion.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. float64 value 3.14 roundtrips through byte buffer to seq[float64]."
+      "evaluation_notes": "DETERMINISTIC. float64 value 3.14 roundtrips through byte buffer to seq[float64]. The copy is skipped for an empty sequence."
     },
     {
       "claim_id": "C07",
-      "claim_text": "A fuzzer byte buffer can be interpreted as a C struct via bounds check len < sizeof(MyType) then cast[ptr MyType](data).",
+      "claim_text": "After checking the length, bytes for a plain fixed-layout type should be copied into a local value instead of accessed through a potentially misaligned cast.",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c07_struct_cast.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Packed struct fields roundtrip correctly through cast from byte buffer."
+      "evaluation_notes": "DETERMINISTIC. A deliberately misaligned byte buffer is copied into an aligned local object and all fields roundtrip correctly. UBSan rejected direct field access through the misaligned cast."
     },
     {
       "claim_id": "C08",
@@ -147,7 +157,7 @@
     },
     {
       "claim_id": "C16",
-      "claim_text": "customMutator must be exported as LLVMFuzzerCustomMutator with raises: [], mutate data in-place, and return the new byte length (≤ maxLen).",
+      "claim_text": "customMutator must use cdecl, be exported as LLVMFuzzerCustomMutator with raises: [], mutate data in-place, and return the new byte length (≤ maxLen).",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c16_c17_custom_mutators.nim",
       "test_passed": true,
@@ -155,7 +165,7 @@
     },
     {
       "claim_id": "C17",
-      "claim_text": "customCrossOver must be exported as LLVMFuzzerCustomCrossOver, combine two inputs into res, and return the new length ≤ maxResLen.",
+      "claim_text": "customCrossOver must use cdecl, be exported as LLVMFuzzerCustomCrossOver, combine two inputs into res, and return the new length ≤ maxResLen.",
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c16_c17_custom_mutators.nim",
       "test_passed": true,
@@ -175,7 +185,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-fuzzing_verification/test_c19_coverage.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Coverage-instrumented binary compiles, runs, and produces profraw data. llvm-profdata merge succeeds."
+      "evaluation_notes": "DETERMINISTIC. A coverage-instrumented libFuzzer binary compiles, runs, and produces profraw data. llvm-profdata and llvm-cov are separate LLVM tools used for report generation."
     },
     {
       "claim_id": "C20",

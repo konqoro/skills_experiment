@@ -1,20 +1,21 @@
 proc main() =
-  # C07: Cast a byte buffer to a C struct after bounds check
+  # C07: Copy a byte buffer into a local fixed-layout value
   type
-    MyHeader {.packed.} = object
+    MyHeader = object
       magic: uint32
       version: uint16
       flags: uint16
 
-  block struct_cast:
+  block fixed_layout_copy:
     var header = MyHeader(magic: 0xDEADBEEF'u32, version: 1'u16, flags: 0x8000'u16)
-    let p = cast[ptr MyHeader](addr header)
-    let raw = cast[ptr UncheckedArray[byte]](p)
-    if sizeof(MyHeader) <= 8:
-      let parsed = cast[ptr MyHeader](raw)
-      doAssert parsed.magic == 0xDEADBEEF'u32
-      doAssert parsed.version == 1'u16
-      doAssert parsed.flags == 0x8000'u16
+    var storage: array[sizeof(MyHeader) + 1, byte]
+    copyMem(addr storage[1], addr header, sizeof(header))
+    let data = cast[ptr UncheckedArray[byte]](addr storage[1])
+    var parsed: MyHeader
+    copyMem(addr parsed, data, sizeof(parsed))
+    doAssert parsed.magic == 0xDEADBEEF'u32
+    doAssert parsed.version == 1'u16
+    doAssert parsed.flags == 0x8000'u16
 
   block bounds_fail:
     let len = 2

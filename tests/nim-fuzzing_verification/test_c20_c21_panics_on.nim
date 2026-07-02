@@ -9,10 +9,10 @@ proc main() =
     let harness = tmpdir / "TestC20_panics.nim"
     writeFile(harness, """
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   result = 0
 
-proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
+proc initialize(): cint {.cdecl, exportc: "LLVMFuzzerInitialize".} =
   {.emit: "N_CDECL(void, NimMain)(void); NimMain();".}
 """)
 
@@ -32,7 +32,7 @@ proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
     let harness = tmpdir / "TestC21_panics_crash.nim"
     writeFile(harness, """
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   var arr = @[1, 2, 3]
   discard arr[999]  # guaranteed IndexDefect
   result = 0

@@ -8,7 +8,7 @@ proc main() =
 import std/os
 
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   result = 0
   if len >= 1:
     doAssert data[0] == 72'u8

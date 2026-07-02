@@ -1,5 +1,5 @@
 proc main() =
-  # C04: data.toOpenArray(0, len-1) converts ptr UncheckedArray[byte] + len to openarray[byte]
+  # C04: toOpenArray converts a pointer and length to openArray[byte]
   proc sumBytes(data: ptr UncheckedArray[byte], len: int): int =
     result = 0
     for b in data.toOpenArray(0, len-1):

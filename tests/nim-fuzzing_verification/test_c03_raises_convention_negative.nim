@@ -2,6 +2,6 @@
 # This file should FAIL to compile
 
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   result = 0
   raise newException(ValueError, "boom")  # ERROR: raises [] prohibits this

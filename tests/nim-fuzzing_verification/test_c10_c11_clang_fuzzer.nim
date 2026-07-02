@@ -4,11 +4,11 @@ proc main() =
   let tmpdir = getTempDir()
   let harness = tmpdir / "TestC10C11_fuzz_target.nim"
   writeFile(harness, """
-proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
+proc initialize(): cint {.cdecl, exportc: "LLVMFuzzerInitialize".} =
   {.emit: "N_CDECL(void, NimMain)(void); NimMain();".}
 
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   result = 0
 """)
 

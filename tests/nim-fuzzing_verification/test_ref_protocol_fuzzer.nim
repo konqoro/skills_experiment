@@ -44,13 +44,14 @@ proc parseMethod(part: string): HttpMethod =
     raise newException(ValueError, "unknown method")
 
 proc nextLine(input: string, pos: var int): string =
-  if pos >= input.len: return ""
-  let start = pos
-  while pos < input.len and input[pos] notin {'\r', '\n'}:
-    inc pos
-  result = input[start ..< pos]
-  if pos < input.len and input[pos] == '\r': inc pos
-  if pos < input.len and input[pos] == '\n': inc pos
+  result = ""
+  if pos < input.len:
+    let start = pos
+    while pos < input.len and input[pos] notin {'\r', '\n'}:
+      inc pos
+    result = input[start ..< pos]
+    if pos < input.len and input[pos] == '\r': inc pos
+    if pos < input.len and input[pos] == '\n': inc pos
 
 proc parseFullRequestOriginal(input: string): ParsedRequest =
   result = default(ParsedRequest)
@@ -66,18 +67,17 @@ proc parseFullRequestOriginal(input: string): ParsedRequest =
   result.protocol = parseProtocolOriginal(parts[2])
 
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   result = 0
-  if len == 0: return
-  let inputLen = int(len)
-  var input = newString(inputLen)
-  copyMem(addr input[0], data, inputLen)
-  try:
-    discard parseFullRequestOriginal(input)
-  except ValueError:
-    discard
+  if len > 0:
+    var input = newString(len)
+    copyMem(addr input[0], data, len)
+    try:
+      discard parseFullRequestOriginal(input)
+    except ValueError:
+      discard
 
-proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
+proc initialize(): cint {.cdecl, exportc: "LLVMFuzzerInitialize".} =
   {.emit: "N_CDECL(void, NimMain)(void); NimMain();".}
 """)
     let (buildOut, exitCode) = execCmdEx("nim c --hints:off " & harness & " 2>&1")

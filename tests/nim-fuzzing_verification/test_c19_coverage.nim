@@ -5,7 +5,7 @@ proc main() =
   let harness = tmpdir / "TestC19_coverage.nim"
   writeFile(harness, """
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   result = 0
   if len > 0:
     var x = 0
@@ -13,7 +13,7 @@ proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
       x += int(data[i])
     doAssert x >= 0
 
-proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
+proc initialize(): cint {.cdecl, exportc: "LLVMFuzzerInitialize".} =
   {.emit: "N_CDECL(void, NimMain)(void); NimMain();".}
 """)
 
@@ -23,22 +23,23 @@ proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
     let profdata = tmpdir / "TestC19_coverage.profdata"
 
     let (_, buildExit) = execCmdEx(
-      "nim c --cc:clang " &
-      "--passC:\"-fprofile-instr-generate -fcoverage-mapping\" " &
-      "--passL:\"-fprofile-instr-generate -fcoverage-mapping\" " &
+      "nim c --cc:clang --panics:on --noMain:on " &
+      "-d:noSignalHandler -d:useMalloc " &
+      "--passC:\"-fsanitize=fuzzer -fprofile-instr-generate -fcoverage-mapping\" " &
+      "--passL:\"-fsanitize=fuzzer -fprofile-instr-generate -fcoverage-mapping\" " &
       "--hints:off -o:" & buildBin & " " & harness & " 2>/dev/null")
     if buildExit != 0:
       echo "C19: FAIL: coverage build failed"
     else:
-      let (_, _) = execCmdEx("LLVM_PROFILE_FILE=\"" & profraw & "\" " & buildBin & " 2>/dev/null <<< ''")
-      let (_, mergeExit) = execCmdEx(
-        "llvm-profdata merge -sparse " & profraw & " -o " & profdata & " 2>/dev/null")
-      if mergeExit == 0:
+      let (_, runExit) = execCmdEx(
+        "LLVM_PROFILE_FILE=\"" & profraw & "\" ASAN_OPTIONS=detect_leaks=0 " &
+        buildBin & " -runs=10 2>/dev/null")
+      if runExit == 0 and fileExists(profraw):
         echo "C19: PASS"
       else:
-        echo "C19: FAIL: llvm-profdata merge failed"
-      removeFile(profraw)
-      removeFile(profdata)
+        echo "C19: FAIL: coverage run did not produce profraw data"
+      if fileExists(profraw): removeFile(profraw)
+      if fileExists(profdata): removeFile(profdata)
 
   removeFile(harness)
 

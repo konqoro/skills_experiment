@@ -1,4 +1,4 @@
-import std/[os, osproc, strutils]
+import std/[os, osproc]
 
 proc main() =
   let tmpdir = getTempDir()
@@ -6,18 +6,18 @@ proc main() =
   block ref_simple_harness_compiles:
     let harness = tmpdir / "ref_simple_harness.nim"
     writeFile(harness, """
-proc fuzzMe(data: openarray[byte]): bool =
+proc fuzzMe(data: openArray[byte]): bool =
   result = data.len >= 3 and
     data[0].char == 'F' and
     data[1].char == 'U' and
     data[2].char == 'Z' and
     data[3].char == 'Z'
 
-proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
+proc initialize(): cint {.cdecl, exportc: "LLVMFuzzerInitialize".} =
   {.emit: "N_CDECL(void, NimMain)(void); NimMain();".}
 
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   result = 0
   discard fuzzMe(data.toOpenArray(0, len-1))
 """)
@@ -32,11 +32,11 @@ proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
     let harness = tmpdir / "ref_simple_config_test.nim"
     let nims = tmpdir / "ref_simple_config_test.nims"
     writeFile(harness, """
-proc initialize(): cint {.exportc: "LLVMFuzzerInitialize".} =
+proc initialize(): cint {.cdecl, exportc: "LLVMFuzzerInitialize".} =
   {.emit: "N_CDECL(void, NimMain)(void); NimMain();".}
 
 proc testOneInput(data: ptr UncheckedArray[byte], len: int): cint {.
-    exportc: "LLVMFuzzerTestOneInput", raises: [].} =
+    cdecl, exportc: "LLVMFuzzerTestOneInput", raises: [].} =
   result = 0
 """)
     writeFile(nims, """

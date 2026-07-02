@@ -2,7 +2,8 @@ proc main() =
   # C16 + C17: customMutator and customCrossOver must compile with correct signatures
   block customMutator_signature:
     proc customMutator(data: ptr UncheckedArray[byte], len, maxLen: int,
-        seed: int64): int {.exportc: "LLVMFuzzerCustomMutator", raises: [].} =
+        seed: int64): int {.
+        cdecl, exportc: "LLVMFuzzerCustomMutator", raises: [].} =
       result = len
 
     var buf: array[16, byte]
@@ -14,7 +15,8 @@ proc main() =
     proc customCrossOver(data1: ptr UncheckedArray[byte], len1: int,
         data2: ptr UncheckedArray[byte], len2: int,
         res: ptr UncheckedArray[byte], maxResLen: int,
-        seed: int64): int {.exportc: "LLVMFuzzerCustomCrossOver", raises: [].} =
+        seed: int64): int {.
+        cdecl, exportc: "LLVMFuzzerCustomCrossOver", raises: [].} =
       let n = min(len1, len2)
       if n > 0 and n <= maxResLen:
         copyMem(res, data1, n)

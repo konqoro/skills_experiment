@@ -34,11 +34,11 @@
   ],
   "summary": {
     "total_claims": 10,
-    "testable": 5,
+    "testable": 4,
     "passed": 3,
     "failed": 0,
-    "not_testable": 5,
-    "untested": 2
+    "not_testable": 6,
+    "untested": 1
   },
   "claims": [
     {
@@ -103,7 +103,7 @@
       "is_testable": true,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": null
+      "evaluation_notes": "UNTESTED. The current environment does not provide clang, so the complete ASan command could not be verified."
     },
     {
       "claim_id": "C09",
@@ -116,10 +116,10 @@
     {
       "claim_id": "C10",
       "claim_text": "For ownership-hook vulnerabilities, move-after-destroy, self-copy, zero-length allocation, and destroy-after-move are required false-positive checks.",
-      "is_testable": true,
+      "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": null
+      "evaluation_notes": "CHECKLIST. This is best evaluated in a targeted ownership-hook review benchmark rather than a standalone unit test."
     }
   ],
   "corrections": [
@@ -138,7 +138,8 @@
     "benchmark coverage for ownership-hook defect findings"
   ],
   "needs_stronger_tests": [
-    "C08 and C10 need normal Phase 2 verification tests.",
+    "C08 needs Phase 2 verification in an environment with clang and AddressSanitizer.",
+    "C10 needs a targeted ownership-hook review benchmark.",
     "C01, C02, C06, and C07 need benchmark validation rather than unit tests."
   ]
 }
