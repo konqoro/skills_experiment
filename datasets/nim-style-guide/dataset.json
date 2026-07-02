@@ -4,11 +4,11 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 19,
+    "total_claims": 21,
     "testable": 18,
     "passed": 18,
     "failed": 0,
-    "not_testable": 1,
+    "not_testable": 3,
     "nuanced": 2,
     "untested": 0
   },
@@ -164,6 +164,20 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c15_dotdot_range_negative.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Negative compile test: 'range types need to be constructed with \"..\"'."
+    },
+    {
+      "claim_id": "C20",
+      "claim_text": "Follow the standard library identifier conventions: PascalCase types, camelCase identifiers, normal word casing for initialisms, Error or Defect exception suffixes, and prefixed non-pure enum values.",
+      "source": "~/Projects/Nim/doc/nep1.md",
+      "is_testable": false,
+      "evaluation_notes": "STYLE. These are the published Nim Standard Library Style Guide naming conventions."
+    },
+    {
+      "claim_id": "C21",
+      "claim_text": "Use established stdlib operation names and pairs: subject-first domain predicates, initX/newX, find/contains, reverse/reversed, replace/replaceIn, and field-style getters only for cheap side-effect-free access.",
+      "source": "~/Projects/Nim/doc/nep1.md",
+      "is_testable": false,
+      "evaluation_notes": "STYLE. These conventions make related APIs predictable and match the published Nim Standard Library Style Guide."
     }
   ],
   "uncovered_topics": [
