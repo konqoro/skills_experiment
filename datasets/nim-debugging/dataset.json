@@ -130,15 +130,15 @@
       "is_testable": true,
       "test_file_path": "tests/nim-debugging_verification/test_c15_c16_c26_c27_expandarc.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. expandArc:extractCopy shows '=copy' in output."
+      "evaluation_notes": "DETERMINISTIC. expandArc:drainByCopy shows =copy and =sink in output."
     },
     {
       "claim_id": "C16",
-      "claim_text": "--expandArc output is the same under --mm:orc, --mm:arc, and --mm:atomicArc for simple (non-cyclic) ownership patterns.",
+      "claim_text": "--expandArc exposes the same element copy in this non-cyclic example under --mm:orc, --mm:arc, and --mm:atomicArc.",
       "is_testable": true,
       "test_file_path": "tests/nim-debugging_verification/test_c15_c16_c26_c27_expandarc.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. All three modes show =copy for extractCopy."
+      "evaluation_notes": "DETERMINISTIC. All three modes show =copy for drainByCopy."
     },
     {
       "claim_id": "C17",
@@ -214,19 +214,19 @@
     },
     {
       "claim_id": "C26",
-      "claim_text": "Using move() instead of direct assignment in a proc causes --expandArc to show 'result = move(...)' instead of '=copy(result, ...)', eliminating a string/seq copy.",
+      "claim_text": "Moving an array element instead of assigning it replaces the element copy with =sink(dest[i], move(source[i])) and leaves the source element moved-from.",
       "is_testable": true,
       "test_file_path": "tests/nim-debugging_verification/test_c15_c16_c26_c27_expandarc.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. expandArc:extractMove shows 'result = move(obj.data)' with no =copy."
+      "evaluation_notes": "DETERMINISTIC. expandArc:drainByMove shows move and =sink with no =copy; behavior checks confirm the source array is empty."
     },
     {
       "claim_id": "C27",
-      "claim_text": "--expandArc shows =destroy calls in finally blocks, revealing cleanup order.",
+      "claim_text": "--expandArc shows injected =destroy calls at scope exit.",
       "is_testable": true,
       "test_file_path": "tests/nim-debugging_verification/test_c15_c16_c26_c27_expandarc.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. expandArc:main shows =destroy in finally block."
+      "evaluation_notes": "DETERMINISTIC. expandArc:main shows =destroy calls for the owning arrays and temporaries."
     },
     {
       "claim_id": "C28",

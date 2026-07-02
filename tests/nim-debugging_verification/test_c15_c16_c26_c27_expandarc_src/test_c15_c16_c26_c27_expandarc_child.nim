@@ -1,22 +1,36 @@
 type
-  MyObj = object
-    data: seq[int]
+  FileEntry = tuple[
+    path: string,
+    data: seq[byte]]
 
-proc makeObj(): MyObj =
-  result = MyObj(data: @[1, 2, 3])
+  FileEntries = array[3, FileEntry]
 
-proc extractCopy(obj: var MyObj): seq[int] =
-  result = obj.data
+proc drainByCopy(source: var FileEntries; dest: var FileEntries) =
+  for i in 0..high(dest):
+    dest[i] = source[i]
+    source[i] = default(FileEntry)
 
-proc extractMove(obj: var MyObj): seq[int] =
-  result = move(obj.data)
+proc drainByMove(source: var FileEntries; dest: var FileEntries) =
+  for i in 0..high(dest):
+    dest[i] = move(source[i])
 
-proc main() =
-  var a = makeObj()
-  let b = extractCopy(a)
-  echo b
-  var c = makeObj()
-  let d = extractMove(c)
-  echo d
+proc sampleEntries(): FileEntries =
+  result = [
+    (path: "one.txt", data: @[1'u8, 2]),
+    (path: "two.txt", data: @[3'u8, 4]),
+    (path: "three.txt", data: @[5'u8, 6])]
+
+proc main =
+  var copySource = sampleEntries()
+  var copied: FileEntries
+  copySource.drainByCopy(copied)
+  doAssert copied == sampleEntries()
+  doAssert copySource == default(FileEntries)
+
+  var moveSource = sampleEntries()
+  var moved: FileEntries
+  moveSource.drainByMove(moved)
+  doAssert moved == copied
+  doAssert moveSource == default(FileEntries)
 
 main()
