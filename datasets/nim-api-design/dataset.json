@@ -311,11 +311,11 @@
     },
     {
       "claim_id": "C39",
-      "claim_text": "Optional lookup should use `getOrDefault` when a fallback is part of the API. Use `Option[T]` when absence must be returned as data, and name the proc for the operation rather than `getOption`.",
+      "claim_text": "Optional lookup should expose `contains` or `hasKey` for membership checks and `getOrDefault` for explicit fallback values.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c39_optional_lookup_paths.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The test uses `find` to return `Option[int]`, `contains`/`hasKey` for boolean membership, and `getOrDefault` for fallback lookup. It verifies missing, present, and present-empty cases without inventing a `getOption` name."
+      "evaluation_notes": "DETERMINISTIC. The test uses `contains` and `hasKey` for boolean membership and `getOrDefault` for explicit fallback lookup. It verifies missing, present, and present-empty cases, matching the std/tables lookup convention."
     }
   ],
   "failure_samples": [

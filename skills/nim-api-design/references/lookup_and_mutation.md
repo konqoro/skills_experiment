@@ -2,7 +2,7 @@ Expose one required lookup, explicit membership, free mutation only for
 unconstrained values, and mutation procs for invariant-bearing fields.
 
 ```nim
-import std/[hashes, options]
+import std/hashes
 
 type
   Sku* = distinct string
@@ -38,19 +38,20 @@ proc labels*(product: Product): lent seq[string] =
 proc raiseMissing(sku: Sku) {.noinline, noreturn.} =
   raise newException(KeyError, "unknown sku: " & $sku)
 
-func find*(inventory: Inventory; sku: Sku): Option[int] =
+func find*(inventory: Inventory; sku: Sku): int =
   for idx, existing in inventory.ids:
     if existing == sku:
-      return some(idx)
+      return idx
+  result = -1
 
 func contains*(inventory: Inventory; sku: Sku): bool =
-  inventory.find(sku).isSome
+  inventory.find(sku) >= 0
 
 proc getOrDefault*(inventory: Inventory; sku: Sku;
     default: Product): Product =
   let idx = inventory.find(sku)
-  if idx.isSome:
-    inventory.products[idx.get]
+  if idx >= 0:
+    inventory.products[idx]
   else:
     default
 
@@ -62,9 +63,9 @@ proc add*(inventory: var Inventory; sku: Sku; product: sink Product) =
 
 proc del*(inventory: var Inventory; sku: Sku) =
   let idx = inventory.find(sku)
-  if idx.isSome:
-    inventory.ids.delete idx.get
-    inventory.products.delete idx.get
+  if idx >= 0:
+    inventory.ids.delete idx
+    inventory.products.delete idx
 
 proc clear*(inventory: var Inventory) =
   inventory.ids.setLen 0
@@ -72,21 +73,21 @@ proc clear*(inventory: var Inventory) =
 
 proc product*(inventory: Inventory; sku: Sku): lent Product =
   let idx = inventory.find(sku)
-  if idx.isNone:
+  if idx < 0:
     raiseMissing(sku)
-  result = inventory.products[idx.get]
+  result = inventory.products[idx]
 
 proc labels*(inventory: var Inventory; sku: Sku): var seq[string] =
   let idx = inventory.find(sku)
-  if idx.isNone:
+  if idx < 0:
     raiseMissing(sku)
-  result = inventory.products[idx.get].productLabels
+  result = inventory.products[idx].productLabels
 
 proc setStock*(inventory: var Inventory; sku: Sku; stock: Natural) =
   let idx = inventory.find(sku)
-  if idx.isNone:
+  if idx < 0:
     raiseMissing(sku)
-  inventory.products[idx.get].productStock = stock
+  inventory.products[idx].productStock = stock
 
 iterator items*(inventory: Inventory): lent Product =
   for product in inventory.products:
@@ -99,7 +100,7 @@ iterator pairs*(inventory: Inventory): (Sku, lent Product) =
 let hammer = Sku("hammer")
 var inventory: Inventory
 inventory.add hammer, initProduct("Hammer", ["tool"], 4)
-doAssert inventory.find(hammer) == some(0)
+doAssert inventory.find(hammer) == 0
 doAssert inventory.contains(hammer)
 doAssert inventory.product(hammer).name == "Hammer"
 doAssert inventory.getOrDefault(Sku("missing"),
@@ -113,17 +114,16 @@ for sku, product in inventory.pairs:
   doAssert product.name == "Hammer"
 inventory.del hammer
 inventory.del hammer
-doAssert inventory.find(hammer).isNone
+doAssert inventory.find(hammer) == -1
 inventory.clear()
-doAssert inventory.find(hammer).isNone
+doAssert inventory.find(hammer) == -1
 ```
 
 ## Key points
 
 - `contains` is the explicit optional path; `product` is the required lookup
   and raises one specific exception.
-- `find` returns an optional position, while `contains` returns boolean
-  membership.
+- `find` returns a position, while `contains` returns boolean membership.
 - `getOrDefault` is the explicit fallback path.
 - Collection mutation uses `add`, keyed `del` as a no-op for absent keys, and
   `clear`.

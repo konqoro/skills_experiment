@@ -59,9 +59,8 @@ Reference examples live in `references/`.
 
 - Separate required lookup from optional lookup.
 - A required lookup raises one specific catchable exception. It does not return a silent default.
-- Use `getOrDefault` when fallback is part of the API. Use `Option[T]` when
-  absence must be returned as data; name the proc for the operation, not
-  `getOption`.
+- Use `contains` or `hasKey` for membership checks and `getOrDefault` for
+  explicit fallback values.
 - If several accessors fail the same way, route the failure through one private `{.noinline, noreturn.}` helper.
 
 ### Borrowed and mutable access
