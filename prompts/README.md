@@ -18,6 +18,7 @@ Use the smallest prompt that matches the job.
    Default run shape:
    one existing task, three arms (`original`, `verified`, `no-skill`), `NUM_TRIALS=3`, orchestrator timeout `27` minutes
    Delete stale temp runs first.
+   If using Crush workers, follow the temporary-`HOME` isolation rules in `blind_benchmark.md`.
 
 ## Prompt index
 

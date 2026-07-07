@@ -96,6 +96,52 @@ During a benchmark run:
 Do not write benchmark-generated files anywhere else in the repo.
 Do not create or update benchmark result files, trial directories, scratch solutions, copied fixtures, or binaries under version-controlled repo paths.
 
+## Crush worker isolation
+
+If Crush is used for worker trials, isolate skills with a temporary `HOME` per
+worker. Do not mutate the real `~/.config/crush/skills` symlink and do not rely
+on installed or home-directory skills.
+
+For every Crush worker:
+
+1. Create a fresh `HOME_DIR` inside that worker's trial directory.
+2. Copy only:
+   - `~/.local/share/crush/crush.json` to `$HOME_DIR/.local/share/crush/crush.json`
+   - `~/.local/share/crush/providers.json` to `$HOME_DIR/.local/share/crush/providers.json`
+3. For `original` and `verified` arms, copy that arm's repo-local skill
+   directory to `$HOME_DIR/.agents/skills/{SKILL_NAME}/`.
+   - `original` uses the directory containing `ORIGINAL_SKILL`
+   - `verified` uses the directory containing `VERIFIED_SKILL`
+4. For `no-skill`, do not create `$HOME_DIR/.agents/skills/{SKILL_NAME}/`.
+5. Run Crush as:
+
+   ```bash
+   HOME="$HOME_DIR" crush run --cwd "$TRIAL_DIR" "<worker prompt>"
+   ```
+
+Skill-guided Crush prompts must explicitly say:
+
+```text
+Use the {SKILL_NAME} skill.
+```
+
+No-skill Crush prompts must not ask for a skill.
+
+After every Crush trial, inspect:
+
+```bash
+grep "Skill turn summary" "$TRIAL_DIR/.crush/logs/crush.log"
+```
+
+Validity rules:
+
+- `no-skill` must show `loaded_total:0` and `loaded_this_turn:null`
+- `original` and `verified` must show `loaded_total:1` and
+  `loaded_this_turn:["{SKILL_NAME}"]`
+
+If the log does not match, the run is invalid. Do not use the model's text
+output as proof that a skill was or was not loaded.
+
 ## Worker instructions
 
 Skill-guided worker:
@@ -186,6 +232,7 @@ Mark the run invalid and stop if:
 - any two trials share an output path
 - the task file still points workers at repo-root or stale fixture paths
 - `ORIGINAL_SKILL` or `VERIFIED_SKILL` was resolved from outside this repo
+- a Crush worker's skill log does not match its arm
 - a required arm was dropped
 - the number of spawned workers does not equal `3 * NUM_TRIALS`
 - any trial index is missing any of the three arms
@@ -219,7 +266,8 @@ The current run directory must contain:
 - one trial directory per worker
 - every worker-authored output file
 - the exact `TASK.md` each worker saw
-- `SKILL.md` for skill-guided arms
+- `SKILL.md` or the staged `$HOME_DIR/.agents/skills/{SKILL_NAME}/` directory
+  for skill-guided arms
 - every staged fixture file
 - command outputs needed for scoring
 
