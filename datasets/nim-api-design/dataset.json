@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 34,
-    "testable": 27,
-    "passed": 27,
+    "total_claims": 38,
+    "testable": 31,
+    "passed": 31,
     "failed": 0,
     "not_testable": 7,
     "nuanced": 4,
@@ -284,6 +284,38 @@
       "test_file_path": "tests/nim-api-design_verification/test_c35_derived_comparison_operators.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. A type with only `==`, `<`, and `<=` gets working `!=`, `>`, and `>=` behavior from system templates. Direct definitions of `!=`, `>`, and `>=` compile and override the derived behavior, allowing inconsistent comparison results."
+    },
+    {
+      "claim_id": "C36",
+      "claim_text": "If a public type can be used as a table or set key, it needs a `hash` operation consistent with `==`; borrowing `==` and `$` for a distinct type is not enough for table use.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c36_c37_container_names_and_hash.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `Table[Sku, int]` works when `hash(sku): Hash {.borrow.}` is defined. The negative test `test_c36_missing_hash_bad.nim` fails to compile because `hash(key)` is unavailable for a distinct key with only `==` and `$`."
+    },
+    {
+      "claim_id": "C37",
+      "claim_text": "Collection-like public types should use the standard `items` and `pairs` iterator names; add mutable iterator names only when yielded mutation is safe.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c36_c37_container_names_and_hash.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A custom inventory with `items` and `pairs` supports normal `for value in inventory.items` and `for key, value in inventory.pairs` iteration."
+    },
+    {
+      "claim_id": "C38",
+      "claim_text": "Collection-like APIs should use `add`, `del`, and `clear` for mutation, `find` for index, position, or optional match lookup, and `contains` or `hasKey` for boolean membership. Keyed `del` should be a no-op for absent keys; index-based deletion expects a valid index.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c38_collection_operation_names.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A custom inventory using `add`, `find`, `contains`, `del`, and `clear` compiles and each operation produces the expected state transition. Calling keyed `del` on a missing item is a no-op; index-based seq `del` is demonstrated with a valid index."
+    },
+    {
+      "claim_id": "C39",
+      "claim_text": "Optional lookup should use `getOrDefault` when a fallback is part of the API. Use `Option[T]` when absence must be returned as data, and name the proc for the operation rather than `getOption`.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c39_optional_lookup_paths.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test uses `find` to return `Option[int]`, `contains`/`hasKey` for boolean membership, and `getOrDefault` for fallback lookup. It verifies missing, present, and present-empty cases without inventing a `getOption` name."
     }
   ],
   "failure_samples": [
@@ -366,6 +398,15 @@
       "summary": "Agents define `!=`, `>`, or `>=` directly instead of relying on Nim's derived comparison templates.",
       "evidence": "Direct definitions of `!=`, `>`, and `>=` compile and override the system templates that derive them from `==`, `<`, and `<=`.",
       "check": "Comparable public types expose one consistent base comparison surface.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "Nim standard library naming report",
+      "bucket": "missing rule",
+      "summary": "The API skill under-specified standard container names and omitted `hash` for public key types.",
+      "evidence": "A distinct key with borrowed `==` and `$` still fails in `Table` until `hash` is defined; collection APIs should use names such as `items`, `pairs`, `add`, `del`, `clear`, `find`, and `getOrDefault`.",
+      "check": "Container-like APIs use standard operation names and key types support hashing when used in hash containers.",
       "next_action": "skill edit"
     }
   ],

@@ -21,7 +21,15 @@ Reference examples live in `references/`.
 - Prefer procs, overloads, generics, and iterators. Do not default to methods or runtime dispatch for ordinary APIs.
 - Use named `object` types for public semantic data.
 - Use tuples only for local glue or iterator yields such as `(key, val)`.
-- Reuse stdlib names when the behavior matches: `len`, `contains`/`hasKey`, `[]`, `[]=`, `items`/`mitems`, `pairs`/`mpairs`, `incl`/`excl`, `push`/`pop`.
+- Reuse stdlib names when the behavior matches: `len`, `find`,
+  `contains`/`hasKey`, `[]`, `[]=`, `items`/`mitems`, `pairs`/`mpairs`,
+  `add`, `del`, `clear`, `incl`/`excl`, and `push`/`pop`.
+- For collection operations, use `add`, `del`, and `clear`. Keyed `del` is a
+  no-op for absent keys; index-based deletion expects a valid index.
+- Use `find` for an index, position, or optional match result. Use `contains`
+  or `hasKey` for boolean membership.
+- For collection-like types, expose `items` and `pairs`. Add `mitems` and
+  `mpairs` only when callers may safely mutate yielded values.
 - For comparable types, define `==` and the needed base ordering operators
   such as `<` or `<=`. Do not define `!=`, `>`, or `>=`; Nim derives them.
 
@@ -29,6 +37,8 @@ Reference examples live in `references/`.
 
 - Prefer range types for constrained public parameters. Use base types for stored fields.
 - Use `distinct` when two values share a base type but must not mix.
+- If a public type can be used as a table or set key, define `hash` consistent
+  with `==`.
 - Use `func` for pure query operations when purity is part of the public contract.
 - Use `{.raises: [].}` when a proc must not raise. Leave raising procs unannotated.
 
@@ -49,7 +59,9 @@ Reference examples live in `references/`.
 
 - Separate required lookup from optional lookup.
 - A required lookup raises one specific catchable exception. It does not return a silent default.
-- An optional lookup uses an explicit safe path such as `contains`, `hasKey`, `getOrDefault`, or `Option[T]`.
+- Use `getOrDefault` when fallback is part of the API. Use `Option[T]` when
+  absence must be returned as data; name the proc for the operation, not
+  `getOption`.
 - If several accessors fail the same way, route the failure through one private `{.noinline, noreturn.}` helper.
 
 ### Borrowed and mutable access
