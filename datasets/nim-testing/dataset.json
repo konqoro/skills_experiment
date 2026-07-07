@@ -31,9 +31,9 @@
     "C11 is testable but has no dedicated nim-testing verification file."
   ],
   "summary": {
-    "total_claims": 20,
-    "testable": 20,
-    "passed": 19,
+    "total_claims": 22,
+    "testable": 22,
+    "passed": 21,
     "failed": 1,
     "not_testable": 0
   },
@@ -197,6 +197,22 @@
       "test_file_path": "tests/nim-testing_verification/test_c20_doassert_raises_failure.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Matching ValueError passed. Missing exception and wrong catchable exception type both failed with non-zero exit codes."
+    },
+    {
+      "claim_id": "C21",
+      "claim_text": "In `doAssert`, command-call syntax such as `doAssert foo 1 == 1` or `doAssert same 1, 1` can bind the comparison or comma to the wrong call; parenthesized calls compile.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-testing_verification/test_c21_c22_assertion_expression_syntax.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Positive assertions with `foo(1)` and `same(1, 1)` compile and run. Negative tests `test_c21_assertion_command_call_bad.nim` and `test_c21_assertion_comma_bad.nim` fail to compile with the expected type mismatch errors."
+    },
+    {
+      "claim_id": "C22",
+      "claim_text": "For negated comparisons in `doAssert`, use `doAssert not (x < y)`; `doAssert not x < y` can negate `x` before comparing.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-testing_verification/test_c21_c22_assertion_expression_syntax.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Runtime checks show `not 1 < 2` and `not (1 < 2)` produce different values, while grouped negated assertions compile and run."
     }
   ]
 }

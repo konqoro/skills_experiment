@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 21,
-    "testable": 18,
-    "passed": 18,
+    "total_claims": 23,
+    "testable": 20,
+    "passed": 20,
     "failed": 0,
     "not_testable": 3,
     "nuanced": 2,
@@ -178,6 +178,22 @@
       "source": "~/Projects/Nim/doc/nep1.md",
       "is_testable": false,
       "evaluation_notes": "STYLE. These conventions make related APIs predictable and match the published Nim Standard Library Style Guide."
+    },
+    {
+      "claim_id": "C22",
+      "claim_text": "Inside comparisons, boolean expressions, or nested call arguments, command-call syntax can bind comparisons or commas to the wrong call; ordinary parenthesized call syntax avoids that parse.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c22_c23_expression_parsing.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `foo(1) == 1` and `accept(same(1, 1))` compile and run; `compiles(foo 1 == 1)` and `compiles(accept(same 1, 1))` are false."
+    },
+    {
+      "claim_id": "C23",
+      "claim_text": "`not a or b` negates only `a`, `not x < y` can negate `x` before comparing, and `x notin items` is the clear membership-negation form.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c22_c23_expression_parsing.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Runtime checks distinguish `not a or b` from `not (a or b)`, `not 1 < 2` from `not (1 < 2)`, and `4 notin xs` from `not 4 in xs`."
     }
   ],
   "uncovered_topics": [
