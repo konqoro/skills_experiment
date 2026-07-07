@@ -48,8 +48,12 @@ Custom hooks are needed only for non-managed resources: raw pointers (`ptr T`) t
 
 **`=dup`**
 - Move-only types: add `=dup {.error.}`.
-- Deep-owning containers: mark with `{.nodestroy.}` and build a fresh copy. Call `=dup` on each child element (not `copyMem`) so child hooks run.
-- Refcounted types: increment the counter and share the pointer. No `{.nodestroy.}` needed — the counter balances the implicit return-path destroy.
+- Deep-owning containers that write into freshly allocated raw storage: mark
+  with `{.nodestroy.}` and build a fresh copy directly. Otherwise assignment
+  into uninitialized slots can invoke child hooks on the destination. For
+  element types with hooks, call `=dup` on each element so child hooks run.
+- Refcounted types: increment the counter and share the pointer. No
+  `{.nodestroy.}` needed unless the hook writes into raw uninitialized storage.
 
 **`=trace`**
 - Only when all three conditions hold: the type manually owns storage, stored values can participate in ORC cycles, and ORC needs to traverse them.
@@ -126,10 +130,9 @@ Test these scenarios for every custom-hook type:
 |---------|-----------------|
 | `=destroy` with `var T` | Both compile, but `T` prevents accidental field mutation inside the destructor. |
 | Setting fields to nil inside `=destroy` | Use `=wasMoved` for field reset. The compiler eliminates the subsequent destroy. |
-| Declaring `=dup` before `=copy` | `=dup` body can trigger implicit `=copy` generation, causing a conflict. |
 | Missing self-assignment guard in deep-copy `=copy` | Destroys source data before reading it. |
 | Self-assignment check in `=sink` | Compiler already eliminates simple `x = x`. The check is dead code. |
-| Missing `{.nodestroy.}` on deep-owning `=dup` | Compiler destroys `result` before the caller receives it. |
+| Missing `{.nodestroy.}` on raw-storage `=dup` | Assignments into freshly allocated slots can invoke hooks on uninitialized destination memory. |
 | Custom `=sink` when synthesized is fine | Adds unnecessary complexity with no benefit. |
 | `copyMem` in `=sink` or `=dup` | Bypasses child hook semantics and breaks the ownership chain for elements that have their own hooks. |
 | Missing zero-length guard | `alloc(0)` may return nil; subsequent indexing crashes. |

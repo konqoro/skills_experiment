@@ -12,12 +12,6 @@ proc `=wasMoved`*(x: var Container) =
   x.data = nil
   x.len = 0
 
-proc `=dup`*(src: Container): Container {.nodestroy.} =
-  result = Container(len: src.len, data: nil)
-  if src.data != nil and src.len > 0:
-    result.data = cast[ptr UncheckedArray[int]](alloc(src.len * sizeof(int)))
-    copyMem(result.data, src.data, src.len * sizeof(int))
-
 proc `=copy`*(dest: var Container; src: Container) =
   if dest.data == src.data: return
   `=destroy`(dest)
@@ -26,6 +20,12 @@ proc `=copy`*(dest: var Container; src: Container) =
   if src.data != nil and src.len > 0:
     dest.data = cast[ptr UncheckedArray[int]](alloc(src.len * sizeof(int)))
     copyMem(dest.data, src.data, src.len * sizeof(int))
+
+proc `=dup`*(src: Container): Container {.nodestroy.} =
+  result = Container(len: src.len, data: nil)
+  if src.data != nil and src.len > 0:
+    result.data = cast[ptr UncheckedArray[int]](alloc(src.len * sizeof(int)))
+    copyMem(result.data, src.data, src.len * sizeof(int))
 
 proc initContainer(items: openArray[int]): Container =
   result = Container(len: items.len, data: nil)

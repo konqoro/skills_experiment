@@ -15,12 +15,6 @@ proc `=destroy`*(x: Tracked) =
 proc `=wasMoved`*(x: var Tracked) =
   x.data = nil
 
-proc `=dup`*(x: Tracked): Tracked {.nodestroy.} =
-  result = Tracked(data: nil)
-  if x.data != nil:
-    result.data = create(int)
-    result.data[] = x.data[]
-
 proc `=copy`*(dest: var Tracked; src: Tracked) =
   if dest.data == src.data: return
   `=destroy`(dest)
@@ -30,6 +24,12 @@ proc `=copy`*(dest: var Tracked; src: Tracked) =
     dest.data[] = src.data[]
   else:
     dest.data = nil
+
+proc `=dup`*(x: Tracked): Tracked {.nodestroy.} =
+  result = Tracked(data: nil)
+  if x.data != nil:
+    result.data = create(int)
+    result.data[] = x.data[]
 
 # Without nodestroy: creating a local and letting it go out of scope calls =destroy
 proc withDestroy() =

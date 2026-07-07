@@ -14,12 +14,6 @@ proc `=wasMoved`*(x: var Buffer) =
   x.data = nil
   x.len = 0
 
-proc `=dup`*(x: Buffer): Buffer {.nodestroy.} =
-  result = Buffer(len: x.len, data: nil)
-  if x.data != nil and x.len > 0:
-    result.data = cast[ptr int](alloc(x.len * sizeof(int)))
-    copyMem(result.data, x.data, x.len * sizeof(int))
-
 proc `=copy`*(dest: var Buffer; src: Buffer) =
   if dest.data == src.data: return
   `=destroy`(dest)
@@ -28,6 +22,12 @@ proc `=copy`*(dest: var Buffer; src: Buffer) =
   if src.data != nil and src.len > 0:
     dest.data = cast[ptr int](alloc(src.len * sizeof(int)))
     copyMem(dest.data, src.data, src.len * sizeof(int))
+
+proc `=dup`*(x: Buffer): Buffer {.nodestroy.} =
+  result = Buffer(len: x.len, data: nil)
+  if x.data != nil and x.len > 0:
+    result.data = cast[ptr int](alloc(x.len * sizeof(int)))
+    copyMem(result.data, x.data, x.len * sizeof(int))
 
 proc initBuffer(items: openArray[int]): Buffer =
   result = Buffer(len: items.len, data: nil)

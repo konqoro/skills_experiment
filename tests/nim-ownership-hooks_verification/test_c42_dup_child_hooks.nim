@@ -39,6 +39,4 @@ block:
   var b2 = `=dup`(b)
   doAssert dupCounter == 1, "Child =dup should have been called once, got " & $dupCounter
   doAssert b2.items[0].val == 42
-  dealloc(b2.items)
-  dealloc(b.items)
   echo "C42: PASS"
