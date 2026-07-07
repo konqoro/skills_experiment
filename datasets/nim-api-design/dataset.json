@@ -71,19 +71,19 @@
     },
     {
       "claim_id": "C08",
-      "claim_text": "var T accessor overloads should only be added for mutable reference-like results (string, seq) when mutation is part of the API.",
+      "claim_text": "var T accessor overloads should be deliberate mutable views into caller-editable state.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c08_var_accessor.nim",
       "test_passed": true,
-      "evaluation_notes": "PASS. var string accessor allows mutation of underlying field. var seq accessor allows in-place mutation (add, sort, element assignment). Stdlib confirms: Table.mgetOrPut, Deque.[].var, CritBitTree.[].var \u2014 all for reference-like types only."
+      "evaluation_notes": "PASS. name and tags return mutable views into the receiver, and mutation updates the underlying fields. A scan of Nim 2.3.1 stdlib found common m-prefixed mutable collection names, but also non-m var-returning APIs such as [], get, getData, and peekFirst/peekLast; the supported rule is deliberate mutable access, not a universal m-prefix."
     },
     {
       "claim_id": "C09",
-      "claim_text": "var overloads should not be added for simple scalar outputs such as int, float, bool, or enums.",
+      "claim_text": "A scalar var accessor such as var int returns a caller-visible mutable view into the source field.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c09_no_var_scalar.nim",
       "test_passed": true,
-      "evaluation_notes": "NUANCED. var int from a direct field reference DOES propagate mutations back to the source object (it's a real reference to the field). This makes var overloads for scalars more dangerous than useless \u2014 they leak mutable access to internal fields. The claim's recommendation (don't add var for scalars) is correct, but the reasoning should emphasize the hazard of exposing mutation, not just pointlessness."
+      "evaluation_notes": "NUANCED. var int from a direct field reference DOES propagate mutations back to the source object (it's a real reference to the field). This proves scalar var accessors leak mutation, but the skill should not rely on a scalar-specific ban. The supported rule is: return var T only for deliberate mutable views and prefer mutation procs when changes require validation or related updates."
     },
     {
       "claim_id": "C10",
@@ -127,11 +127,11 @@
     },
     {
       "claim_id": "C16",
-      "claim_text": "Template-based missing-value escape hatches are specialized container patterns, not a default API design rule for new libraries.",
+      "claim_text": "Template lookup escape hatches such as withValue are specialized container patterns, not the default lookup surface.",
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": "NUANCED. Review of ~/Projects/Nim/lib finds specialized templates such as tables.nim's `withValue`, but they are module-specific escape hatches, not a general default for library APIs written from scratch."
+      "evaluation_notes": "NUANCED. Nim 2.3.1 std/tables defines four withValue overloads and std/sharedtables defines two. They provide scoped access to present values and optional else branches, but they are table-specific escape hatches rather than the default lookup surface for new APIs."
     },
     {
       "claim_id": "C17",
@@ -215,11 +215,11 @@
     },
     {
       "claim_id": "C27",
-      "claim_text": "Choose batch parameters by required operations: use `openArray[T]` for reads, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` when the callee must resize or replace the caller's sequence.",
+      "claim_text": "Choose sequence-like batch parameters by required operations: use `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` when the callee must resize or replace the caller's sequence.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c27_batch_parameter_operations.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. `openArray[int]` accepts arrays, seqs, and literals for reads but rejects mutation. `var openArray[int]` accepts arrays and seqs and propagates element mutation while rejecting `setLen` and replacement. `var seq[int]` permits caller-visible resizing."
+      "evaluation_notes": "DETERMINISTIC. `openArray[int]` accepts arrays, seqs, and literals for read-only traversal but rejects mutation. `var openArray[int]` accepts arrays and seqs and propagates element mutation while rejecting `setLen` and replacement. `var seq[int]` permits caller-visible resizing."
     },
     {
       "claim_id": "C28",
@@ -303,7 +303,7 @@
     },
     {
       "claim_id": "C38",
-      "claim_text": "Collection-like APIs should use `add`, `del`, and `clear` for mutation, `find` for index, position, or optional match lookup, and `contains` or `hasKey` for boolean membership. Keyed `del` should be a no-op for absent keys; index-based deletion expects a valid index.",
+      "claim_text": "Collection-like APIs should use `add`, `del`, and `clear` for mutation, `find` for index or position lookup, and `contains` or `hasKey` for boolean membership. Table-style keyed `del` should be a no-op for absent keys; indexed deletion removes an existing position.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c38_collection_operation_names.nim",
       "test_passed": true,
@@ -423,7 +423,7 @@
     {
       "claim_id": "C09",
       "original_claim": "var overloads should not be added for simple scalar outputs.",
-      "correction": "The recommendation is correct, but the reason is stronger than just 'not needed'. var int DOES propagate mutations back to the source field \u2014 it's a real reference. var overloads for scalars are a design hazard because they leak mutable access to internal state."
+      "correction": "var int DOES propagate mutations back to the source field; it is a real mutable view. The skill rule should not be a scalar-specific ban. Return var T only for deliberate mutable views, and use mutation procs when updates need validation or bookkeeping."
     },
     {
       "claim_id": "C20",
@@ -448,7 +448,7 @@
     {
       "claim_id": "C27",
       "original_claim": "Accept `openArray` for batch inputs when callers naturally have arrays, seqs, or literals.",
-      "correction": "Choose by required operations: `openArray[T]` for reads, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing or replacing the caller's sequence."
+      "correction": "Choose sequence-like batch parameters by required operations: `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing or replacing the caller's sequence."
     },
     {
       "claim_id": "C30",

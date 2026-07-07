@@ -1,5 +1,4 @@
-## C09: var overloads should not be added for simple scalar outputs (int, float,
-##       bool, enums) — they leak mutable access to internal state.
+## C09: scalar var accessors return mutable views into source fields.
 
 type
   Container = object

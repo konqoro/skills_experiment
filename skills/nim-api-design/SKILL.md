@@ -17,17 +17,19 @@ Reference examples live in `references/`.
 
 - Prefer plain `object` types for public data models.
 - Use `ref object` only when identity, aliasing, shared mutation, graph structure, or handle lifetime is part of the contract.
-- Export one primary public representation per concept.
+- Export one primary public representation per concept. Add paired value/ref
+  APIs only when both forms are part of the contract.
 - Prefer procs, overloads, generics, and iterators. Do not default to methods or runtime dispatch for ordinary APIs.
 - Use named `object` types for public semantic data.
 - Use tuples only for local glue or iterator yields such as `(key, val)`.
 - Reuse stdlib names when the behavior matches: `len`, `find`,
   `contains`/`hasKey`, `[]`, `[]=`, `items`/`mitems`, `pairs`/`mpairs`,
   `add`, `del`, `clear`, `incl`/`excl`, and `push`/`pop`.
-- For collection operations, use `add`, `del`, and `clear`. Keyed `del` is a
-  no-op for absent keys; index-based deletion expects a valid index.
-- Use `find` for an index, position, or optional match result. Use `contains`
-  or `hasKey` for boolean membership.
+- For collection operations, use `add`, `del`, and `clear`. Table-style keyed
+  `del` is a no-op for absent keys; indexed deletion removes an existing
+  position.
+- Use `find` for an index or position result. Use `contains` or `hasKey` for
+  boolean membership.
 - For collection-like types, expose `items` and `pairs`. Add `mitems` and
   `mpairs` only when callers may safely mutate yielded values.
 - For comparable types, define `==` and the needed base ordering operators
@@ -47,7 +49,9 @@ Reference examples live in `references/`.
 - Value types use `initX()` and return `T`.
 - Ref types use `newX()` and return `ref T`.
 - Use one `toX()` name for common conversions. Overload on input type.
-- Choose batch parameters by operation: `openArray[T]` for reads, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing or replacement.
+- Choose sequence-like batch parameters by required operation:
+  `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length
+  element mutation, and `var seq[T]` for resizing or replacement.
 - Keep the zero-argument path simple with sensible defaults.
 
 ### Parameter ownership
@@ -66,8 +70,8 @@ Reference examples live in `references/`.
 ### Borrowed and mutable access
 
 - Use `lent T` for read accessors that return storage owned by the receiver.
-- Return `var T` only when callers may freely modify the value. If changes require validation or related updates, expose mutation procs instead.
-- Do not expose scalar `var` accessors such as `var int`, `var bool`, or enum fields from internal state.
+- Return `var T` only for deliberate mutable views. If changes require
+  validation or related updates, expose mutation procs instead.
 - In `lent` and `var` accessors, return directly from storage. Do not route through a temp local.
 
 ### Public boundary
@@ -75,7 +79,8 @@ Reference examples live in `references/`.
 - Export only the stable surface. Keep helpers private.
 - Use descriptive public names.
 - In user code, gate version-specific API with `when (NimMajor, NimMinor) >= (x, y)`. Do not use stdlib-internal `{.since.}`.
-- Treat paired value/ref APIs and patterns like `withValue` as opt-in compatibility choices, not defaults.
+- Keep template lookup escape hatches such as `withValue` secondary to the
+  main lookup surface.
 
 ## Workflow
 
@@ -100,7 +105,6 @@ Reference examples live in `references/`.
 | Defaulting to methods or runtime dispatch | It hides behavior behind runtime polymorphism when a proc surface is simpler and clearer |
 | Weakening a constrained public parameter to `int` and re-checking manually | It throws away a stronger boundary contract |
 | Returning a silent default for required data | It hides missing-data bugs |
-| Exporting scalar `var` accessors | It leaks mutable internal state |
 | Returning `var T` for controlled state | Callers can bypass validation and related updates |
 | Returning a `lent` or `var` result through a temp local | ORC rejects the borrow because the temp escapes |
 | Using `lent T` for an input parameter | `lent T` is a borrowed return type; the compiler rejects it in parameter position |

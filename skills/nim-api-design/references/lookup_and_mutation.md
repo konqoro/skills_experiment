@@ -130,7 +130,7 @@ doAssert inventory.find(hammer) == -1
 - `hash` matches `==`, so `Sku` can be used as a table or set key.
 - Collection iteration uses `items` and `pairs`.
 - The borrowed result is returned directly from owner storage.
-- Labels are freely editable, so a `var seq[string]` inventory accessor is
-  appropriate.
+- Labels are freely editable, so the inventory exposes a deliberate mutable
+  view for them.
 - Stock remains private and changes through a proc because its public contract
   constrains the value.
