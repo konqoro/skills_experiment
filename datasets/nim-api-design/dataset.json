@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 33,
-    "testable": 26,
-    "passed": 26,
+    "total_claims": 34,
+    "testable": 27,
+    "passed": 27,
     "failed": 0,
     "not_testable": 7,
     "nuanced": 4,
@@ -276,6 +276,14 @@
       "test_file_path": "tests/nim-api-design_verification/test_c34_raises_contract.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The compiler rejects a `{.raises: [].}` proc that calls a raising proc. A `{.raises: [Exception].}` proc compiles while raising unrelated `ValueError` and `IOError` types, so the broad annotation does not narrow the exception surface."
+    },
+    {
+      "claim_id": "C35",
+      "claim_text": "For comparable public types, define `==` and the needed base ordering operators such as `<` or `<=`; do not define `!=`, `>`, or `>=` because Nim derives them from system templates.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c35_derived_comparison_operators.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A type with only `==`, `<`, and `<=` gets working `!=`, `>`, and `>=` behavior from system templates. Direct definitions of `!=`, `>`, and `>=` compile and override the derived behavior, allowing inconsistent comparison results."
     }
   ],
   "failure_samples": [
@@ -349,6 +357,15 @@
       "summary": "Selective `{.raises.}` guidance leads agents to annotate ordinary raising public procs.",
       "evidence": "`{.raises: [Exception].}` accepts arbitrary exception types and does not narrow the contract.",
       "check": "Only non-raising public contracts receive a default raises annotation.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "skills/nim-api-design/SKILL.md",
+      "bucket": "missing rule",
+      "summary": "Agents define `!=`, `>`, or `>=` directly instead of relying on Nim's derived comparison templates.",
+      "evidence": "Direct definitions of `!=`, `>`, and `>=` compile and override the system templates that derive them from `==`, `<`, and `<=`.",
+      "check": "Comparable public types expose one consistent base comparison surface.",
       "next_action": "skill edit"
     }
   ],

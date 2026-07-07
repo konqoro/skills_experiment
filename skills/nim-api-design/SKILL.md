@@ -22,6 +22,8 @@ Reference examples live in `references/`.
 - Use named `object` types for public semantic data.
 - Use tuples only for local glue or iterator yields such as `(key, val)`.
 - Reuse stdlib names when the behavior matches: `len`, `contains`/`hasKey`, `[]`, `[]=`, `items`/`mitems`, `pairs`/`mpairs`, `incl`/`excl`, `push`/`pop`.
+- For comparable types, define `==` and the needed base ordering operators
+  such as `<` or `<=`. Do not define `!=`, `>`, or `>=`; Nim derives them.
 
 ### Contracts
 
@@ -93,6 +95,7 @@ Reference examples live in `references/`.
 | Using `lent T` for an input parameter | `lent T` is a borrowed return type; the compiler rejects it in parameter position |
 | Assuming a sink call always moves the caller's variable | Nim copies the argument when it cannot prove last use |
 | Wrapping a routine sink argument in `ensureMove` | Sink already performs last-use analysis; use `ensureMove` only when the code must fail instead of copy |
+| Defining `!=`, `>`, or `>=` for a type | These override Nim's derived comparison templates and can make comparisons inconsistent |
 
 ## References
 
