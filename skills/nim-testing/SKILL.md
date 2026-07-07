@@ -174,6 +174,7 @@ Then: `nim c -d:addressSanitizer -r tests/tester.nim`
 | Running ASan without `-d:useMalloc` | Nim's default allocator is not intercepted by ASan. |
 | Running ASan without `-d:noSignalHandler` | Nim's signal handler intercepts SIGSEGV before ASan reports. |
 | Using only `--passC` without `--passL` for ASan | The sanitizer runtime must be linked. |
+| Writing `doAssert foo 1 == 1` | Nim parses it like `doAssert foo(1 == 1)`. Use `doAssert foo(1) == 1`. |
 
 ## References
 

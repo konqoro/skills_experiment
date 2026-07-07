@@ -138,6 +138,7 @@ lines from the body.
 | Using `template` where ordinary call semantics are sufficient | It expands code at the call site without providing useful substitution, laziness, or control-flow abstraction. |
 | Writing one argument per line by default | It adds vertical noise without adding structure. |
 | Using `var` for values that never mutate | It hides which locals actually change. |
+| Writing `not x < y` when negating a comparison | Nim can parse it as `(not x) < y`. Write `not (x < y)`. |
 | Turning every branch into an early `return` in a multi-step proc | It makes the normal path harder to scan. |
 | Using `continue` | A structured branch keeps the loop invariant visible. |
 | Restating every object field in a constructor | It adds noise and can hide which fields are intentionally overridden. |
