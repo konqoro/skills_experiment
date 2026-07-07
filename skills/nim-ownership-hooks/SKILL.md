@@ -48,10 +48,10 @@ Custom hooks are needed only for non-managed resources: raw pointers (`ptr T`) t
 
 **`=dup`**
 - Move-only types: add `=dup {.error.}`.
-- Deep-owning containers that write into freshly allocated raw storage: mark
-  with `{.nodestroy.}` and build a fresh copy directly. Otherwise assignment
-  into uninitialized slots can invoke child hooks on the destination. For
-  element types with hooks, call `=dup` on each element so child hooks run.
+- Deep-owning raw-storage containers: mark `=dup` with `{.nodestroy.}`.
+  The copied elements are written into raw memory that does not hold valid old
+  values yet. `{.nodestroy.}` prevents implicit hook calls on those destination
+  slots. Use child `=dup` for elements with hooks.
 - Refcounted types: increment the counter and share the pointer. No
   `{.nodestroy.}` needed unless the hook writes into raw uninitialized storage.
 
@@ -132,7 +132,7 @@ Test these scenarios for every custom-hook type:
 | Setting fields to nil inside `=destroy` | Use `=wasMoved` for field reset. The compiler eliminates the subsequent destroy. |
 | Missing self-assignment guard in deep-copy `=copy` | Destroys source data before reading it. |
 | Self-assignment check in `=sink` | Compiler already eliminates simple `x = x`. The check is dead code. |
-| Missing `{.nodestroy.}` on raw-storage `=dup` | Assignments into freshly allocated slots can invoke hooks on uninitialized destination memory. |
+| Missing `{.nodestroy.}` on raw-storage `=dup` | The compiler can run hooks on destination slots that do not hold valid values yet. |
 | Custom `=sink` when synthesized is fine | Adds unnecessary complexity with no benefit. |
 | `copyMem` in `=sink` or `=dup` | Bypasses child hook semantics and breaks the ownership chain for elements that have their own hooks. |
 | Missing zero-length guard | `alloc(0)` may return nil; subsequent indexing crashes. |

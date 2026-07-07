@@ -40,6 +40,6 @@ proc initContainer(items: openArray[int]): Container =
 ```
 
 Key points:
-- `{.nodestroy.}` on `=dup` prevents hook injection while building freshly allocated raw storage
+- `{.nodestroy.}` prevents implicit hook calls while `=dup` fills raw storage
 - Self-assignment guard in `=copy` is required — without it, destroy wipes the source before copying
 - Nil and zero-length guards prevent `alloc(0)` crashes

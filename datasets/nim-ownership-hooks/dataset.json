@@ -496,12 +496,12 @@
     },
     {
       "claim_id": "C56",
-      "claim_text": "For deep-owning `=dup` that fills freshly allocated raw storage, use `{.nodestroy.}` so assignment into uninitialized slots does not invoke child hooks on the destination.",
+      "claim_text": "For deep-owning `=dup` that fills raw element storage, use `{.nodestroy.}` so the compiler does not run hooks on destination slots that do not hold valid values yet.",
       "source": "official destructors.md myseq example + --expandArc analysis (cycle 4)",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c56_dup_raw_storage_nodestroy.nim",
       "test_passed": true,
-      "evaluation_notes": "VERIFIED in cycle 4. Without `{.nodestroy.}`, `--expandArc` shows `=sink(result.items[i], =dup(...))` and a runtime counter observes child sink calls while filling raw slots. With `{.nodestroy.}`, the sink count remains 0."
+      "evaluation_notes": "VERIFIED in cycle 4. Without `{.nodestroy.}`, `--expandArc` shows `=sink(result.items[i], =dup(...))` while filling raw slots, and a runtime counter observes child sink calls. With `{.nodestroy.}`, the sink count remains 0."
     }
   ],
   "uncovered_topics": [
