@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 58,
-    "testable": 45,
-    "passed": 44,
+    "total_claims": 59,
+    "testable": 46,
+    "passed": 45,
     "failed": 0,
     "not_testable": 13,
     "nuanced": 3,
@@ -507,6 +507,14 @@
       "test_file_path": "tests/nim-c-wrappers_verification/test_ref_module_layout_real.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The test extracts both Nim blocks unchanged, builds `libfoo.so`, loads a texture, checks the returned by-value struct, calls the drawing proc, and destroys the owned texture."
+    },
+    {
+      "claim_id": "C59",
+      "claim_text": "For RC types, =copy does destroy-then-share: it destroys the old destination value before incrementing the counter and sharing the pointer. =dup only increments and shares.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-wrappers_verification/test_c55_rc_stress.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. test_c55_rc_stress.nim exercises overwrite and self-assignment paths which implicitly require =copy to destroy the old dest. C56 independently confirms that skipping the destroy (by using `result = src` in =dup) over-counts owners."
     }
   ]
 }
