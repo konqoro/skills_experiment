@@ -118,7 +118,7 @@
     },
     {
       "claim_id": "C10",
-      "claim_text": "For reserved Nim keywords, rename the Nim identifier and use importc to map to the original C name.",
+      "claim_text": "When a C identifier collides with a Nim keyword, rename the Nim identifier and use importc to map to the original C name.",
       "is_testable": true,
       "test_file_path": "tests/nim-c-wrappers_verification/test_c10_keyword_rename.nim",
       "test_passed": true,
@@ -310,11 +310,11 @@
     },
     {
       "claim_id": "C34",
-      "claim_text": "For C callbacks that need Nim state, store state in a global table keyed by userdata; ensure data is globally rooted or manually managed for GC safety.",
+      "claim_text": "Pass callback state through userdata. Use rawProc/rawEnv to extract a closure function pointer and environment; GC_ref the environment so it survives after the closure is destroyed. The raw proc expects userdata as the last argument.",
       "is_testable": true,
       "test_file_path": "tests/nim-c-wrappers_verification/test_c34_callback_userdata.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A cdecl bridge can recover rooted callback state from a global table keyed by `userdata`."
+      "evaluation_notes": "DETERMINISTIC. rawProc/rawEnv extracts closure function pointer and environment. The callback outlives the closure via GC_ref on the env. ASan confirms no use-after-free with the required allocator flags."
     },
     {
       "claim_id": "C35",

@@ -116,8 +116,12 @@ For every Crush worker:
 5. Run Crush as:
 
    ```bash
-   HOME="$HOME_DIR" crush run --cwd "$TRIAL_DIR" "<worker prompt>"
+   HOME="$HOME_DIR" crush run -m <provider/model> --cwd "$TRIAL_DIR" "<worker prompt>"
    ```
+
+   Use `-m <provider/model>` to select the model, for example
+   `-m deepseek/deepseek-v4-pro`. If omitted, Crush uses the model from
+   `crush.json`.
 
 Skill-guided Crush prompts must explicitly say:
 
