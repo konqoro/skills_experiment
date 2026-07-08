@@ -57,7 +57,7 @@ proc loadAsset*(path: string): Asset =
 
 ## Key points
 
-- RC starts at 0. `=copy` and `=dup` increment before sharing. `=destroy` decrements and frees at zero.
+- RC starts at 0. `=copy` increments the source counter, destroys the old destination, then shares the pointer. `=dup` increments and shares. `=destroy` decrements and frees at zero.
 - **Do not** write `result = src` in `=dup` — use field-by-field assignment to avoid triggering `=copy` implicitly.
 - Use this pattern only when the C API genuinely supports shared ownership. For exclusive ownership, prefer the move-only pattern.
 - `dealloc(a.rc)` only happens when the last reference is destroyed (rc reaches 0).

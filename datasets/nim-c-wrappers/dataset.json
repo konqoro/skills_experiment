@@ -510,7 +510,7 @@
     },
     {
       "claim_id": "C59",
-      "claim_text": "For RC types, =copy does destroy-then-share: it destroys the old destination value before incrementing the counter and sharing the pointer. =dup only increments and shares.",
+      "claim_text": "For RC types, =copy must destroy the old destination before sharing the source pointer. =dup only increments the counter and shares.",
       "is_testable": true,
       "test_file_path": "tests/nim-c-wrappers_verification/test_c55_rc_stress.nim",
       "test_passed": true,
