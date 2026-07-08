@@ -22,15 +22,11 @@ proc makeCallback(state: CallbackState): proc(code: cint) {.closure.} =
 proc registerCallback(cb: proc(code: cint) {.closure.}): CallbackRegistration =
   let rp = rawProc(cb)
   let re = rawEnv(cb)
-  if not re.isNil:
-    GC_ref(cast[RootRef](re))
-    result = CallbackRegistration(fn: cast[CallbackFn](rp), userdata: re)
-  else:
-    result = CallbackRegistration(fn: cast[CallbackFn](rp), userdata: nil)
+  GC_ref(cast[RootRef](re))
+  result = CallbackRegistration(fn: cast[CallbackFn](rp), userdata: re)
 
 proc unregisterCallback(reg: CallbackRegistration) =
-  if not reg.userdata.isNil:
-    GC_unref(cast[RootRef](reg.userdata))
+  GC_unref(cast[RootRef](reg.userdata))
 
 let state = CallbackState(total: 0)
 var reg: CallbackRegistration
