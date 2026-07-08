@@ -117,6 +117,7 @@ Each reference file must:
 - begin with a one-line description
 - contain one complete example
 - end with a short `Key points` or `When to use` section
+- each key point must make one distinct claim; do not cram multiple hooks or operations into a single bullet
 
 ## Example policy
 
