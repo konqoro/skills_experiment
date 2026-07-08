@@ -118,7 +118,7 @@
     },
     {
       "claim_id": "C10",
-      "claim_text": "For reserved Nim keywords, use a consistent rename (e.g., type\u2192typ, addr\u2192address) or importc to preserve the C name.",
+      "claim_text": "For reserved Nim keywords, rename the Nim identifier and use importc to map to the original C name.",
       "is_testable": true,
       "test_file_path": "tests/nim-c-wrappers_verification/test_c10_keyword_rename.nim",
       "test_passed": true,
