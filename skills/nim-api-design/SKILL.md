@@ -109,6 +109,7 @@ Default to plain data, one clear surface, and names that match the standard libr
 | Using `lent T` for an input parameter | `lent T` is a borrowed return type; the compiler rejects it in parameter position |
 | Assuming a sink call always moves the caller's variable | Nim copies the argument when it cannot prove last use |
 | Wrapping a routine sink argument in `ensureMove` | Sink already performs last-use analysis; use `ensureMove` only when the code must fail instead of copy |
+| Defining `!=`, `>`, or `>=` for a type | These override Nim's derived comparison templates and can make comparisons inconsistent |
 
 ## References
 
