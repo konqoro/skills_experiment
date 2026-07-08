@@ -27,8 +27,7 @@
     "passed": 23,
     "failed": 0,
     "nuanced": 0,
-    "not_testable": 8,
-    "refinement_cycle": 7
+    "not_testable": 8
   },
   "claims": [
     {

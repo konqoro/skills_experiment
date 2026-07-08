@@ -11,12 +11,6 @@
     "failed": 0,
     "nuanced": 0,
     "not_testable": 8,
-    "refinement_cycle": 4,
-    "newly_added_cycle_3": 7,
-    "newly_tested_cycle_3": 6,
-    "newly_added_cycle_4": 1,
-    "newly_tested_cycle_4": 1,
-    "from_local_cowstrings": 5,
     "untested": 0
   },
   "claims": [
@@ -469,12 +463,12 @@
     },
     {
       "claim_id": "C53",
-      "claim_text": "For move-only types, =dup must also be marked {.error.}. Without an explicit =dup {.error.}, the compiler synthesizes =dup from =destroy and =copy, but =copy's {.error.} is not enforced during synthesis — the generated C body is empty, so =dup silently returns a zero-initialized (moved-from) object instead of triggering a compile-time error.",
+      "claim_text": "For move-only types, =dup must also be marked {.error.}. Without an explicit =dup {.error.}, the compiler synthesizes =dup from =destroy and =copy, but =copy's {.error.} is not enforced during synthesis \u2014 the generated C body is empty, so =dup silently returns a zero-initialized (moved-from) object instead of triggering a compile-time error.",
       "source": "reference audit (cycle 3)",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c53_dup_move_only.nim",
       "test_passed": true,
-      "evaluation_notes": "VERIFIED in cycle 3 via --expandArc and generated C inspection. With =dup {.error.} defined, the compiler correctly rejects =dup at compile time. Without it, =dup compiles but returns a nil/zero object — compiler-generated C for =copy has empty body under {.error.}."
+      "evaluation_notes": "VERIFIED in cycle 3 via --expandArc and generated C inspection. With =dup {.error.} defined, the compiler correctly rejects =dup at compile time. Without it, =dup compiles but returns a nil/zero object \u2014 compiler-generated C for =copy has empty body under {.error.}."
     },
     {
       "claim_id": "C54",
@@ -487,7 +481,7 @@
     },
     {
       "claim_id": "C55",
-      "claim_text": "Prefer ensureMove over move for transferring ownership. ensureMove is a compile-time gate that makes the source dead — any subsequent use is a compile error. move leaves the source alive; accidentally using the moved-from (default) value afterward produces wrong results silently.",
+      "claim_text": "Prefer ensureMove over move for transferring ownership. ensureMove is a compile-time gate that makes the source dead \u2014 any subsequent use is a compile error. move leaves the source alive; accidentally using the moved-from (default) value afterward produces wrong results silently.",
       "source": "--expandArc analysis (cycle 3)",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c55_prefer_ensuremove.nim",
