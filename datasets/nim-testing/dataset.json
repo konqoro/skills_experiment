@@ -120,11 +120,11 @@
     },
     {
       "claim_id": "C11",
-      "claim_text": "--stackTrace:on --lineTrace:on restores full stack traces in release and danger modes",
+      "claim_text": "--lineTrace:on restores full stack traces with line numbers in release and danger modes",
       "is_testable": true,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": "Not independently tested; aligned with nim-debugging skill verification which confirmed this behavior."
+      "evaluation_notes": "Not independently tested; aligned with nim-debugging skill verification. Per the Nim manual, --lineTrace implies --stackTrace."
     },
     {
       "claim_id": "C12",
@@ -192,11 +192,11 @@
     },
     {
       "claim_id": "C20",
-      "claim_text": "For catchable exceptions such as ValueError, doAssertRaises fails if the code does not raise the requested exception type, and that failure exits the test file with a non-zero code",
+      "claim_text": "doAssertRaises fails if the code does not raise the requested exception type, and that failure exits the test file with a non-zero code",
       "is_testable": true,
       "test_file_path": "tests/nim-testing_verification/test_c20_doassert_raises_failure.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Matching ValueError passed. Missing exception and wrong catchable exception type both failed with non-zero exit codes."
+      "evaluation_notes": "DETERMINISTIC. Matching ValueError passed. Matching AssertionDefect (a Defect type) passed. Missing exception and wrong exception type both failed with non-zero exit codes. doAssertRaises is not limited to catchable exceptions."
     },
     {
       "claim_id": "C21",

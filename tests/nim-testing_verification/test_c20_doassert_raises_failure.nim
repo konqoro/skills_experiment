@@ -35,9 +35,18 @@ block wrong_exception:
     raise newException(IOError, "wrong type")
 """)
 
+  let defectPass = writeCase("defect_pass", """
+import std/assertions
+
+block expected_defect:
+  doAssertRaises AssertionDefect:
+    doAssert false
+""")
+
   doAssert runCase(passing) == 0, "C20: matching exception should pass"
   doAssert runCase(noRaise) != 0, "C20: missing exception should fail"
   doAssert runCase(wrongType) != 0, "C20: wrong exception type should fail"
+  doAssert runCase(defectPass) == 0, "C20: matching Defect type should pass"
 
   echo "C20: PASS"
 finally:

@@ -279,11 +279,11 @@
     },
     {
       "claim_id": "C35",
-      "claim_text": "For comparable public types, define `==` and the needed base ordering operators such as `<` or `<=`; do not define `!=`, `>`, or `>=` because Nim derives them from system templates.",
+      "claim_text": "For comparable public types, define `==`, `<`, and `<=`; do not define `!=`, `>`, or `>=` because Nim derives them from system templates.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c35_derived_comparison_operators.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A type with only `==`, `<`, and `<=` gets working `!=`, `>`, and `>=` behavior from system templates. Direct definitions of `!=`, `>`, and `>=` compile and override the derived behavior, allowing inconsistent comparison results."
+      "evaluation_notes": "DETERMINISTIC. A type with `==`, `<`, and `<=` gets working `!=`, `>`, and `>=` behavior from system templates. Direct definitions of `!=`, `>`, and `>=` compile and override the derived behavior, allowing inconsistent comparison results."
     },
     {
       "claim_id": "C36",

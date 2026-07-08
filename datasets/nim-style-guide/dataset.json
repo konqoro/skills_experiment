@@ -167,7 +167,7 @@
     },
     {
       "claim_id": "C20",
-      "claim_text": "Follow the standard library identifier conventions: PascalCase types, camelCase identifiers, normal word casing for initialisms, Error or Defect exception suffixes, and prefixed non-pure enum values.",
+      "claim_text": "Follow the standard library identifier conventions: PascalCase types, camelCase identifiers, normal word casing for initialisms, catchable exception types suffixed with Error and programming-bug defect types suffixed with Defect, and prefixed non-pure enum values.",
       "source": "~/Projects/Nim/doc/nep1.md",
       "is_testable": false,
       "evaluation_notes": "STYLE. These are the published Nim Standard Library Style Guide naming conventions."
