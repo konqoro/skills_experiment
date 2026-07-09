@@ -20,10 +20,8 @@ proc makeCallback(state: CallbackState): proc(code: cint) {.closure.} =
     state.total += int(code)
 
 proc registerCallback(cb: proc(code: cint) {.closure.}): CallbackRegistration =
-  let rp = rawProc(cb)
-  let re = rawEnv(cb)
-  GC_ref(cast[RootRef](re))
-  result = CallbackRegistration(fn: cast[CallbackFn](rp), userdata: re)
+  result = CallbackRegistration(fn: cast[CallbackFn](rawProc(cb)), userdata: rawEnv(cb))
+  GC_ref(cast[RootRef](result.userdata))
 
 proc unregisterCallback(reg: CallbackRegistration) =
   GC_unref(cast[RootRef](reg.userdata))

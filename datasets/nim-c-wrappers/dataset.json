@@ -5,12 +5,12 @@
   "mm_mode": "orc",
   "summary": {
     "total_claims": 59,
-    "testable": 46,
-    "passed": 45,
+    "testable": 47,
+    "passed": 46,
     "failed": 0,
-    "not_testable": 13,
+    "not_testable": 12,
     "nuanced": 3,
-    "untested": 1
+    "untested": 0
   },
   "corrections": [
     {
@@ -262,11 +262,11 @@
     },
     {
       "claim_id": "C28",
-      "claim_text": "Simple numeric macros should become Nim 'const'; function-like macros should become inline procs or templates. Macros depending on sizeof or side-effect expressions should prefer Nim templates.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Standard Nim pattern. DETERMINISTIC."
+      "claim_text": "Simple numeric macros should become Nim 'const'; function-like macros should default to templates. Use inline procs when arguments should evaluate once (templates can multi-evaluate an argument that appears more than once in the expansion).",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-wrappers_verification/test_c28_c_macros.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. const works for numeric macros; templates are type-generic and match c2nim's default mapping. Templates multi-evaluate arguments that appear multiple times in the body (verified: sqrTmpl calls counted() twice), while inline procs evaluate once (verified: sqrProc calls counted() once)."
     },
     {
       "claim_id": "C29",

@@ -24,7 +24,7 @@ This skill covers the two-layer pattern for wrapping C libraries in Nim: a raw F
 - Use `incompleteStruct` and list only needed fields to reduce ABI risk.
 - For C enums, use `distinct` integer types + `const` values. Do not use Nim `enum` in raw bindings. Find actual enum values in C headers—do not guess.
 - For bitflags, use `distinct` integer types with bitwise helpers. Do not use `set[Enum]`.
-- Map C macros: numeric → `const`; function-like → `inline proc` or `template`; sizeof/side-effect → `template`.
+- Map C macros: numeric → `const`; function-like → `template`; use `inline proc` when arguments should evaluate once.
 - Keep pointer types as C intends — do not convert them in the raw layer.
 
 ### Type Mapping
