@@ -6,9 +6,9 @@ type
   LibMode = distinct cint
 
 const
-  LIB_ModeA = LibMode(0)
-  LIB_ModeB = LibMode(2)
-  LIB_ModeC = LibMode(3)
+  LIB_MODE_A = LibMode(0)
+  LIB_MODE_B = LibMode(2)
+  LIB_MODE_C = LibMode(3)
 
 proc `==`(a, b: LibMode): bool {.borrow.}
 
@@ -46,9 +46,9 @@ proc excl(a: var LibFlags; flag: LibFlags) {.inline.} =
 
 proc main =
   # Enum-like
-  doAssert LIB_ModeA == LIB_ModeA
-  doAssert not (LIB_ModeA == LIB_ModeB)
-  var m = LIB_ModeB
+  doAssert LIB_MODE_A == LIB_MODE_A
+  doAssert not (LIB_MODE_A == LIB_MODE_B)
+  var m = LIB_MODE_B
   doAssert m == LibMode(2)
 
   # Bitflag combine

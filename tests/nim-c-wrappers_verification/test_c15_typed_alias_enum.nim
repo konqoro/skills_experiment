@@ -2,13 +2,13 @@
 # Demonstrate that typed alias + const works
 type LibMode = cint
 const
-  LIB_ModeA = LibMode(0)
-  LIB_ModeB = LibMode(2)
-  LIB_ModeC = LibMode(3)
+  LIB_MODE_A = LibMode(0)
+  LIB_MODE_B = LibMode(2)
+  LIB_MODE_C = LibMode(3)
 
-var m: LibMode = LIB_ModeA
+var m: LibMode = LIB_MODE_A
 doAssert m == LibMode(0)
-m = LIB_ModeB
+m = LIB_MODE_B
 doAssert m == LibMode(2)
 
 echo "C15: PASS"

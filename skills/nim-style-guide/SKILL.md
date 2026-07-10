@@ -25,6 +25,8 @@ Larger examples live under `references/`.
 - Use `std/...` imports for stdlib modules.
 - Group broad stdlib imports with `import std/[a, b, c]`.
 - Use `from std/foo import bar, baz` when you only need a small API slice.
+- `import` brings symbols into scope without qualification.
+- Use qualified `module.symbol` access only to resolve genuine name conflicts between imported modules.
 - Types use `PascalCase`.
 - Procs, funcs, iterators, templates, vars, and fields use `camelCase`.
 - Constants may use `camelCase` or `PascalCase`.

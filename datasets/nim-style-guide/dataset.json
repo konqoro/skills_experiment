@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 24,
-    "testable": 21,
-    "passed": 21,
+    "total_claims": 25,
+    "testable": 22,
+    "passed": 22,
     "failed": 0,
     "not_testable": 3,
     "nuanced": 2,
@@ -202,12 +202,31 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c24_ufcs_generic_params.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Positive checks compile and run for `x.p[:T]()` and `x.p[:T, U](arg)`. `compiles(3.wrap[int]())` is false because it parses as indexing `wrap(3)`."
+    },
+    {
+      "claim_id": "C25",
+      "claim_text": "import brings symbols into scope without qualification. Qualified module.symbol access is needed only to resolve ambiguities between imported modules or conflicting symbols.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c25_namespacing.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Unique symbols from two imported modules are accessible without qualification. When both modules export `shared`, qualified `module_a.shared()` resolves the ambiguity. Unqualified `shared()` does not compile."
     }
   ],
   "uncovered_topics": [
     "Most formatting, naming, and readability preferences in the style guide are intentionally opinionated and are not suitable for compile/run verification."
   ],
   "needs_stronger_tests": [],
+  "failure_samples": [
+    {
+      "source_type": "project",
+      "source_task": "external project",
+      "bucket": "ambiguous wording",
+      "summary": "Agent used qualified module.symbol access everywhere instead of importing and using unqualified symbols",
+      "evidence": "raw.MY_ENUM_VALUE used throughout instead of importing raw and using MY_ENUM_VALUE",
+      "check": "unqualified_import_preferred",
+      "next_action": "no action"
+    }
+  ],
   "corrections_vs_original_skill": [
     {
       "claim_id": "C03",

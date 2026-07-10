@@ -66,7 +66,9 @@ Struct types: `object` in C order. Fixed arrays: `array[N, T]`. Pointer+length: 
 
 ### Naming
 
-- Strip redundant C prefixes (LIB_, foo_); keep names that disambiguate or match docs.
+- In raw bindings, match C identifier names directly.
+- `importc` without an explicit string resolves the C symbol from the Nim name.
+- Strip redundant C prefixes (LIB_, foo_) in the ergonomic layer.
 - Keep raw constant names in C style (e.g., `CURLE_OK`).
 - When a C identifier collides with a Nim keyword, rename the Nim identifier and use `importc:` to map to the original C name.
 

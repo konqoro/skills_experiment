@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 59,
-    "testable": 47,
-    "passed": 46,
+    "total_claims": 60,
+    "testable": 48,
+    "passed": 47,
     "failed": 0,
     "not_testable": 12,
     "nuanced": 3,
@@ -515,6 +515,14 @@
       "test_file_path": "tests/nim-c-wrappers_verification/test_c55_rc_stress.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. test_c55_rc_stress.nim exercises overwrite and self-assignment paths which implicitly require =copy to destroy the old dest. C56 independently confirms that skipping the destroy (by using `result = src` in =dup) over-counts owners."
+    },
+    {
+      "claim_id": "C60",
+      "claim_text": "Nim wrapper identifiers should not carry the C library name prefix. Raw C constants keep their full upstream names.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Naming convention. The module_layout.md reference demonstrates the split: raw FFI procs use C names, ergonomic procs strip the library prefix. The enum_and_bitflags.md reference keeps raw constants in C style while Nim-created distinct types do not carry the prefix."
     }
   ]
 }

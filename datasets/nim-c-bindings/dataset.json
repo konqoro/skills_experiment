@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 34,
-    "testable": 17,
-    "passed": 17,
+    "total_claims": 35,
+    "testable": 18,
+    "passed": 18,
     "failed": 0,
     "not_testable": 17,
     "nuanced": 2,
@@ -303,6 +303,14 @@
       "test_file_path": "tests/nim-c-bindings_verification/test_c34_dynlib_header_bad.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC negative test. The same symbol that loads through `dynlib` alone fails to link when `header` is also applied, with an undefined reference to the C symbol."
+    },
+    {
+      "claim_id": "C35",
+      "claim_text": "In raw bindings, match C identifier names directly so importc without an explicit string resolves the C symbol. Reserve explicit importc for keyword collisions or necessary renames.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-c-bindings_verification/test_c35_raw_naming.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A C helper with snake_case function names is imported using importc without explicit strings. The Nim proc name `raw_add` resolves the C symbol `raw_add`. A C function named `type` (a Nim keyword) requires renaming to `typ` with an explicit `importc: \"type\"`."
     }
   ],
   "failure_samples": [
@@ -323,6 +331,15 @@
       "evidence": "proc benchffi_snapshot_read*(handle: BenchffiHandle): BenchffiSnapshot = benchffi_snapshot_read_out(handle, addr result)",
       "check": "raw_binding_layer_no_wrapper",
       "next_action": "stronger test"
+    },
+    {
+      "source_type": "project",
+      "source_task": "external project",
+      "bucket": "missing rule",
+      "summary": "Agent used Nim camelCase names for raw C binding procs, requiring explicit importc strings on every declaration",
+      "evidence": "proc counterOpen*() {.importc: \"counter_open\".} instead of proc counter_open*() {.importc.}",
+      "check": "raw_binding_names_match_c_source",
+      "next_action": "no action"
     }
   ]
 }

@@ -29,20 +29,20 @@ const
   FormatUncompressedR8g8b8a8 = PixelFormat(1)
 
 # Simulated C functions (no real dynlib, just matching signatures)
-proc libLoadTexture(path: cstring): Texture =
+proc lib_load_texture(path: cstring): Texture =
   result.id = 1
   result.width = 64
   result.height = 64
 
-proc libUnloadTexture(texture: Texture) =
+proc lib_unload_texture(texture: Texture) =
   discard
 
-proc libDrawTexture(texture: Texture; source, dest: Rect; color: Color) =
+proc lib_draw_texture(texture: Texture; source, dest: Rect; color: Color) =
   discard
 
 # -- Ergonomic wrapper layer --
 proc `=destroy`(t: Texture) =
-  libUnloadTexture(t)
+  lib_unload_texture(t)
 
 proc `=wasMoved`(x: var Texture) =
   x.id = 0
@@ -51,12 +51,12 @@ proc `=dup`(src: Texture): Texture {.error.}
 proc `=copy`(dest: var Texture; src: Texture) {.error.}
 
 proc loadTexture(path: string): Texture =
-  result = libLoadTexture(path.cstring)
+  result = lib_load_texture(path.cstring)
   if result.id == 0:
     raise newException(IOError, "Failed to load texture: " & path)
 
 proc drawTexture(texture: Texture; src, dest: Rect; tint: Color) {.inline.} =
-  libDrawTexture(texture, src, dest, tint)
+  lib_draw_texture(texture, src, dest, tint)
 
 proc main =
   # Raw types are accessible

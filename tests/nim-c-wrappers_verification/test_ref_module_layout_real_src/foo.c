@@ -21,7 +21,7 @@ typedef struct {
   int32_t height;
 } Texture;
 
-Texture libLoadTexture(const char *path) {
+Texture lib_load_texture(const char *path) {
   Texture result = {0, 0, 0};
   if (path != NULL && strcmp(path, "test.png") == 0) {
     result.id = 7;
@@ -31,11 +31,11 @@ Texture libLoadTexture(const char *path) {
   return result;
 }
 
-void libUnloadTexture(Texture texture) {
+void lib_unload_texture(Texture texture) {
   (void)texture;
 }
 
-void libDrawTexture(Texture texture, Rect source, Rect dest, Color color) {
+void lib_draw_texture(Texture texture, Rect source, Rect dest, Color color) {
   (void)texture;
   (void)source;
   (void)dest;

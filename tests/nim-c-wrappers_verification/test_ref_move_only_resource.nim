@@ -6,12 +6,12 @@ type
     w: cint
     h: cint
 
-proc libCreate(width, height: cint): ptr RawHandle =
+proc LIB_Create(width, height: cint): ptr RawHandle =
   result = cast[ptr RawHandle](alloc0(sizeof(RawHandle)))
   result.w = width
   result.h = height
 
-proc libDestroy(h: ptr RawHandle) =
+proc LIB_Destroy(h: ptr RawHandle) =
   if h != nil: dealloc(h)
 
 type
@@ -20,7 +20,7 @@ type
 
 proc `=destroy`(h: Handle) =
   if h.raw != nil:
-    libDestroy(h.raw)
+    LIB_Destroy(h.raw)
 
 proc `=wasMoved`(h: var Handle) =
   h.raw = nil
@@ -31,7 +31,7 @@ proc `=dup`(src: Handle): Handle {.error.}
 {.pop.}
 
 proc initHandle(width, height: int): Handle =
-  let raw = libCreate(cint(width), cint(height))
+  let raw = LIB_Create(cint(width), cint(height))
   if raw == nil:
     raise newException(ValueError, "Failed to create handle")
   Handle(raw: raw)

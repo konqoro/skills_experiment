@@ -5,11 +5,11 @@ type
   RawAsset = object
     data: cint
 
-proc libLoad(path: cstring): ptr RawAsset =
+proc LIB_Load(path: cstring): ptr RawAsset =
   result = cast[ptr RawAsset](alloc0(sizeof(RawAsset)))
   result.data = 42
 
-proc libFreeAsset(p: ptr RawAsset) =
+proc LIB_FreeAsset(p: ptr RawAsset) =
   if p != nil: dealloc(p)
 
 type
@@ -20,7 +20,7 @@ type
 proc `=destroy`(a: Asset) =
   if a.raw != nil:
     if a.rc[] == 0:
-      libFreeAsset(a.raw)
+      LIB_FreeAsset(a.raw)
       dealloc(a.rc)
     else:
       dec a.rc[]
@@ -47,7 +47,7 @@ proc `=dup`(src: Asset): Asset =
     inc result.rc[]
 
 proc loadAsset(path: string): Asset =
-  let raw = libLoad(path.cstring)
+  let raw = LIB_Load(path.cstring)
   if raw == nil:
     raise newException(IOError, "Failed to load asset: " & path)
   result = Asset(
