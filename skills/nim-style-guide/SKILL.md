@@ -3,10 +3,9 @@ name: nim-style-guide
 description: Write clear, consistent Nim code in a simple stdlib-aligned style, covering imports, naming, proc vs func vs template choices, local variables, constructors, formatting, and control flow. Use when writing new Nim code or reviewing a Nim module for readability, consistency, and low-noise style decisions.
 ---
 
-# Preamble
+# Nim Style Guide
 
 Prefer concise, structured code that the compiler and reader can reason about.
-Larger examples live under `references/`.
 
 # Rules
 

@@ -74,7 +74,7 @@ If `CURRENT_VERIFIED_SKILL` does not exist, create it from scratch.
 
 `skills/{SKILL_NAME}/SKILL.md` must contain these sections in this order:
 
-1. `Preamble`
+1. skill name (title case, hyphens → spaces)
 2. `Rules`
 3. `Workflow`
 4. `Common Mistakes`
@@ -86,7 +86,6 @@ If `CURRENT_VERIFIED_SKILL` does not exist, create it from scratch.
 - YAML frontmatter with `name` and `description`
 - Follow `prompts/skill_header_conventions.md` for `name` and `description`
 - a short introduction
-- one sentence telling the reader where `references/` examples live
 
 #### Rules
 - short, high-signal rules grouped by topic
