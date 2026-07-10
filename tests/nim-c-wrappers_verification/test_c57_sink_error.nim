@@ -15,21 +15,21 @@ proc `=sink`(dest: var Handle; src: Handle) {.error.}
 proc `=copy`(dest: var Handle; src: Handle) {.error.}
 proc `=dup`(src: Handle): Handle {.error.}
 
-proc initHandle(): Handle =
+proc newHandle(): Handle =
   Handle(raw: cast[ptr int](alloc0(sizeof(int))))
 
 proc exercise =
-  var handle = initHandle()
+  var handle = newHandle()
   doAssert handle.raw != nil
 
-  var source = initHandle()
+  var source = newHandle()
   var moved = ensureMove(source)
   doAssert moved.raw != nil
 
 exercise()
 
 when defined(trySink):
-  var dest = initHandle()
-  dest = initHandle()
+  var dest = newHandle()
+  dest = newHandle()
 
 echo "C57: PASS"

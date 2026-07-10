@@ -30,7 +30,7 @@ proc `=copy`(dest: var Handle; src: Handle) {.error.}
 proc `=dup`(src: Handle): Handle {.error.}
 {.pop.}
 
-proc initHandle(width, height: int): Handle =
+proc newHandle(width, height: int): Handle =
   let raw = LIB_Create(cint(width), cint(height))
   if raw == nil:
     raise newException(ValueError, "Failed to create handle")
