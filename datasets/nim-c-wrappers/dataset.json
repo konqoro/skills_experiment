@@ -126,11 +126,11 @@
     },
     {
       "claim_id": "C11",
-      "claim_text": "Use {.push callconv: cdecl, header: 'foo.h'.} scoped pragma blocks when many raw declarations share the same calling convention and header.",
+      "claim_text": "Use {.push callconv: cdecl, importc, header: 'foo.h'.} scoped pragma blocks when many raw declarations share the same calling convention and header.",
       "is_testable": true,
       "test_file_path": "tests/nim-c-wrappers_verification/test_c11_push_pragma.nim",
       "test_passed": true,
-      "evaluation_notes": "Compiles and runs with push/pop pragma blocks wrapping real C functions. DETERMINISTIC."
+      "evaluation_notes": "Compiles and runs with push/pop pragma blocks wrapping real C functions. importc in the push block resolves C symbols from Nim proc names without per-proc importc. DETERMINISTIC."
     },
     {
       "claim_id": "C12",

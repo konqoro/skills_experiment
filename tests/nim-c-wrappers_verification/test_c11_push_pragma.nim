@@ -1,12 +1,12 @@
-# Test C11: {.push callconv: cdecl.} scoped pragma blocks compile correctly
-# We test the pattern compiles by using importc with a real C function (e.g., malloc)
-{.push callconv: cdecl.}
-proc myMalloc(size: csize_t): pointer {.importc: "malloc", header: "<stdlib.h>".}
-proc myFree(p: pointer) {.importc: "free", header: "<stdlib.h>".}
+# Test C11: {.push callconv: cdecl, importc, header: ...} scoped pragma blocks
+# importc in the push block resolves C symbols from Nim proc names
+{.push callconv: cdecl, importc, header: "<stdlib.h>".}
+proc malloc(size: csize_t): pointer
+proc free(p: pointer)
 {.pop.}
 
-var p = myMalloc(64)
+var p = malloc(64)
 doAssert p != nil
-myFree(p)
+free(p)
 
 echo "C11: PASS"

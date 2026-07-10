@@ -18,7 +18,7 @@ This skill covers the two-layer pattern for wrapping C libraries in Nim: a raw F
 
 ### Raw FFI Layer
 
-- Use `importc` with `cdecl` (or `stdcall` if the library requires it). Prefer `{.push callconv: cdecl, header: "foo.h".}` blocks for shared conventions.
+- Use `importc` with `cdecl` (or `stdcall` if the library requires it). Prefer `{.push callconv: cdecl, importc, header: "foo.h".}` blocks for shared conventions.
 - `header` declares linker-resolved imports; `dynlib` loads symbols at runtime. Do not combine them on one proc. Guard library names with `when defined(windows):` etc.
 - **Never reorder struct fields.** Use `object` in C field order. Add `packed` only if C headers specify packing.
 - Use `incompleteStruct` and list only needed fields to reduce ABI risk.
