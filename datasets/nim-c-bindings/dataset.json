@@ -16,7 +16,7 @@
     {
       "claim_id": "C01",
       "original_claim": "Use importc with callconv: cdecl for C APIs unless the library explicitly uses a different calling convention.",
-      "correction": "Use `cdecl` on individual imported C procs. Reserve `callconv: cdecl` for pragma blocks such as `{.push callconv: cdecl, importc, header: \"foo.h\".}`."
+      "correction": "Use `cdecl` on individual imported C procs. Reserve `callconv: cdecl` for pragma blocks such as `{.push callconv: cdecl, importc.}`."
     },
     {
       "claim_id": "C10",

@@ -126,7 +126,7 @@
     },
     {
       "claim_id": "C11",
-      "claim_text": "Use {.push callconv: cdecl, importc, header: 'foo.h'.} scoped pragma blocks when many raw declarations share the same calling convention and header.",
+      "claim_text": "Use {.push callconv: cdecl, importc.} scoped pragma blocks when many raw declarations share the same calling convention.",
       "is_testable": true,
       "test_file_path": "tests/nim-c-wrappers_verification/test_c11_push_pragma.nim",
       "test_passed": true,
