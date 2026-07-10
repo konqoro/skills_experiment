@@ -9,6 +9,10 @@ type
   CatalogRef = ref object
     items: seq[string]
 
+  Buffer = object
+    raw: ptr UncheckedArray[byte]
+    len: int
+
 const
   DefaultInitialSize = 4
 
@@ -30,6 +34,10 @@ proc toCatalog(csv: string): Catalog =
     let item = raw.strip()
     if item.len > 0:
       result.items.add item
+
+proc newBuffer(size: int): Buffer =
+  result.raw = cast[ptr UncheckedArray[byte]](alloc0(size))
+  result.len = size
 
 proc len(c: Catalog): int {.inline.} =
   c.items.len
@@ -56,6 +64,12 @@ block tox_overloads_share_one_name:
   doAssert fromArray.item(1) == "beta"
   doAssert fromString.len == 2
   doAssert fromString.item(0) == "gamma"
+
+block value_type_with_reference_semantics:
+  var buf = newBuffer(8)
+  doAssert buf.len == 8
+  doAssert buf.raw != nil
+  dealloc(buf.raw)
 
 block ref_surface_keeps_key_accessor_names:
   var byRef = newCatalog(8)

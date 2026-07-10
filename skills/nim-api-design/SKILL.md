@@ -44,8 +44,8 @@ Default to plain data, one clear surface, and names that match the standard libr
 
 ### Constructors and conversions
 
-- Value types use `initX()` and return `T`.
-- Ref types use `newX()` and return `ref T`.
+- Use `initX()` for value types that copy by value.
+- Use `newX()` for ref types and for value types with reference semantics.
 - Use one `toX()` name for common conversions. Overload on input type.
 - Choose sequence-like batch parameters by required operation:
   `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length

@@ -103,11 +103,11 @@
     },
     {
       "claim_id": "C13",
-      "claim_text": "Use `initX()` for the primary value-type constructor. If a ref wrapper is part of the public contract, use `newX()` for it.",
+      "claim_text": "Use `initX()` for value types that copy by value. Use `newX()` for ref types and for value types with reference semantics.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A self-contained value/ref pair with `initCatalog()` and `newCatalog()` compiles and behaves coherently. Review of ~/Projects/Nim/lib also shows this naming pattern where paired value/ref APIs exist."
+      "evaluation_notes": "DETERMINISTIC. A self-contained value/ref pair with `initCatalog()` and `newCatalog()` compiles and behaves coherently. A value type with reference semantics (`Buffer` owning a pointer) uses `newBuffer()` and returns `T`. Review of ~/Projects/Nim/lib also shows this naming pattern where paired value/ref APIs exist."
     },
     {
       "claim_id": "C14",
