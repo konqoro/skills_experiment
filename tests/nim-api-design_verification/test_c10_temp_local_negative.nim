@@ -1,5 +1,5 @@
 ## C10 companion: this file demonstrates that a lent accessor using a
-## temp local fails to compile under ORC due to escaping borrow.
+## temp local fails to compile due to escaping borrow.
 
 type
   Data = object

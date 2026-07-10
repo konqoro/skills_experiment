@@ -104,7 +104,7 @@ Default to plain data, one clear surface, and names that match the standard libr
 | Weakening a constrained public parameter to `int` and re-checking manually | It throws away a stronger boundary contract |
 | Returning a silent default for required data | It hides missing-data bugs |
 | Returning `var T` for controlled state | Callers can bypass validation and related updates |
-| Returning a `lent` or `var` result through a temp local | ORC rejects the borrow because the temp escapes |
+| Returning a `lent` or `var` result through a temp local | The temp dies at return; the compiler rejects the dangling borrow |
 | Using `lent T` for an input parameter | `lent T` is a borrowed return type; the compiler rejects it in parameter position |
 | Assuming a sink call always moves the caller's variable | Nim copies the argument when it cannot prove last use |
 | Wrapping a routine sink argument in `ensureMove` | Sink already performs last-use analysis; use `ensureMove` only when the code must fail instead of copy |

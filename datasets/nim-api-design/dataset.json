@@ -91,7 +91,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c10_no_temp_locals.nim",
       "test_passed": true,
-      "evaluation_notes": "PASS. Lent accessor with temp local (`let temp = d.items[i]; result = temp`) fails to compile with ORC: 'temp escapes its stack frame'. Direct indexing (`result = d.items[i]`) compiles and works correctly. Negative test in test_c10_temp_local_fail.nim confirms compile failure. Direct indexing also works for nested fields."
+      "evaluation_notes": "PASS. Lent accessor with temp local (`let temp = d.items[i]; result = temp`) fails to compile: 'temp escapes its stack frame'. Direct indexing (`result = d.items[i]`) compiles and works correctly. Negative test in test_c10_temp_local_negative.nim confirms compile failure. Direct indexing also works for nested fields."
     },
     {
       "claim_id": "C12",
@@ -207,7 +207,7 @@
     },
     {
       "claim_id": "C26",
-      "claim_text": "A lent accessor that assigns through a temp local fails to compile under ORC due to escaping borrow.",
+      "claim_text": "A lent accessor that assigns through a temp local fails to compile due to escaping borrow.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c10_temp_local_negative.nim",
       "test_passed": true,

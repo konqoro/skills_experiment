@@ -1,6 +1,6 @@
 ## C10: In lent/var accessors, use direct indexing — temp locals cause
-##       "escapes its stack frame" errors under ORC.
-## See test_c10_temp_local_fail.nim for the compile-failure proof.
+##       "escapes its stack frame" compile errors.
+## See test_c10_temp_local_negative.nim for the compile-failure proof.
 
 type
   Data = object
