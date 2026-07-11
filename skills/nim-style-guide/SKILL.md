@@ -54,7 +54,6 @@ Prefer concise, structured code that the compiler and reader can reason about.
 - Use `func` for pure helpers and pure accessors when checked purity helps.
 - Use `template` when call-site substitution, lazy evaluation, or a
   control-flow abstraction is required.
-- Keep ordinary runtime helper logic in a `proc` or `func`.
 - Prefer `proc` and `func` over `method`. Use `method` only when you need runtime dispatch.
 - Prefer top-level helpers for reusable logic.
 - Use a nested proc when the logic is truly local or when you want a closure.
@@ -65,17 +64,14 @@ Prefer concise, structured code that the compiler and reader can reason about.
 
 - Prefer compact wrapped calls over one-argument-per-line call blocks.
 - Use UFCS when it reads like an accessor.
-- Use normal parentheses for calls inside comparisons, boolean expressions, or
-  nested call arguments: write `foo(1) == 1`, not `foo 1 == 1`.
-- Parenthesize the operand of `not`: write `not (a or b)` and
-  `not (x < y)`. For membership, write `x notin items`.
 - Use `let` by default.
 - Use `var` only for values that mutate.
 - Keep local declarations close to first use.
 - Keep public and reusable types at module scope.
 - Group related fields with the same type when it improves readability.
-- When using object constructors, set the fields you want to override and omit the fields that should keep their defaults.
-- Initialize `result` with `result = TypeName()` before assigning fields, so declared field defaults are applied.
+- Prefer object constructors (`TypeName(field: value)`) over field-by-field
+  assignment into an uninitialized `result`.
+- Omit fields that should keep their declared defaults.
 
 ## Parsing-Sensitive Whitespace
 
@@ -89,7 +85,7 @@ These whitespace choices change how Nim parses code:
   - `foo(1, 2)` passes two `int` arguments.
   - `foo (1, 2)` passes a single `(int, int)` tuple. Nim treats the parenthesized comma-list as a tuple constructor.
 
-- **Do not let command-call syntax absorb comparisons or commas.**
+- **Do not use command-call syntax with comparisons or nested calls.**
   - `foo 1 == 1` parses like `foo(1 == 1)`, not `foo(1) == 1`.
   - When a call result is an argument to another call, write `same(1, 1)`.
 
@@ -129,7 +125,7 @@ lines from the body.
 3. Shape the control flow.
    Use structured control flow. Return directly when a loop finds its result.
 4. Clean up locals and constructors.
-   Use `let` by default, keep locals near first use, keep reusable helpers at module scope, and let constructors keep declaration defaults unless you are overriding them.
+   Use `let` by default, keep locals near first use, and keep reusable helpers at module scope.
 5. Remove noise.
    Remove unused imports, dead helpers, column alignment, and stretched call formatting.
 
@@ -141,10 +137,8 @@ lines from the body.
 | Hiding reusable helpers inside another proc | It makes the helper harder to reuse and easier to turn into an accidental closure. |
 | Writing one argument per line by default | It adds vertical noise without adding structure. |
 | Using `var` for values that never mutate | It hides which locals actually change. |
-| Writing `not x < y` when negating a comparison | Nim can parse it as `(not x) < y`. Write `not (x < y)`. |
 | Turning every branch into an early `return` in a multi-step proc | It makes the normal path harder to scan. |
 | Using `continue` | A structured branch keeps the loop invariant visible. |
-| Restating every object field in a constructor | It adds noise and can hide which fields are intentionally overridden. |
 
 # References
 
