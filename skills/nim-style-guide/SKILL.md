@@ -16,6 +16,8 @@ Prefer concise, structured code that the compiler and reader can reason about.
 - Use ordinary spacing instead of aligning columns by hand.
 - Write range operators compactly: `a..b`, `a..<b`, and `a..^b`. Add spaces
   when an operand contains an operator, as in `a .. -3`.
+- In `range` type constructors, use `..`: `range[0..n-1]` is valid;
+  `range[0..<n]` is invalid.
 - Indent wrapped declarations, calls, and conditions one extra level.
 - Start multiline triple-quoted strings on the next line.
 
@@ -73,6 +75,7 @@ Prefer concise, structured code that the compiler and reader can reason about.
 - Keep public and reusable types at module scope.
 - Group related fields with the same type when it improves readability.
 - When using object constructors, set the fields you want to override and omit the fields that should keep their defaults.
+- Initialize `result` with `result = TypeName()` before assigning fields, so declared field defaults are applied.
 
 ## Parsing-Sensitive Whitespace
 
@@ -95,12 +98,8 @@ These whitespace choices change how Nim parses code:
   - `x.p[T]()` parses as `(x.p)[T]()` and usually means indexing the result.
 
 - **Group negated compound expressions.**
-  - `not a or b` means `(not a) or b`, not `not (a or b)`.
-  - `not x < y` can mean `(not x) < y`. Write `not (x < y)`.
+  - Parenthesize compound operands of `not`: `not a or b` parses as `(not a) or b`, so write `not (a or b)` and `not (x < y)`.
   - Write `x notin items`, not `not x in items`.
-
-- **Construct range types with `..`.**
-  - `range[0..n-1]` is a range type. `range[0..<n]` is invalid.
 
 ## Line Continuation
 
@@ -147,7 +146,6 @@ lines from the body.
 | Turning every branch into an early `return` in a multi-step proc | It makes the normal path harder to scan. |
 | Using `continue` | A structured branch keeps the loop invariant visible. |
 | Restating every object field in a constructor | It adds noise and can hide which fields are intentionally overridden. |
-| Assigning fields into a zero-initialized `result` when the type declares field defaults | Initialize with `TypeName()` first, or use an object constructor, so declared defaults are applied. |
 
 # References
 

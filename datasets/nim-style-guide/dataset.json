@@ -63,11 +63,11 @@
     },
     {
       "claim_id": "C07",
-      "claim_text": "Object-construction syntax and field-by-field assignment can produce the same value; the real benefit of constructor syntax is clarity, especially when it lets you omit defaulted fields.",
+      "claim_text": "The implicit `result` variable is zero-initialized, not default-initialized. Assigning fields into it without constructing the type first bypasses declared field defaults. Initialize `result = TypeName()` before field assignment.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c01_c02_c07_object_defaults.nim",
       "test_passed": true,
-      "evaluation_notes": "NUANCED. Constructor syntax and field assignment can match, but only if the field-assignment version starts from `TypeName()`. Assigning into a plain zero-initialized `result` does not preserve declaration defaults."
+      "evaluation_notes": "DETERMINISTIC. `buildWithFieldMutationOnly` returns `retryLimit == 0` and `label == \"\"` (zero-init), while `buildWithInitializedValueThenMutation` returns `retryLimit == 3` and `label == \"worker\"` (constructor-applied defaults)."
     },
     {
       "claim_id": "C08",
@@ -189,7 +189,7 @@
     },
     {
       "claim_id": "C23",
-      "claim_text": "`not a or b` negates only `a`, `not x < y` can negate `x` before comparing, and `x notin items` is the clear membership-negation form.",
+      "claim_text": "`not` applies to the nearest operand, not the whole compound expression: `not a or b` parses as `(not a) or b` and `not x < y` parses as `(not x) < y`, so parenthesize as `not (a or b)` or `not (x < y)`. `x notin items` is the clear membership-negation form.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c22_c23_expression_parsing.nim",
       "test_passed": true,
