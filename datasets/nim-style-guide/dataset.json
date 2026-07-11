@@ -4,11 +4,11 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 25,
+    "total_claims": 26,
     "testable": 22,
     "passed": 22,
     "failed": 0,
-    "not_testable": 3,
+    "not_testable": 4,
     "nuanced": 2,
     "untested": 0
   },
@@ -210,6 +210,14 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c25_namespacing.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Unique symbols from two imported modules are accessible without qualification. When both modules export `shared`, qualified `module_a.shared()` resolves the ambiguity. Unqualified `shared()` does not compile."
+    },
+    {
+      "claim_id": "C26",
+      "claim_text": "Keep lines at or below 100 characters.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "STYLE. Formatting guideline. Not suitable for compile/run verification."
     }
   ],
   "uncovered_topics": [

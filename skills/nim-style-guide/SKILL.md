@@ -12,7 +12,7 @@ Prefer concise, structured code that the compiler and reader can reason about.
 ## Formatting
 
 - Indent blocks with 2 spaces and use spaces instead of tab characters.
-- Keep lines at or below 80 characters.
+- Keep lines at or below 100 characters.
 - Use ordinary spacing instead of aligning columns by hand.
 - Write range operators compactly: `a..b`, `a..<b`, and `a..^b`. Add spaces
   when an operand contains an operator, as in `a .. -3`.
