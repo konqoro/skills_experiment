@@ -139,7 +139,6 @@ lines from the body.
 |---------|-----------------|
 | Using `method` as the default callable kind | It adds runtime dispatch where a plain `proc` or `func` would usually be clearer. |
 | Hiding reusable helpers inside another proc | It makes the helper harder to reuse and easier to turn into an accidental closure. |
-| Using `template` where ordinary call semantics are sufficient | It expands code at the call site without providing useful substitution, laziness, or control-flow abstraction. |
 | Writing one argument per line by default | It adds vertical noise without adding structure. |
 | Using `var` for values that never mutate | It hides which locals actually change. |
 | Writing `not x < y` when negating a comparison | Nim can parse it as `(not x) < y`. Write `not (x < y)`. |
@@ -150,3 +149,4 @@ lines from the body.
 # References
 
 - `references/core_patterns.md`: Simple default patterns for imports, callable kinds, wrapping, locals, and constructors.
+- `references/template_usage.md`: Template patterns where a `proc` cannot substitute: scoped cleanup, caller-named access, and lazy evaluation.
