@@ -24,8 +24,9 @@ Prefer concise, structured code that the compiler and reader can reason about.
 ## Imports And Naming
 
 - Use `std/...` imports for stdlib modules.
-- Group broad stdlib imports with `import std/[a, b, c]`.
-- Use `from std/foo import bar, baz` when you only need a small API slice.
+- Group imports from the same directory: `import std/[a, b, c]`,
+  `import lib/[x, y, z]`.
+- Use `from foo import bar, baz` when you only need a small API slice.
 - `import` brings symbols into scope without qualification.
 - Use qualified `module.symbol` access only to resolve genuine name conflicts between imported modules.
 - Types use `PascalCase`.

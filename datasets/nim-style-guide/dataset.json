@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 26,
-    "testable": 22,
-    "passed": 22,
+    "total_claims": 28,
+    "testable": 24,
+    "passed": 24,
     "failed": 0,
     "not_testable": 4,
     "nuanced": 2,
@@ -218,6 +218,22 @@
       "test_file_path": null,
       "test_passed": null,
       "evaluation_notes": "STYLE. Formatting guideline. Not suitable for compile/run verification."
+    },
+    {
+      "claim_id": "C27",
+      "claim_text": "Nim import syntax supports grouped imports from any directory (`import dir/[a, b, c]`) and selective imports (`from foo import bar, baz`). These are not limited to the stdlib.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c27_import_syntax.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `import src/[alpha, beta]` and `from src/gamma import gammaTwo` compile and run with non-stdlib modules."
+    },
+    {
+      "claim_id": "C28",
+      "claim_text": "Templates are required when proc semantics cannot substitute: an `untyped` body parameter enables call-site code injection and control-flow abstraction, and `when`-guarded template arguments skip evaluation entirely where a proc would evaluate them before the call.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c28_template_necessity.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A template with `untyped` body accepts a code block wrapping `try/finally`. A `when`-guarded debug template skips its argument expression (sideEffectCount stays 0)."
     }
   ],
   "uncovered_topics": [
