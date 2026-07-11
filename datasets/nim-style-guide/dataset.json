@@ -111,7 +111,7 @@
     },
     {
       "claim_id": "C13",
-      "claim_text": "No space before [ in type annotations. array[0..4, bool] compiles but array [0..4, bool] does not. The same applies to seq[string], Table[string, int], etc.",
+      "claim_text": "No space before [ in type annotations. array[N, T] compiles but array [N, T] does not. The same applies to seq[T], Table[K, V], etc.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c13_space_before_bracket.nim",
       "test_passed": true,
@@ -174,14 +174,14 @@
     },
     {
       "claim_id": "C21",
-      "claim_text": "Use established stdlib operation names and pairs: subject-first domain predicates, initX/newX, find/contains, reverse/reversed, replace/replaceIn, and field-style getters only for cheap side-effect-free access.",
+      "claim_text": "Use established stdlib operation names and pairs: subject-first domain predicates, initX/newX, find/contains, reverse/reversed, sort/sorted, and field-style getters only for cheap side-effect-free access. When the copy-returning name already exists, suffix the in-place form with `In`, as in `replaceIn`.",
       "source": "~/Projects/Nim/doc/nep1.md",
       "is_testable": false,
       "evaluation_notes": "STYLE. These conventions make related APIs predictable and match the published Nim Standard Library Style Guide."
     },
     {
       "claim_id": "C22",
-      "claim_text": "Inside comparisons, boolean expressions, or nested call arguments, command-call syntax can bind comparisons or commas to the wrong call; ordinary parenthesized call syntax avoids that parse.",
+      "claim_text": "Command-call syntax binds comparisons and commas to the wrong call: `foo 1 == 1` parses as `foo(1 == 1)`, and `outer(inner 1, 1)` parses as `outer(inner(1), 1)`. Use parenthesized call syntax in comparisons and nested calls.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c22_c23_expression_parsing.nim",
       "test_passed": true,

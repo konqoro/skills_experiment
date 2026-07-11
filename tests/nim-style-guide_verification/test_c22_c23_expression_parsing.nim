@@ -1,14 +1,14 @@
 import std/assertions
 
 proc foo(x: int): int = x
-proc same(x, y: int): bool = x == y
-proc accept(cond: bool): bool = cond
+proc inner(x, y: int): bool = x == y
+proc outer(cond: bool): bool = cond
 
 block call_syntax_in_compound_expressions:
   doAssert foo(1) == 1
-  doAssert accept(same(1, 1))
+  doAssert outer(inner(1, 1))
   doAssert not compiles(foo 1 == 1)
-  doAssert not compiles(accept(same 1, 1))
+  doAssert not compiles(outer(inner 1, 1))
 
 block negated_compound_expressions:
   let a = true

@@ -78,8 +78,8 @@ Prefer concise, structured code that the compiler and reader can reason about.
 These whitespace choices change how Nim parses code:
 
 - **Attach `[` to a type name.**
-  - `array[0..4, bool]` compiles. `array [0..4, bool]` does not.
-  - The same applies to `seq[string]`, `Table[string, int]`, etc.
+  - `array[N, T]` compiles. `array [N, T]` does not.
+  - The same applies to `seq[T]`, `Table[K, V]`, etc.
 
 - **Attach `(` to a callable name for a parenthesized call.**
   - `foo(1, 2)` passes two `int` arguments.
@@ -87,7 +87,7 @@ These whitespace choices change how Nim parses code:
 
 - **Do not use command-call syntax with comparisons or nested calls.**
   - `foo 1 == 1` parses like `foo(1 == 1)`, not `foo(1) == 1`.
-  - When a call result is an argument to another call, write `same(1, 1)`.
+  - `outer(inner 1, 1)` parses as `outer(inner(1), 1)`, not `outer(inner(1, 1))`.
 
 - **Use `[:T]` for explicit generic parameters in UFCS calls.**
   - `x.p[:T]()` rewrites to `p[T](x)`.
