@@ -91,11 +91,27 @@
     },
     {
       "claim_id": "C07",
-      "claim_text": "Coarse confidence scores are safer than multiplying pseudo-probability factors for defect triage.",
+      "claim_text": "Do not assign numerical confidence or probability scores; state what was found and what evidence exists.",
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": "Benchmark-level triage claim supported by observed model over-claiming."
+      "evaluation_notes": "NUANCED. Coarse scores were an improvement over pseudo-probability multiplication, but agents still spent time debating 0.4 vs 0.6 instead of finding and confirming bugs. Removing numbers entirely forces attention back to evidence."
+    },
+    {
+      "claim_id": "C11",
+      "claim_text": "Classification uses three classes: CONFIRMED (reproducer or test demonstrates the failure), UNCONFIRMED (static trace only), and FALSE_POSITIVE (guard blocks the path).",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Workflow claim. Five classes (CONFIRMED/LIKELY/LOW/FALSE_POSITIVE/NON_DEFECT) caused agents to spend effort on fine-grained rating rather than finding bugs."
+    },
+    {
+      "claim_id": "C12",
+      "claim_text": "Bug-finding guidance is illustrative, not exhaustive; review code broadly including logic errors, not just matches against a fixed pattern list.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Workflow claim. The fixed regex pattern list and restrictive scope gate caused agents to miss logic errors and treat the checklist as the complete search space."
     },
     {
       "claim_id": "C08",
