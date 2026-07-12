@@ -152,5 +152,4 @@ See `references/multiline_strings.md`.
 # References
 
 - `references/core_patterns.md`: Simple default patterns for imports, callable kinds, wrapping, locals, and constructors.
-- `references/template_usage.md`: Template patterns where a `proc` cannot substitute: scoped cleanup, caller-named access, and lazy evaluation.
 - `references/multiline_strings.md`: Triple-quoted multiline string patterns: leading newline, concatenation around interpolated values, and `dedent`.

@@ -4,8 +4,7 @@ let repoRoot = parentDir(parentDir(parentDir(currentSourcePath())))
 let references = repoRoot / "skills" / "nim-style-guide" / "references"
 let workDir = getTempDir() / "nim_style_guide_references"
 let names = [
-  "core_patterns",
-  "template_usage"
+  "core_patterns"
 ]
 
 if dirExists(workDir):

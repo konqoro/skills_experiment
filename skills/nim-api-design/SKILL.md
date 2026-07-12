@@ -119,3 +119,5 @@ Default to plain data, one clear surface, and names that match the standard libr
   constrained parameters, and semantic results
 - `references/parameter_ownership.md` — read, mutation, resizing, sink, and
   borrowed-return parameter shapes
+- `references/template_usage.md` — template patterns where a `proc` cannot
+  substitute: scoped cleanup, caller-named access, and lazy evaluation

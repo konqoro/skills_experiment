@@ -7,7 +7,8 @@ let names = [
   "representation_and_construction",
   "lookup_and_mutation",
   "parameter_and_result_shapes",
-  "parameter_ownership"
+  "parameter_ownership",
+  "template_usage"
 ]
 
 if dirExists(workDir):

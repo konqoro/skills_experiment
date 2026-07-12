@@ -1,4 +1,4 @@
-GitHub Actions CI workflow for a Nim project. Runs the auto-discovering test runner across Linux, macOS, and Windows in debug, release, and danger configurations. Includes an optional AddressSanitizer job on Linux.
+GitHub Actions CI for a Nim project: cross-platform test matrix and an AddressSanitizer job on Linux.
 
 ## `.github/workflows/ci.yml`
 
@@ -52,16 +52,11 @@ jobs:
           repo-token: ${{ github.token }}
 
       - name: Run tests with AddressSanitizer
-        run: |
-          nim c \
-            --passC:"-fsanitize=address -fno-omit-frame-pointer" \
-            --passL:"-fsanitize=address -fno-omit-frame-pointer" \
-            -g -d:noSignalHandler -d:useMalloc \
-            -r tests/tester.nim
+        run: nim c -d:addressSanitizer -r tests/tester.nim
 ```
 
 When to use:
 
-- Copy this workflow when setting up CI for a Nim project that uses the `tests/tester.nim` auto-discovering runner.
+- Copy this workflow when setting up CI for a Nim project using the `tests/tester.nim` runner.
 - Replace `stable` with a pinned Nim version (e.g. `2.3.1`) when reproducibility matters.
 - Remove the `sanitizer` job if the project does not use unsafe constructs.
