@@ -50,6 +50,15 @@
       "next_action": "skill edit"
     },
     {
+      "source_type": "project",
+      "source_task": "general skill review",
+      "bucket": "missing rule",
+      "summary": "The fixed regex pattern list and restrictive scope gate caused agents to miss logic errors.",
+      "evidence": "The skill presented a fixed set of search patterns and a narrow scope definition, leading agents to treat pattern matching as the complete search space and skip reasoning about code logic.",
+      "check": "Bug-finding guidance should be illustrative, not exhaustive; logic errors must be in scope.",
+      "next_action": "skill edit"
+    },
+    {
       "source_type": "research",
       "source_task": "Li et al. 2026, 222 CVEs; JITVul ACL 2025; NDSS 2025",
       "bucket": "missing rule",
@@ -78,11 +87,11 @@
     }
   ],
   "summary": {
-    "total_claims": 12,
+    "total_claims": 15,
     "testable": 4,
     "passed": 4,
     "failed": 0,
-    "not_testable": 8,
+    "not_testable": 11,
     "untested": 0
   },
   "claims": [
@@ -218,7 +227,7 @@
     },
     {
       "original_claim": "Use five classes: CONFIRMED, LIKELY, LOW, FALSE_POSITIVE, NON_DEFECT.",
-      "correction": "Use three classes: CONFIRMED, UNCONFIRMED, FALSE_POSITIVE. Fine-grained rating distracts from finding bugs."
+      "correction": "Use four action-oriented classes: CONFIRMED (reproducer demonstrates it), TRACED (complete static trace), SUSPECTED (partial trace), FALSE_POSITIVE (guard blocks). Classes describe what was done, not confidence level."
     },
     {
       "original_claim": "Search using this fixed list of regex patterns and review only code that matches the scope definition.",
@@ -232,6 +241,6 @@
   ],
   "needs_stronger_tests": [
     "C10 needs a targeted ownership-hook review benchmark.",
-    "C01, C02, C06, and C07 need benchmark validation rather than unit tests."
+    "C01, C02, C06, C07, C11, C13, C14, C15 need benchmark validation rather than unit tests."
   ]
 }
