@@ -15,8 +15,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  linux:
-    runs-on: ubuntu-latest
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        build: ["", "-d:release", "-d:danger"]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -33,68 +38,8 @@ jobs:
       - name: Install Nim dependencies
         run: atlas install
 
-      - name: Run tests (debug)
-        run: nim c -r tests/tester.nim
-
-      - name: Run tests (release)
-        run: nim c -d:release -r tests/tester.nim
-
-      - name: Run tests (danger)
-        run: nim c -d:danger -r tests/tester.nim
-
-  macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Install Nim
-        uses: jiro4989/setup-nim-action@v2
-        with:
-          nim-version: stable
-          repo-token: ${{ github.token }}
-
-      - name: Install Atlas
-        run: nimble install -y "https://github.com/nim-lang/atlas@#head"
-
-      - name: Install Nim dependencies
-        run: atlas install
-
-      - name: Run tests (debug)
-        run: nim c -r tests/tester.nim
-
-      - name: Run tests (release)
-        run: nim c -d:release -r tests/tester.nim
-
-      - name: Run tests (danger)
-        run: nim c -d:danger -r tests/tester.nim
-
-  windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Install Nim
-        uses: jiro4989/setup-nim-action@v2
-        with:
-          nim-version: stable
-          repo-token: ${{ github.token }}
-
-      - name: Install Atlas
-        run: nimble install -y "https://github.com/nim-lang/atlas@#head"
-
-      - name: Install Nim dependencies
-        run: atlas install
-
-      - name: Run tests (debug)
-        run: nim c -r tests/tester.nim
-
-      - name: Run tests (release)
-        run: nim c -d:release -r tests/tester.nim
-
-      - name: Run tests (danger)
-        run: nim c -d:danger -r tests/tester.nim
+      - name: Run tests
+        run: nim c ${{ matrix.build }} -r tests/tester.nim
 
   sanitizer:
     runs-on: ubuntu-latest
@@ -119,7 +64,7 @@ jobs:
 
 ## How it works
 
-- **One job per OS:** `linux`, `macos`, `windows` run in parallel. Each runs the test suite in debug, release, and danger configurations as sequential steps.
+- **Matrix strategy:** 3 OS × 3 build modes = 9 parallel jobs. `fail-fast: false` ensures all combinations run even if one fails.
 - **Runner selection:** `ubuntu-latest` (x86_64), `macos-latest` (ARM64), `windows-latest` (x86_64). These are free for public repositories.
 - **Sanitizer job:** Separate single job on Linux with gcc's AddressSanitizer. Not run on macOS or Windows due to toolchain differences.
 - **Test runner:** Each job runs `tests/tester.nim`, which auto-discovers and executes all `tests/t*.nim` files.
@@ -137,5 +82,5 @@ jobs:
 Key points:
 
 - The `jiro4989/setup-nim-action@v2` action installs Nim stable and adds it to PATH. `repo-token` avoids rate limits.
-- Each OS job runs debug, release, and danger as separate steps so a failure in one mode does not mask results in the others.
-- The sanitizer job is separate so it does not slow down the main jobs. Remove it if the project does not use unsafe constructs.
+- The `build` matrix value is interpolated directly into the `nim c` command. Empty string means debug (default).
+- The sanitizer job is separate so it does not slow down the main matrix. Remove it if the project does not use unsafe constructs.
