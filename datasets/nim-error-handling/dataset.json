@@ -184,12 +184,12 @@
     },
     {
       "claim_id": "C21",
-      "claim_text": "At a batch boundary, catch and record recoverable per-item failures. Let failures of the reporting path escape to the application boundary.",
+      "claim_text": "At a batch boundary, record recoverable per-item failures.",
       "source": "runPipeline patterns; error-handling benchmark task",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_ref_batch_preview_boundary.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The reference test records processing failures as ordered outcomes and confirms that a recording-path failure escapes the batch."
+      "evaluation_notes": "DETERMINISTIC. The reference test uses parseFloat for per-item processing and a real file write for the recording path. It confirms that processing failures become ordered outcomes. The recording-path escape behavior is also tested but is covered by the catch-placement rule, not stated separately in the skill."
     },
     {
       "claim_id": "C22",

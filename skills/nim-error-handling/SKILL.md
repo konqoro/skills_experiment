@@ -23,12 +23,13 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 
 - Let failures propagate through intermediate steps.
 - Catch only where the handler can recover, translate, or record the failure.
-- At a batch boundary, record recoverable per-item failures. If recording itself fails, let that failure escape to the application boundary.
+- At a batch boundary, record recoverable per-item failures.
 
 ### Choose Exception Types
 
 - For a contract failure caused by caller input or the environment, raise the closest existing `CatchableError`.
-- Separate `except` branches when handling differs. Group exception types when handling is identical. Put more specific types first — Nim dispatches first-match, so a parent before a child makes the child branch unreachable with no warning.
+- Separate `except` branches when handling differs. Group exception types when handling is identical.
+- Put child exception types before their parents in `except` branches.
 - Catch `CatchableError` only when the boundary handles every recoverable error. Do not catch bare `Exception`.
 - Add a custom exception only when callers handle it differently. Derive it from the closest existing `CatchableError` subtype.
 - Use `Defect` only when a contract failure proves an internal invariant is broken.
