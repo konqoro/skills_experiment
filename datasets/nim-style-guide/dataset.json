@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 28,
-    "testable": 24,
-    "passed": 24,
+    "total_claims": 32,
+    "testable": 28,
+    "passed": 28,
     "failed": 0,
     "not_testable": 4,
     "nuanced": 2,
@@ -234,6 +234,38 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c28_template_necessity.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. A template with `untyped` body accepts a code block wrapping `try/finally`. A `when`-guarded debug template skips its argument expression (sideEffectCount stays 0)."
+    },
+    {
+      "claim_id": "C29",
+      "claim_text": "Nim strips a leading newline immediately after the opening `\"\"\"` of a triple-quoted string, so starting the literal on the next line produces the same value as starting on the same line.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c29_c30_c31_c32_multiline_strings.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A literal starting with a newline after `\"\"\"` and one starting on the same line produce identical values (`\"foo\\nbar\\n\"`)."
+    },
+    {
+      "claim_id": "C30",
+      "claim_text": "Triple-quoted literals are preferable to `\"a\\n\" & \"b\\n\"` concatenation for multiline values; the two forms produce equivalent values.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c29_c30_c31_c32_multiline_strings.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A `\"\"\"...\"\"\"` literal and the equivalent `\"foo\\n\" & \"bar\\n\"` concatenation produce the same string."
+    },
+    {
+      "claim_id": "C31",
+      "claim_text": "In a `&` join around an interpolated value, omitting the leading newline of the following triple-quoted literal merges adjacent tokens (for example, `tableNameWHERE`).",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c29_c30_c31_c32_multiline_strings.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. With the leading newline the result is `FROM documents\\nWHERE`; without it the result is `FROM documentsWHERE`, confirming token merge."
+    },
+    {
+      "claim_id": "C32",
+      "claim_text": "`strutils.dedent` strips only the indentation shared by all lines of a triple-quoted string, preserving relative indentation.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c29_c30_c31_c32_multiline_strings.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `dedent()` on a literal with six spaces of shared padding strips those six spaces while preserving the two extra spaces before `There`."
     }
   ],
   "uncovered_topics": [
