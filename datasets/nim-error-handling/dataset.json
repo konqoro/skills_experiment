@@ -22,12 +22,12 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 33,
+    "total_claims": 34,
     "testable": 24,
     "passed": 24,
     "failed": 0,
-    "nuanced": 1,
-    "not_testable": 9
+    "nuanced": 2,
+    "not_testable": 10
   },
   "claims": [
     {
@@ -204,7 +204,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c23_positive_range_guard.nim",
       "test_passed": true,
-      "evaluation_notes": "NUANCED. A range-typed parameter can express an established domain contract, but converting raw runtime input to `Positive` raises RangeDefect and must not be used as a recoverable validation path. C32 also confirms that range checks are absent under `-d:danger`."
+      "evaluation_notes": "NUANCED. A parameter such as `pageNo: Positive` can express an established domain contract, but constructing `Positive(raw)` from runtime data raises RangeDefect and must not be used as validation. C32 also confirms that range checks are absent under `-d:danger`."
     },
     {
       "claim_id": "C24",
@@ -286,7 +286,14 @@
       "claim_text": "Validate raw input at a trust boundary once; internal code should not recheck conditions established by its contract or earlier validation.",
       "source": "user feedback; C02 and C24 boundary guidance",
       "is_testable": false,
-      "evaluation_notes": "Design rule. This makes the existing propagation and no-redundant-handler guidance actionable for validation without prescribing extra checks in internal code."
+      "evaluation_notes": "NUANCED. A trust boundary alone does not justify a check. The supported rule is to add a check only when the condition prevents the operation from meeting its contract."
+    },
+    {
+      "claim_id": "C34",
+      "claim_text": "Add a check or error path only when the condition prevents the operation from meeting its contract; do not treat a normal state that already satisfies the postcondition as a failure.",
+      "source": "user feedback; refinement of C33",
+      "is_testable": false,
+      "evaluation_notes": "Design rule. This supplies the missing decision criterion for whether a condition needs checking before C31 classifies a genuine failure as CatchableError or Defect."
     }
   ],
   "removed_claims": [
@@ -323,7 +330,12 @@
     {
       "claim_id": "C23",
       "original_claim": "For range-typed parameters such as Positive, rely on the type for the basic lower-bound domain and only raise for additional semantic bounds such as pageNo > pages.len.",
-      "correction": "A range type may express an established domain contract, but do not convert raw runtime input to a range type as validation. Validate it explicitly at the trust boundary and use a recoverable failure channel."
+      "correction": "Use a range type only as a parameter. Do not construct it with conversions such as `Positive(x)`; validate runtime data through the chosen recoverable failure channel."
+    },
+    {
+      "claim_id": "C33",
+      "original_claim": "Validate raw input at a trust boundary once; internal code should not recheck conditions established by its contract or earlier validation.",
+      "correction": "A trust boundary alone does not require a check. Add one only when the condition prevents the operation from meeting its contract."
     }
   ],
   "uncovered_topics": [],
@@ -335,9 +347,9 @@
       "source_type": "user feedback",
       "source_task": "skills/nim-error-handling/SKILL.md",
       "bucket": "ambiguous wording",
-      "summary": "The range-type rule could lead agents to validate raw input with `Positive(raw)` instead of choosing a recoverable error contract.",
-      "evidence": "`Positive(0)` raises RangeDefect normally, while the same conversion accepts zero with `-d:danger`.",
-      "check": "Raw input is validated explicitly at the trust boundary rather than by a range conversion.",
+      "summary": "The boundary rule could lead agents to add validation merely because a value is raw, without deciding whether that condition prevents the operation's contract.",
+      "evidence": "The prior rule required validation at trust boundaries but did not distinguish a contract failure from a normal state that already satisfies the postcondition.",
+      "check": "Each check or error branch corresponds to a condition that prevents the operation from meeting its contract.",
       "next_action": "skill edit"
     }
   ]

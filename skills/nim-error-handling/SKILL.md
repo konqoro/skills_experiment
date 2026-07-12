@@ -16,8 +16,8 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 
 ### Validate at Boundaries
 
-- Check only values crossing a trust boundary; do not recheck established invariants.
-- Do not use range conversions as validation.
+- Add a check or error path only when the condition prevents the operation from meeting its contract.
+- Use range types only as parameters. Do not construct them with conversions such as `Positive(x)`.
 
 ### Place Boundaries
 
@@ -27,11 +27,11 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 
 ### Choose Exception Types
 
-- For a recoverable failure, raise the closest existing `CatchableError`.
+- For a contract failure caused by caller input or the environment, raise the closest existing `CatchableError`.
 - Separate `except` branches when handling differs. Group exception types when handling is identical. Put more specific types first — Nim dispatches first-match, so a parent before a child makes the child branch unreachable with no warning.
 - Catch `CatchableError` only when the boundary handles every recoverable error. Do not catch bare `Exception`.
 - Add a custom exception only when callers handle it differently. Derive it from the closest existing `CatchableError` subtype.
-- Use `Defect` only for a violated internal invariant.
+- Use `Defect` only when a contract failure proves an internal invariant is broken.
 
 ### Translate and Inspect Errors
 
@@ -46,8 +46,8 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 
 ## Workflow
 
-1. **Map each trust boundary and recovery point.**
-2. **Choose the failure outcome:** expected absence, recoverable error, or broken invariant.
+1. **Define the operation's postcondition and trust boundaries.**
+2. **Classify only conditions that prevent that postcondition.**
 3. **Place catch boundaries** only where the handler can recover, translate, or record the failure.
 4. **Enforce contracts.** Add `{.raises: [].}` to procs that must not raise.
 

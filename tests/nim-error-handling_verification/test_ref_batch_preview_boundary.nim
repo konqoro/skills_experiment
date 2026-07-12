@@ -78,7 +78,7 @@ proc runBatch(paths: seq[string]; pageNo: Positive; auditPath: string): BatchSum
 
 proc main =
   # Test 1: successful batch
-  let s1 = runBatch(@["doc1", "doc2"], Positive(1), "audit.log")
+  let s1 = runBatch(@["doc1", "doc2"], 1, "audit.log")
   doAssert s1.okCount == 2
   doAssert s1.failCount == 0
   doAssert s1.items[0].success
@@ -86,21 +86,21 @@ proc main =
   doAssert s1.items[1].success
 
   # Test 2: mixed success/failure
-  let s2 = runBatch(@["ok", "missing", "blank"], Positive(1), "audit.log")
+  let s2 = runBatch(@["ok", "missing", "blank"], 1, "audit.log")
   doAssert s2.okCount == 1
   doAssert s2.failCount == 2
   doAssert s2.items[1].errorMsg == "document missing"
   doAssert s2.items[2].errorMsg == "selected page was empty"
 
   # Test 3: page index out of bounds
-  let s3 = runBatch(@["doc"], Positive(5), "audit.log")
+  let s3 = runBatch(@["doc"], 5, "audit.log")
   doAssert s3.failCount == 1
   doAssert s3.items[0].errorMsg == "page index out of bounds"
 
   # Test 4: audit failure aborts the batch with added context
   var auditFailed = false
   try:
-    discard runBatch(@["missing"], Positive(1), "audit-fail")
+    discard runBatch(@["missing"], 1, "audit-fail")
   except IOError:
     auditFailed = true
     doAssert getCurrentExceptionMsg() ==
