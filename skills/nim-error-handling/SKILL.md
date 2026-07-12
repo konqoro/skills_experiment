@@ -17,7 +17,8 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 ### Validate at Boundaries
 
 - Add a failure path only when the condition prevents the operation from meeting its contract.
-- Use range types only as parameters. Do not construct them with conversions such as `Positive(x)`.
+- Use range types only as parameters.
+- Do not use range conversions; they raise `Defect` and silently accept invalid values under `-d:danger`.
 
 ### Place Boundaries
 

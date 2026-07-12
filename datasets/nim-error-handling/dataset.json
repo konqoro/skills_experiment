@@ -22,12 +22,12 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 34,
+    "total_claims": 33,
     "testable": 24,
     "passed": 24,
     "failed": 0,
-    "nuanced": 2,
-    "not_testable": 10
+    "nuanced": 1,
+    "not_testable": 9
   },
   "claims": [
     {
@@ -40,7 +40,7 @@
     },
     {
       "claim_id": "C02",
-      "claim_text": "Catch errors only at the boundary where they become actionable \u2014 intermediate steps let exceptions propagate.",
+      "claim_text": "Catch errors only at the boundary where they become actionable — intermediate steps let exceptions propagate.",
       "source": "chunktts/pipeline.nim, pdfocr/pipeline.nim",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c06_pipeline_bubble.nim",
@@ -64,7 +64,7 @@
     },
     {
       "claim_id": "C05",
-      "claim_text": "Do not silently swallow exceptions \u2014 every except block does something useful.",
+      "claim_text": "Do not silently swallow exceptions — every except block does something useful.",
       "source": "all files",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c04_c15_silently_swallow.nim",
@@ -81,7 +81,7 @@
     {
       "claim_id": "C07",
       "claim_text": "Use separate except branches when different error types need different handling.",
-      "source": "pdfocr/pipeline.nim (IOError\u2192PdfError, ValueError\u2192EncodeError)",
+      "source": "pdfocr/pipeline.nim (IOError→PdfError, ValueError→EncodeError)",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c07_separate_except_branches.nim",
       "test_passed": true
@@ -120,7 +120,7 @@
     },
     {
       "claim_id": "C12",
-      "claim_text": "Distinguish retriable from final errors \u2014 classify before deciding retry vs. fail.",
+      "claim_text": "Distinguish retriable from final errors — classify before deciding retry vs. fail.",
       "source": "openai/retry.nim (shouldRetry, isRetriableStatus), chunktts/retry_and_errors.nim",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c12_c13_retry_classify.nim",
@@ -161,7 +161,7 @@
     {
       "claim_id": "C17",
       "claim_text": "Do not add custom exception types unless callers handle them differently from existing types.",
-      "source": "all projects \u2014 only AtlasFatalError exists as custom type, used for test-mode fatal errors",
+      "source": "all projects — only AtlasFatalError exists as custom type, used for test-mode fatal errors",
       "is_testable": false
     },
     {
@@ -178,7 +178,7 @@
     },
     {
       "claim_id": "C20",
-      "claim_text": "Raise clear, bounded, actionable errors \u2014 include operation name, failure reason, and relevant codes.",
+      "claim_text": "Raise clear, bounded, actionable errors — include operation name, failure reason, and relevant codes.",
       "source": "raisePdfiumError, raiseSndFileError patterns",
       "is_testable": false
     },
@@ -199,12 +199,12 @@
     },
     {
       "claim_id": "C23",
-      "claim_text": "For range-typed parameters such as Positive, rely on the type for the basic lower-bound domain and only raise for additional semantic bounds such as pageNo > pages.len.",
-      "source": "error-handling benchmark task, refined verified skill",
+      "claim_text": "Use range types only as parameters. Do not use range conversions; they raise `Defect` and silently accept invalid values under `-d:danger`.",
+      "source": "error-handling benchmark task, refined verified skill; Nim GitHub issues #16839 #12780 #10027 #16744",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c23_positive_range_guard.nim",
       "test_passed": true,
-      "evaluation_notes": "NUANCED. A parameter such as `pageNo: Positive` can express an established domain contract, but constructing `Positive(raw)` from runtime data raises RangeDefect and must not be used as validation. C32 also confirms that range checks are absent under `-d:danger`."
+      "evaluation_notes": "NUANCED. Range types are safe as proc parameters only for compile-time literals — the compiler rejects out-of-range literals at compile time. Passing an int variable to a range parameter is an implicit conversion that compiles silently and raises RangeDefect at runtime (#16839). Range checks are ignored in template parameters (#12780), and range type identity is swallowed in type unions (#10027). C32 confirms that range checks are absent under `-d:danger`."
     },
     {
       "claim_id": "C24",
@@ -270,23 +270,16 @@
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_exception_vs_defect.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. `except Exception` catches AccessViolationDefect. `except CatchableError` does not \u2014 the Defect escapes and must be caught by an outer `except Exception`."
+      "evaluation_notes": "DETERMINISTIC. `except Exception` catches AccessViolationDefect. `except CatchableError` does not — the Defect escapes and must be caught by an outer `except Exception`."
     },
     {
       "claim_id": "C32",
       "claim_text": "Converting a raw `int` to `Positive` is not a recoverable validation path: it raises RangeDefect when range checks are enabled and accepts zero with `-d:danger`.",
-      "source": "Nim exception hierarchy; compiler verification",
+      "source": "Nim exception hierarchy; compiler verification; GitHub issue #16839",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c32_range_conversion_not_validation.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The test catches RangeDefect for `Positive(0)` normally, while its `-d:danger` branch confirms the same conversion evaluates to zero."
-    },
-    {
-      "claim_id": "C33",
-      "claim_text": "Validate raw input at a trust boundary once; internal code should not recheck conditions established by its contract or earlier validation.",
-      "source": "user feedback; C02 and C24 boundary guidance",
-      "is_testable": false,
-      "evaluation_notes": "NUANCED. A trust boundary alone does not justify a check. The supported rule is to add a check only when the condition prevents the operation from meeting its contract."
+      "evaluation_notes": "DETERMINISTIC. The test catches RangeDefect for `Positive(0)` normally, while its `-d:danger` branch confirms the same conversion evaluates to zero. GitHub #16839 shows the broader problem: implicit int-to-range conversions compile silently and raise Defect at runtime, with no compile-time warning."
     },
     {
       "claim_id": "C34",
@@ -296,56 +289,9 @@
       "evaluation_notes": "Design rule. This supplies the missing decision criterion for whether a condition needs a failure path before C31 classifies a genuine failure as CatchableError or Defect."
     }
   ],
-  "removed_claims": [
-    {
-      "claim": "Use defer for scope-bound cleanup",
-      "reason": "Not a strong pattern \u2014 try/finally serves the same purpose. Defer is sugar, not a distinct error handling strategy."
-    },
-    {
-      "claim": "Gracefully handle missing config files",
-      "reason": "Design choice, not an error handling pattern. Some configs should crash, some shouldn't \u2014 context-dependent."
-    },
-    {
-      "claim": "Guard against zero-length/empty inputs",
-      "reason": "Basic defensive programming, not distinctive to error handling."
-    },
-    {
-      "claim": "Use compileOption for thread-safe allocation",
-      "reason": "Not error handling \u2014 belongs in ownership hooks skill."
-    }
-  ],
-  "corrections": [
-    "The previous verified skill over-preferred `except X as e`. Evidence only supports using `as e` when the handler needs the exception object; otherwise `getCurrentExceptionMsg()` is enough.",
-    "The previous refinement recommended exception-list annotations on raising procs. Use `{.raises: [].}` when a proc must not raise and leave raising procs unannotated.",
-    {
-      "claim_id": "C21",
-      "original_claim": "Never let exceptions escape a batch/orchestrator boundary.",
-      "correction": "Record recoverable per-item failures at the batch boundary, but let failures of the reporting path escape to the application boundary."
-    },
-    {
-      "claim_id": "C23",
-      "original_claim": "For range-typed parameters such as Positive, rely on the type for the basic lower-bound domain and only raise for additional semantic bounds such as pageNo > pages.len.",
-      "correction": "For error-handling contracts, use a range type only as a parameter. Do not construct it with conversions such as `Positive(x)`; validate runtime data through the chosen recoverable failure channel."
-    },
-    {
-      "claim_id": "C33",
-      "original_claim": "Validate raw input at a trust boundary once; internal code should not recheck conditions established by its contract or earlier validation.",
-      "correction": "A trust boundary alone does not require a failure path. Add one only when the condition prevents the operation from meeting its contract."
-    }
-  ],
   "uncovered_topics": [],
   "needs_stronger_tests": [
     "C17-C20, C24, C25, and C29 are still best exercised by the manual benchmark task because they are mostly about architectural code shape rather than runtime exception semantics."
   ],
-  "failure_samples": [
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-error-handling/SKILL.md",
-      "bucket": "ambiguous wording",
-      "summary": "The boundary rule could lead agents to add validation merely because a value is raw, without deciding whether that condition prevents the operation's contract.",
-      "evidence": "The prior rule required validation at trust boundaries but did not distinguish a contract failure from a normal state that already satisfies the postcondition.",
-      "check": "Each failure path corresponds to a condition that prevents the operation from meeting its contract.",
-      "next_action": "skill edit"
-    }
-  ]
+  "failure_samples": []
 }
