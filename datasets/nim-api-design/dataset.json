@@ -4,12 +4,12 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 38,
-    "testable": 31,
-    "passed": 31,
+    "total_claims": 40,
+    "testable": 33,
+    "passed": 33,
     "failed": 0,
     "not_testable": 7,
-    "nuanced": 4,
+    "nuanced": 5,
     "untested": 0
   },
   "claims": [
@@ -307,7 +307,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c38_collection_operation_names.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A custom inventory using `add`, `find`, `contains`, `del`, and `clear` compiles and each operation produces the expected state transition. Calling keyed `del` on a missing item is a no-op; index-based seq `del` is demonstrated with a valid index."
+      "evaluation_notes": "NUANCED. The custom inventory validates its stated operations, but the blanket naming rule is too broad for every collection shape. The original valid-index seq test also does not distinguish unordered `del` from order-preserving `delete`; C40 and C41 cover that distinction."
     },
     {
       "claim_id": "C39",
@@ -316,6 +316,22 @@
       "test_file_path": "tests/nim-api-design_verification/test_c39_optional_lookup_paths.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The test uses `contains` and `hasKey` for boolean membership and `getOrDefault` for explicit fallback lookup. It verifies missing, present, and present-empty cases, matching the std/tables lookup convention."
+    },
+    {
+      "claim_id": "C40",
+      "claim_text": "For `seq`, `del(index)` replaces the removed position with the last element and therefore does not preserve order.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c40_c41_sequence_deletion_order.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Deleting index 1 from `@[10, 20, 30, 40]` with `del` produces `@[10, 40, 30]`, proving that the last element fills the removed position."
+    },
+    {
+      "claim_id": "C41",
+      "claim_text": "For `seq`, `delete(index)` shifts later elements and preserves their order.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c40_c41_sequence_deletion_order.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Deleting index 1 from `@[10, 20, 30, 40]` with `delete` produces `@[10, 30, 40]`, preserving the relative order of later elements."
     }
   ],
   "failure_samples": [
@@ -408,6 +424,15 @@
       "evidence": "A distinct key with borrowed `==` and `$` still fails in `Table` until `hash` is defined; collection APIs should use names such as `items`, `pairs`, `add`, `del`, `clear`, `find`, and `getOrDefault`.",
       "check": "Container-like APIs use standard operation names and key types support hashing when used in hash containers.",
       "next_action": "skill edit"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "skills/nim-api-design/SKILL.md",
+      "bucket": "ambiguous wording",
+      "summary": "The blanket collection-operation rule treats `add`, `del`, and `clear` as universal collection operations and omits the order-changing behavior of `seq.del`.",
+      "evidence": "The rule says to use `add`, `del`, and `clear` for collection operations, while `seq.del(1)` changes `@[10, 20, 30, 40]` to `@[10, 40, 30]`.",
+      "check": "A sequence-removal recommendation distinguishes unordered `del` from order-preserving `delete`.",
+      "next_action": "skill edit"
     }
   ],
   "uncovered_topics": [],
@@ -459,6 +484,11 @@
       "claim_id": "C33",
       "original_claim": "Keep constraints in types. Use `Natural`, `Positive`, and ranges instead of weakening to `int`.",
       "correction": "Prefer range types for constrained public parameters and base types for stored fields. Range checks are not enforced in danger mode or when disabled."
+    },
+    {
+      "claim_id": "C38",
+      "original_claim": "For collection operations, use `add`, `del`, and `clear`. Table-style keyed `del` is a no-op for absent keys; indexed deletion removes an existing position.",
+      "correction": "Do not prescribe `add`, `del`, and `clear` for every collection shape. For sequences, use `delete(index)` when removal must preserve order; `del(index)` changes the order."
     }
   ]
 }

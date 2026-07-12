@@ -9,11 +9,15 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 
 ### Choose the Failure Channel
 
-- Raise when the caller must handle an outcome as failure, such as invalid data or failed I/O.
 - Return `bool` when success or failure is the whole result.
 - Return `Option[T]` when success produces a value but absence is expected.
 - Use `bool` with a `var` parameter only when filling or mutating caller-owned storage is part of the API.
 - Convert per-item failures into structured outcomes at the batch boundary. Keep intermediate steps exception-based.
+
+### Validate at Boundaries
+
+- Check only values crossing a trust boundary; do not recheck established invariants.
+- Do not use range conversions as validation.
 
 ### Place Boundaries
 
@@ -23,11 +27,11 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 
 ### Choose Exception Types
 
-- Raise an existing specific type such as `ValueError`, `IOError`, or `OSError` when it fits.
+- For a recoverable failure, raise the closest existing `CatchableError`.
 - Separate `except` branches when handling differs. Group exception types when handling is identical. Put more specific types first — Nim dispatches first-match, so a parent before a child makes the child branch unreachable with no warning.
 - Catch `CatchableError` only when the boundary handles every recoverable error. Do not catch bare `Exception`.
 - Add a custom exception only when callers handle it differently. Derive it from the closest existing `CatchableError` subtype.
-- Derive from `Defect` only for programming bugs that callers should not recover from.
+- Use `Defect` only for a violated internal invariant.
 
 ### Translate and Inspect Errors
 
@@ -42,8 +46,8 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 
 ## Workflow
 
-1. **Choose the failure channel** for each failure point: raise, return `bool`, return `Option[T]`, or structured per-item outcome.
-2. **Pick the exception type.** Prefer existing stdlib types; add a custom type only when callers handle it differently.
+1. **Map each trust boundary and recovery point.**
+2. **Choose the failure outcome:** expected absence, recoverable error, or broken invariant.
 3. **Place catch boundaries** only where the handler can recover, translate, or record the failure.
 4. **Enforce contracts.** Add `{.raises: [].}` to procs that must not raise.
 

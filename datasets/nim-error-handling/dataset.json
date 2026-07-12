@@ -22,12 +22,12 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 31,
-    "testable": 23,
-    "passed": 23,
+    "total_claims": 33,
+    "testable": 24,
+    "passed": 24,
     "failed": 0,
-    "nuanced": 0,
-    "not_testable": 8
+    "nuanced": 1,
+    "not_testable": 9
   },
   "claims": [
     {
@@ -204,7 +204,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c23_positive_range_guard.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Positive(0) raises RangeDefect before proc-specific bounds logic, while pageNo > pages.len still needs an explicit ValueError."
+      "evaluation_notes": "NUANCED. A range-typed parameter can express an established domain contract, but converting raw runtime input to `Positive` raises RangeDefect and must not be used as a recoverable validation path. C32 also confirms that range checks are absent under `-d:danger`."
     },
     {
       "claim_id": "C24",
@@ -271,6 +271,22 @@
       "test_file_path": "tests/nim-error-handling_verification/test_exception_vs_defect.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. `except Exception` catches AccessViolationDefect. `except CatchableError` does not \u2014 the Defect escapes and must be caught by an outer `except Exception`."
+    },
+    {
+      "claim_id": "C32",
+      "claim_text": "Converting a raw `int` to `Positive` is not a recoverable validation path: it raises RangeDefect when range checks are enabled and accepts zero with `-d:danger`.",
+      "source": "Nim exception hierarchy; compiler verification",
+      "is_testable": true,
+      "test_file_path": "tests/nim-error-handling_verification/test_c32_range_conversion_not_validation.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The test catches RangeDefect for `Positive(0)` normally, while its `-d:danger` branch confirms the same conversion evaluates to zero."
+    },
+    {
+      "claim_id": "C33",
+      "claim_text": "Validate raw input at a trust boundary once; internal code should not recheck conditions established by its contract or earlier validation.",
+      "source": "user feedback; C02 and C24 boundary guidance",
+      "is_testable": false,
+      "evaluation_notes": "Design rule. This makes the existing propagation and no-redundant-handler guidance actionable for validation without prescribing extra checks in internal code."
     }
   ],
   "removed_claims": [
@@ -303,10 +319,26 @@
       "claim_id": "batch_preview_boundary reference",
       "original_claim": "cast[seq[byte]](page.toOpenArrayByte(0, page.high)) converts a string to seq[byte].",
       "correction": "This cast segfaults at runtime. Use @(page.toOpenArrayByte(0, page.high)) instead \u2014 the @ operator materializes the openArray into a seq."
+    },
+    {
+      "claim_id": "C23",
+      "original_claim": "For range-typed parameters such as Positive, rely on the type for the basic lower-bound domain and only raise for additional semantic bounds such as pageNo > pages.len.",
+      "correction": "A range type may express an established domain contract, but do not convert raw runtime input to a range type as validation. Validate it explicitly at the trust boundary and use a recoverable failure channel."
     }
   ],
   "uncovered_topics": [],
   "needs_stronger_tests": [
     "C17-C20, C24, C25, and C29 are still best exercised by the manual benchmark task because they are mostly about architectural code shape rather than runtime exception semantics."
+  ],
+  "failure_samples": [
+    {
+      "source_type": "user feedback",
+      "source_task": "skills/nim-error-handling/SKILL.md",
+      "bucket": "ambiguous wording",
+      "summary": "The range-type rule could lead agents to validate raw input with `Positive(raw)` instead of choosing a recoverable error contract.",
+      "evidence": "`Positive(0)` raises RangeDefect normally, while the same conversion accepts zero with `-d:danger`.",
+      "check": "Raw input is validated explicitly at the trust boundary rather than by a range conversion.",
+      "next_action": "skill edit"
+    }
   ]
 }

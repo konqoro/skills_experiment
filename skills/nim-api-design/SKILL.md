@@ -24,9 +24,8 @@ Default to plain data, one clear surface, and names that match the standard libr
 - Reuse stdlib names when the behavior matches: `len`, `find`,
   `contains`/`hasKey`, `[]`, `[]=`, `items`/`mitems`, `pairs`/`mpairs`,
   `add`, `del`, `clear`, `incl`/`excl`, and `push`/`pop`.
-- For collection operations, use `add`, `del`, and `clear`. Table-style keyed
-  `del` is a no-op for absent keys; indexed deletion removes an existing
-  position.
+- When indexed removal must preserve sequence order, use `delete(index)`, not
+  `del(index)`.
 - Use `find` for an index or position result. Use `contains` or `hasKey` for
   boolean membership.
 - For collection-like types, expose `items` and `pairs`. Add `mitems` and
