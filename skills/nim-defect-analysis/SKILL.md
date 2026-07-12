@@ -101,7 +101,7 @@ nim c -r repro.nim
 Additional modes when the bug depends on them:
 
 ```bash
-nim c --panics:on -r repro.nim       # Defect termination behavior
+nim c --panics:on -r repro.nim        # Defect termination behavior
 nim c -d:danger -r repro.nim          # Overflow and assertion behavior
 nim c --mm:arc -r repro.nim           # Ownership and hook behavior
 ```

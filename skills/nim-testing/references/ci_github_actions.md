@@ -1,7 +1,5 @@
 GitHub Actions CI workflow for a Nim project. Runs the auto-discovering test runner across Linux, macOS, and Windows in debug, release, and danger configurations. Includes an optional AddressSanitizer job on Linux.
 
-Adapted from verified patterns in production Nim projects using `jiro4989/setup-nim-action@v2` and `actions/checkout@v7`.
-
 ## `.github/workflows/ci.yml`
 
 ```yaml
@@ -62,25 +60,8 @@ jobs:
             -r tests/tester.nim
 ```
 
-## How it works
+When to use:
 
-- **Matrix strategy:** 3 OS × 3 build modes = 9 parallel jobs. `fail-fast: false` ensures all combinations run even if one fails.
-- **Runner selection:** `ubuntu-latest` (x86_64), `macos-latest` (ARM64), `windows-latest` (x86_64). These are free for public repositories.
-- **Sanitizer job:** Separate single job on Linux with gcc's AddressSanitizer. Not run on macOS or Windows due to toolchain differences.
-- **Test runner:** Each job runs `tests/tester.nim`, which auto-discovers and executes all `tests/t*.nim` files.
-
-## Customization
-
-- Add `atlas install` before the test steps if the project has dependencies. Use `atlas use <pkg>` to add a new dependency.
-- Add a `config.nims` at project root for project-wide defaults (allocator selection, memory manager).
-- For Windows-specific compiler flags (e.g., MSVC), add a conditional step or use `tests/config.nims` with `when defined(windows)` blocks.
-- To install system libraries, add OS-specific steps:
-  - Linux: `sudo apt-get install -y <packages>`
-  - macOS: `brew install <packages>`
-  - Windows: use vcpkg or prebuilt binaries
-
-Key points:
-
-- The `jiro4989/setup-nim-action@v2` action installs Nim stable and adds it to PATH. `repo-token` avoids rate limits.
-- The `build` matrix value is interpolated directly into the `nim c` command. Empty string means debug (default).
-- The sanitizer job is separate so it does not slow down the main matrix. Remove it if the project does not use unsafe constructs.
+- Copy this workflow when setting up CI for a Nim project that uses the `tests/tester.nim` auto-discovering runner.
+- Replace `stable` with a pinned Nim version (e.g. `2.3.1`) when reproducibility matters.
+- Remove the `sanitizer` job if the project does not use unsafe constructs.
