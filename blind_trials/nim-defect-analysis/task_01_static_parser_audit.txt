@@ -1,7 +1,7 @@
 # Task
 
-Review a small Nim message parser for robustness defects. This is a static
-review plus targeted confirmation task, not a fuzzing task.
+Review a small Nim HTTP request router for reliability and correctness defects.
+This is a static review plus targeted confirmation task, not a fuzzing task.
 
 ## Deliverables
 
@@ -12,13 +12,13 @@ Create:
 
 ## Inputs and Fixtures
 
-The parser source is staged at:
+The router source is staged at:
 
 ```text
-fixtures/message_parser.nim
+fixtures/request_router.nim
 ```
 
-Treat the input string passed to `handleMessage` as externally-controlled.
+Treat raw request strings passed to `dispatch` as externally-controlled.
 
 ## Required Behavior
 
@@ -31,29 +31,31 @@ Your report must:
 - include exact commands and observed output for every `CONFIRMED` finding
 - avoid fuzzing or long-running search
 
-If you think a suspicious path is blocked by a guard, mention it only as a
-false-positive reduction note.
+If you think a suspicious path is blocked by a guard, classify it as
+`FALSE_POSITIVE` and explain the guard.
 
 ## Required Commands
 
 Run any reproducer commands you include in `review_report.md` from the trial
 directory.
 
-At minimum, the parser itself must compile:
+At minimum, the router itself must compile:
 
 ```bash
-nim c --nimcache:nimcache fixtures/message_parser.nim
+nim c --nimcache:nimcache fixtures/request_router.nim
 ```
 
 ## Judge Checklist
 
 - `review_report.md` exists.
-- The report identifies the incomplete `WIRE/` version token crash as a `CONFIRMED` or equivalently high-confidence crash/DoS finding.
-- The report includes the trigger input shape equivalent to `PING / WIRE/ 0` or a direct call to `parseWireVersion("WIRE/")`.
-- The report explains that the prefix check passes, the first numeric parse consumes no digits, the unconditional separator increment moves the index past the end, and the second numeric parse raises `IndexDefect`.
-- The report explains that `handleMessage` catches `ValueError` but not `IndexDefect`/`Defect`.
+- The report identifies the `parseVersion` crash on a version string with no dot (e.g. `X-Api-Version: 2`) as a `CONFIRMED` finding.
+- The report explains that `parseVersion` splits on `.`, accesses `parts[1]`, and raises `IndexDefect` when there is no dot.
+- The report explains that `dispatch` catches `ValueError` but not `IndexDefect`/`Defect`, so the crash escapes the handler.
 - A reproducer under `reproducers/` exists and can be run with `nim c -r`.
-- Running the reproducer demonstrates the crash or catches and prints the `IndexDefect` evidence.
-- The report does not classify the payload length limit as an unbounded allocation defect, because `maxPayload` blocks oversized parsed lengths.
+- Running the reproducer demonstrates the `IndexDefect` crash or catches and prints the `IndexDefect` evidence.
+- The report identifies the `hasHeader` case-sensitivity bug: `hasHeader` lowercases the search name but compares against the stored name's original case, so headers stored with mixed case (e.g. `X-Trace-Id`) do not match a search for the same name in a different case.
+- The report identifies the invalid `Content-Length` bug: `getContentLength` calls `parseSaturatedNatural` which returns `0` for non-numeric input, and the function returns `-1` (meaning "no header") instead of rejecting the invalid value, so an invalid `Content-Length` bypasses the body-size check.
+- The report classifies the `maxHeaders` limit as `FALSE_POSITIVE` or does not report it as a defect, because `parseRequest` raises `ValueError` when `headers.len >= maxHeaders` and `dispatch` catches `ValueError`.
+- The report classifies the `maxValueLen` limit as `FALSE_POSITIVE` or does not report it as a defect, because `parseRequest` raises `ValueError` when `h.value.len > maxValueLen` and `dispatch` catches `ValueError`.
 - The report does not rely on fuzzing as the confirmation method.
-- The report includes one concrete remediation direction without requiring a target-specific protocol rewrite.
+- The report includes at least one concrete remediation direction per confirmed finding.

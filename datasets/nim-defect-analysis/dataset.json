@@ -5,60 +5,6 @@
   "mm_mode": "orc",
   "failure_samples": [
     {
-      "source_type": "project",
-      "source_task": "COMP431 Nim parser audit",
-      "bucket": "missing rule",
-      "summary": "Models over-claimed confirmed findings from static reasoning without building reproducers.",
-      "evidence": "Kimi labeled all five candidates CONFIRMED, but the project downgraded them to LIKELY because no dynamic reproducers were built.",
-      "check": "CONFIRMED must require executable evidence.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "project",
-      "source_task": "COMP431 Nim parser audit",
-      "bucket": "missing rule",
-      "summary": "Models misread a Nim Defect path that a minimal reproducer would have exposed quickly.",
-      "evidence": "DeepSeek and GLM reasoned that an incomplete protocol version would parse as 0.0; a reproducer showed uncaught IndexDefect.",
-      "check": "Parser crash hypotheses need a bounded minimal-reproducer attempt.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "project",
-      "source_task": "COMP431 Nim parser audit",
-      "bucket": "ambiguous wording",
-      "summary": "Pseudo-probability multiplication added false precision without improving triage.",
-      "evidence": "The old EvidenceFactor * ExploitabilityFactor * ImpactFactor rubric still allowed weak static claims to look numerically precise.",
-      "check": "Confidence scoring should be coarse and evidence-gated.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "project",
-      "source_task": "general skill review",
-      "bucket": "low-signal noise",
-      "summary": "Agents spent time debating 0.4 vs 0.6 confidence instead of finding and confirming bugs.",
-      "evidence": "The coarse 0.95/0.80/0.60/0.40/0.20 scoring table still encouraged numerical rating as the primary activity.",
-      "check": "Numerical ratings are useless and distract from bug finding.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "project",
-      "source_task": "general skill review",
-      "bucket": "low-signal noise",
-      "summary": "Five-class classification caused agents to spend effort on fine-grained rating rather than finding bugs.",
-      "evidence": "The CONFIRMED/LIKELY/LOW/FALSE_POSITIVE/NON_DEFECT taxonomy invited borderline calls between LIKELY and LOW that added no value.",
-      "check": "Classification should be action-oriented: confirmed, traced, suspected, or false positive.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "project",
-      "source_task": "general skill review",
-      "bucket": "missing rule",
-      "summary": "The fixed regex pattern list and restrictive scope gate caused agents to miss logic errors.",
-      "evidence": "The skill presented a fixed set of search patterns and a narrow scope definition, leading agents to treat pattern matching as the complete search space and skip reasoning about code logic.",
-      "check": "Bug-finding guidance should be illustrative, not exhaustive; logic errors must be in scope.",
-      "next_action": "skill edit"
-    },
-    {
       "source_type": "research",
       "source_task": "Li et al. 2026, 222 CVEs; JITVul ACL 2025; NDSS 2025",
       "bucket": "missing rule",
@@ -87,11 +33,11 @@
     }
   ],
   "summary": {
-    "total_claims": 15,
+    "total_claims": 13,
     "testable": 4,
     "passed": 4,
     "failed": 0,
-    "not_testable": 11,
+    "not_testable": 9,
     "untested": 0
   },
   "claims": [
@@ -101,18 +47,10 @@
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": "Benchmark-level claim. The project model outputs showed this rule is needed because static-only claims were over-labeled confirmed."
+      "evaluation_notes": "Workflow claim. Supported by project evidence where static-only claims were over-labeled confirmed."
     },
     {
       "claim_id": "C02",
-      "claim_text": "For Nim parser crash hypotheses, a direct minimal reproducer should be attempted before larger harnesses or fuzzing.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Benchmark-level workflow claim. This project confirmed the real crash with a small direct reproducer."
-    },
-    {
-      "claim_id": "C03",
       "claim_text": "`Defect` subclasses such as `IndexDefect`, `OverflowDefect`, and `AssertionDefect` are not caught by `except CatchableError`.",
       "is_testable": true,
       "test_file_path": "tests/nim-defect-analysis_verification/test_c03_defect_not_catchable.nim",
@@ -120,7 +58,7 @@
       "evaluation_notes": "DETERMINISTIC. Inner `except CatchableError` does not catch `IndexDefect`; outer `except IndexDefect` catches it."
     },
     {
-      "claim_id": "C04",
+      "claim_id": "C03",
       "claim_text": "Plain `assert` is compiled out in `-d:danger`, while `doAssert` remains active.",
       "is_testable": true,
       "test_file_path": "tests/nim-defect-analysis_verification/test_c04_assert_vs_doassert.nim",
@@ -128,7 +66,7 @@
       "evaluation_notes": "DETERMINISTIC. In `-d:danger`, `assert false` is skipped while `doAssert false` raises `AssertionDefect`."
     },
     {
-      "claim_id": "C05",
+      "claim_id": "C04",
       "claim_text": "Nim parser helpers that return a consumed length can leave trailing input unvalidated unless the caller checks full consumption.",
       "is_testable": true,
       "test_file_path": "tests/nim-defect-analysis_verification/test_c05_consumed_length_trailing_input.nim",
@@ -136,63 +74,15 @@
       "evaluation_notes": "DETERMINISTIC. `parseSaturatedNatural(\"12abc\", value)` consumes only the numeric prefix and leaves trailing input."
     },
     {
-      "claim_id": "C06",
-      "claim_text": "A bounded confirmation ladder should stop after static trace, minimal reproducer, mode check, sanitizer, or integration/fuzzing once the classification is clear.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Benchmark-level process claim. The project outcome showed unbounded model review produced many likely findings but not better confirmation."
-    },
-    {
-      "claim_id": "C07",
+      "claim_id": "C05",
       "claim_text": "Do not assign numerical confidence or probability scores; state what was found and what evidence exists.",
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": "NUANCED. Coarse scores were an improvement over pseudo-probability multiplication, but agents still spent time debating 0.4 vs 0.6 instead of finding and confirming bugs. Removing numbers entirely forces attention back to evidence."
+      "evaluation_notes": "Supported by project evidence and research. Numerical ratings distract from finding and confirming bugs."
     },
     {
-      "claim_id": "C11",
-      "claim_text": "Classification uses four evidence-based classes: CONFIRMED (reproducer or test demonstrates the failure), TRACED (complete static trace but no reproducer), SUSPECTED (partial trace or unclear control flow), and FALSE_POSITIVE (guard blocks the path).",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "NUANCED. The first refinement collapsed to three classes (CONFIRMED/UNCONFIRMED/FALSE_POSITIVE), but research showed that conflating complete traces with partial traces loses useful signal. The CORRECT study (2025) found reasoning quality distinguishes true from false positives. Four action-oriented classes describe what the agent has done, not how confident it feels."
-    },
-    {
-      "claim_id": "C12",
-      "claim_text": "Bug-finding guidance is illustrative, not exhaustive; review code broadly including logic errors, not just matches against a fixed pattern list.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Workflow claim. The fixed regex pattern list and restrictive scope gate caused agents to miss logic errors and treat the checklist as the complete search space."
-    },
-    {
-      "claim_id": "C13",
-      "claim_text": "Most false positives and false negatives come from incomplete cross-function reasoning. Agents must read callee functions, check return values, and trace data paths through every intermediate function, not just the entry point and crash site.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Research-backed. Li et al. (2026, 222 CVEs) found shallow interprocedural reasoning is the #1 cause of false positives. JITVul (ACL 2025) and NDSS 2025 found missing cross-function context is the #1 cause of false negatives."
-    },
-    {
-      "claim_id": "C14",
-      "claim_text": "If a guard's sufficiency is unclear, write a reproducer that tests it instead of debating it statically.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Research-backed. The CORRECT study (2025) found an overthinking bias where extended reasoning with conservative assumptions reduces recall by ~10%. JITVul (ACL 2025) found agents over-analyze security guards, getting stuck debating them or treating them as vulnerabilities."
-    },
-    {
-      "claim_id": "C15",
-      "claim_text": "Compiler output, runtime behavior, and sanitizer reports are stronger evidence than pure reasoning. Use tools first, then reason about their output.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Research-backed. Du et al. (Tencent, 2026) showed hybrid SAT + LLM filtering eliminates 94-98% of false positives. The hybrid approach uses tool output as primary evidence."
-    },
-    {
-      "claim_id": "C08",
+      "claim_id": "C06",
       "claim_text": "AddressSanitizer checks for Nim unsafe memory code should pass both compiler and linker sanitizer flags and use `-d:noSignalHandler -d:useMalloc`.",
       "is_testable": true,
       "test_file_path": "tests/nim-defect-analysis_verification/test_c08_asan.nim",
@@ -200,7 +90,7 @@
       "evaluation_notes": "DETERMINISTIC. The full command detects a heap overflow. Without useMalloc the same Nim alloc overflow is missed; without noSignalHandler Nim intercepts a null-write signal; and omitting linker flags fails to link."
     },
     {
-      "claim_id": "C09",
+      "claim_id": "C07",
       "claim_text": "For FFI-related vulnerabilities, pointer lifetime, nullability, struct layout, calling convention, and string ownership are required false-positive checks.",
       "is_testable": false,
       "test_file_path": null,
@@ -208,12 +98,52 @@
       "evaluation_notes": "Review checklist claim, best evaluated in a targeted FFI benchmark rather than a standalone unit test."
     },
     {
-      "claim_id": "C10",
+      "claim_id": "C08",
       "claim_text": "For ownership-hook vulnerabilities, move-after-destroy, self-copy, zero-length allocation, and destroy-after-move are required false-positive checks.",
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": "CHECKLIST. This is best evaluated in a targeted ownership-hook review benchmark rather than a standalone unit test."
+      "evaluation_notes": "Review checklist claim, best evaluated in a targeted ownership-hook benchmark rather than a standalone unit test."
+    },
+    {
+      "claim_id": "C09",
+      "claim_text": "Classification uses four evidence-based classes: CONFIRMED (reproducer or test demonstrates the failure), TRACED (complete static trace but no reproducer), SUSPECTED (partial trace or unclear control flow), and FALSE_POSITIVE (guard blocks the path).",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Research-backed. The CORRECT study (2025) found reasoning quality distinguishes true from false positives. Four action-oriented classes describe what the agent has done, not how confident it feels."
+    },
+    {
+      "claim_id": "C10",
+      "claim_text": "Bug-finding guidance is illustrative, not exhaustive; review code broadly including logic errors, not just matches against a fixed pattern list.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Workflow claim. The fixed regex pattern list and restrictive scope gate caused agents to miss logic errors and treat the checklist as the complete search space."
+    },
+    {
+      "claim_id": "C11",
+      "claim_text": "Most false positives and false negatives come from incomplete cross-function reasoning. Agents must read callee functions, check return values, and trace data paths through every intermediate function, not just the entry point and crash site.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Research-backed. Li et al. (2026, 222 CVEs) found shallow interprocedural reasoning is the #1 cause of false positives. JITVul (ACL 2025) and NDSS 2025 found missing cross-function context is the #1 cause of false negatives."
+    },
+    {
+      "claim_id": "C12",
+      "claim_text": "If a guard's sufficiency is unclear, write a reproducer that tests it instead of debating it statically.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Research-backed. The CORRECT study (2025) found an overthinking bias where extended reasoning with conservative assumptions reduces recall by ~10%. JITVul (ACL 2025) found agents over-analyze security guards, getting stuck debating them or treating them as vulnerabilities."
+    },
+    {
+      "claim_id": "C13",
+      "claim_text": "Compiler output, runtime behavior, and sanitizer reports are stronger evidence than pure reasoning. Use tools first, then reason about their output.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Research-backed. Du et al. (Tencent, 2026) showed hybrid SAT + LLM filtering eliminates 94-98% of false positives. The hybrid approach uses tool output as primary evidence."
     }
   ],
   "corrections": [
@@ -224,14 +154,6 @@
     {
       "original_claim": "CONFIRMED can be assigned after strong-looking source reasoning.",
       "correction": "CONFIRMED requires executable evidence such as a reproducer, sanitizer/fuzzer artifact, or deterministic integration test."
-    },
-    {
-      "original_claim": "Use five classes: CONFIRMED, LIKELY, LOW, FALSE_POSITIVE, NON_DEFECT.",
-      "correction": "Use four action-oriented classes: CONFIRMED (reproducer demonstrates it), TRACED (complete static trace), SUSPECTED (partial trace), FALSE_POSITIVE (guard blocks). Classes describe what was done, not confidence level."
-    },
-    {
-      "original_claim": "Search using this fixed list of regex patterns and review only code that matches the scope definition.",
-      "correction": "Search patterns are illustrative starting points, not an exhaustive checklist. Review code broadly including logic errors."
     }
   ],
   "uncovered_topics": [
@@ -240,7 +162,7 @@
     "benchmark coverage for ownership-hook defect findings"
   ],
   "needs_stronger_tests": [
-    "C10 needs a targeted ownership-hook review benchmark.",
-    "C01, C02, C06, C07, C11, C13, C14, C15 need benchmark validation rather than unit tests."
+    "C08 needs a targeted ownership-hook review benchmark.",
+    "C01, C05, C09, C10, C11, C12, C13 need benchmark validation rather than unit tests."
   ]
 }
