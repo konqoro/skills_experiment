@@ -10,13 +10,13 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 ### Choose the Failure Channel
 
 - Return `bool` when success or failure is the whole result.
-- Return `Option[T]` when success produces a value but absence is expected.
+- Return `Option[T]` when success returns a value but absence is expected.
 - Use `bool` with a `var` parameter only when filling or mutating caller-owned storage is part of the API.
 - Convert per-item failures into structured outcomes at the batch boundary. Keep intermediate steps exception-based.
 
 ### Validate at Boundaries
 
-- Add a check or error path only when the condition prevents the operation from meeting its contract.
+- Add a failure path only when the condition prevents the operation from meeting its contract.
 - Use range types only as parameters. Do not construct them with conversions such as `Positive(x)`.
 
 ### Place Boundaries

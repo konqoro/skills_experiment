@@ -189,7 +189,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_ref_batch_preview_boundary.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The reference test records processing failures as ordered outcomes and confirms that translated audit failure escapes the batch."
+      "evaluation_notes": "DETERMINISTIC. The reference test records processing failures as ordered outcomes and confirms that a recording-path failure escapes the batch."
     },
     {
       "claim_id": "C22",
@@ -290,10 +290,10 @@
     },
     {
       "claim_id": "C34",
-      "claim_text": "Add a check or error path only when the condition prevents the operation from meeting its contract; do not treat a normal state that already satisfies the postcondition as a failure.",
+      "claim_text": "Add a failure path only when the condition prevents the operation from meeting its contract; do not treat a normal state that already satisfies the postcondition as a failure.",
       "source": "user feedback; refinement of C33",
       "is_testable": false,
-      "evaluation_notes": "Design rule. This supplies the missing decision criterion for whether a condition needs checking before C31 classifies a genuine failure as CatchableError or Defect."
+      "evaluation_notes": "Design rule. This supplies the missing decision criterion for whether a condition needs a failure path before C31 classifies a genuine failure as CatchableError or Defect."
     }
   ],
   "removed_claims": [
@@ -323,19 +323,14 @@
       "correction": "Record recoverable per-item failures at the batch boundary, but let failures of the reporting path escape to the application boundary."
     },
     {
-      "claim_id": "batch_preview_boundary reference",
-      "original_claim": "cast[seq[byte]](page.toOpenArrayByte(0, page.high)) converts a string to seq[byte].",
-      "correction": "This cast segfaults at runtime. Use @(page.toOpenArrayByte(0, page.high)) instead \u2014 the @ operator materializes the openArray into a seq."
-    },
-    {
       "claim_id": "C23",
       "original_claim": "For range-typed parameters such as Positive, rely on the type for the basic lower-bound domain and only raise for additional semantic bounds such as pageNo > pages.len.",
-      "correction": "Use a range type only as a parameter. Do not construct it with conversions such as `Positive(x)`; validate runtime data through the chosen recoverable failure channel."
+      "correction": "For error-handling contracts, use a range type only as a parameter. Do not construct it with conversions such as `Positive(x)`; validate runtime data through the chosen recoverable failure channel."
     },
     {
       "claim_id": "C33",
       "original_claim": "Validate raw input at a trust boundary once; internal code should not recheck conditions established by its contract or earlier validation.",
-      "correction": "A trust boundary alone does not require a check. Add one only when the condition prevents the operation from meeting its contract."
+      "correction": "A trust boundary alone does not require a failure path. Add one only when the condition prevents the operation from meeting its contract."
     }
   ],
   "uncovered_topics": [],
@@ -349,7 +344,7 @@
       "bucket": "ambiguous wording",
       "summary": "The boundary rule could lead agents to add validation merely because a value is raw, without deciding whether that condition prevents the operation's contract.",
       "evidence": "The prior rule required validation at trust boundaries but did not distinguish a contract failure from a normal state that already satisfies the postcondition.",
-      "check": "Each check or error branch corresponds to a condition that prevents the operation from meeting its contract.",
+      "check": "Each failure path corresponds to a condition that prevents the operation from meeting its contract.",
       "next_action": "skill edit"
     }
   ]

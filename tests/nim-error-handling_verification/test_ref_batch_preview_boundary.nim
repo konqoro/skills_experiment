@@ -1,111 +1,64 @@
 # Test: batch_preview_boundary.md reference compiles and works
 
 type
-  PreviewItem = object
-    path: string
-    success: bool
-    previewId: string
+  ItemOutcome = object
+    input: string
+    ok: bool
     errorMsg: string
 
-  BatchSummary = object
-    okCount: int
-    failCount: int
-    items: seq[PreviewItem]
+  BatchResult = object
+    succeeded: int
+    failed: int
+    outcomes: seq[ItemOutcome]
 
-proc fakeReadPages(path: string): seq[string] =
-  if path.len == 0:
-    raise newException(IOError, "path is empty")
-  case path
-  of "missing":
-    raise newException(IOError, "document missing")
-  of "blank":
-    result = @[""]
-  else:
-    result = @[path & "-page-1", path & "-page-2"]
+proc process(input: string) =
+  if input == "":
+    raise newException(ValueError, "empty input")
+  if input == "bad":
+    raise newException(IOError, "device busy")
 
-proc fakeUpload(payload: seq[byte]): string =
-  if payload.len == 0:
-    raise newException(OSError, "upload payload empty")
-  result = "preview-" & $payload.len
+proc record(logPath: string; line: string) =
+  if logPath == "dead":
+    raise newException(IOError, "log device unavailable")
 
-proc fakeAuditWrite(auditPath: string; line: string) =
-  if auditPath == "audit-fail":
-    raise newException(OSError, "audit write failed")
-
-proc buildPreviewPayload(pages: seq[string]; pageIndex: int): seq[byte] =
-  if pageIndex >= pages.len:
-    raise newException(ValueError, "page index out of bounds")
-  let page = pages[pageIndex]
-  if page.len == 0:
-    raise newException(IOError, "selected page was empty")
-  result = @(page.toOpenArrayByte(0, page.high))
-
-proc processOne(path: string; pageIndex: int): string =
-  let pages = fakeReadPages(path)
-  let payload = buildPreviewPayload(pages, pageIndex)
-  result = fakeUpload(payload)
-
-proc writeAuditLine(auditPath: string; line: string) =
-  try:
-    fakeAuditWrite(auditPath, line)
-  except OSError:
-    raise newException(IOError, "audit write failed for " & auditPath & ": " &
-        getCurrentExceptionMsg())
-
-proc runBatch(paths: seq[string]; pageNo: Positive; auditPath: string): BatchSummary =
-  let pageIndex = pageNo.int - 1
-  result.items = @[]
-  for path in paths:
+proc runBatch(inputs: seq[string]; logPath: string): BatchResult =
+  for input in inputs:
     try:
-      let previewId = processOne(path, pageIndex)
-      result.items.add PreviewItem(
-        path: path,
-        success: true,
-        previewId: previewId,
-        errorMsg: ""
-      )
-      inc result.okCount
+      process(input)
+      result.outcomes.add ItemOutcome(input: input, ok: true)
+      inc result.succeeded
     except CatchableError:
       let msg = getCurrentExceptionMsg()
-      writeAuditLine(auditPath, path & ": " & msg)
-      result.items.add PreviewItem(
-        path: path,
-        success: false,
-        previewId: "",
-        errorMsg: msg
-      )
-      inc result.failCount
+      record(logPath, input & " failed: " & msg)
+      result.outcomes.add ItemOutcome(input: input, ok: false, errorMsg: msg)
+      inc result.failed
 
 proc main =
-  # Test 1: successful batch
-  let s1 = runBatch(@["doc1", "doc2"], 1, "audit.log")
-  doAssert s1.okCount == 2
-  doAssert s1.failCount == 0
-  doAssert s1.items[0].success
-  doAssert s1.items[0].previewId == "preview-11"  # "doc1-page-1" = 11 bytes
-  doAssert s1.items[1].success
+  # Test 1: all succeed
+  let r1 = runBatch(@["a", "b"], "live")
+  doAssert r1.succeeded == 2
+  doAssert r1.failed == 0
+  doAssert r1.outcomes[0].ok
+  doAssert r1.outcomes[1].ok
 
-  # Test 2: mixed success/failure
-  let s2 = runBatch(@["ok", "missing", "blank"], 1, "audit.log")
-  doAssert s2.okCount == 1
-  doAssert s2.failCount == 2
-  doAssert s2.items[1].errorMsg == "document missing"
-  doAssert s2.items[2].errorMsg == "selected page was empty"
+  # Test 2: mixed success/failure with correct messages
+  let r2 = runBatch(@["good", "", "bad"], "live")
+  doAssert r2.succeeded == 1
+  doAssert r2.failed == 2
+  doAssert r2.outcomes[0].ok
+  doAssert not r2.outcomes[1].ok
+  doAssert r2.outcomes[1].errorMsg == "empty input"
+  doAssert not r2.outcomes[2].ok
+  doAssert r2.outcomes[2].errorMsg == "device busy"
 
-  # Test 3: page index out of bounds
-  let s3 = runBatch(@["doc"], 5, "audit.log")
-  doAssert s3.failCount == 1
-  doAssert s3.items[0].errorMsg == "page index out of bounds"
-
-  # Test 4: audit failure aborts the batch with added context
-  var auditFailed = false
+  # Test 3: recording failure escapes the batch
+  var escaped = false
   try:
-    discard runBatch(@["missing"], 1, "audit-fail")
+    discard runBatch(@["good", ""], "dead")
   except IOError:
-    auditFailed = true
-    doAssert getCurrentExceptionMsg() ==
-        "audit write failed for audit-fail: audit write failed"
-  doAssert auditFailed
+    escaped = true
+    doAssert getCurrentExceptionMsg() == "log device unavailable"
+  doAssert escaped
 
 main()
 echo "ref_batch_preview_boundary: PASS"
