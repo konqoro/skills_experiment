@@ -36,19 +36,60 @@ pointer operations, casts, FFI imports, ownership hooks. But also read the code
 to understand its logic. Many bugs are logic errors that no pattern search will
 find.
 
-## Confirm Before Reporting
+## Trace Across Function Boundaries
 
-A finding is `CONFIRMED` when a reproducer, sanitizer, or test demonstrates the
-failure. Until then it is `UNCONFIRMED`. If a guard blocks the path, it is
-`FALSE_POSITIVE`.
+Most false positives and false negatives come from incomplete cross-function
+reasoning. Do not stop at the function where a risky operation sits.
+
+When a function calls another function with external input:
+
+- Read the callee. Does it validate, bounds-check, or truncate the input?
+- Check what the callee returns. Does it return a consumed length, a partial
+  result, or an error code the caller might ignore?
+- Trace the data path through every intermediate function, not just the entry
+  point and the crash site.
+- Read type definitions and `when defined(...)` branches that affect the path.
+
+If you cannot trace the full path from input to failure, you do not have a
+complete trace. Say so and mark the finding `SUSPECTED`.
+
+## Classify By Evidence, Not Feelings
+
+Use four classes. They describe what you have done, not how confident you feel.
+
+| Class | Means |
+|---|---|
+| `CONFIRMED` | A reproducer, sanitizer, or test demonstrates the failure. |
+| `TRACED` | Complete static trace from external input to the failure, but no reproducer yet. |
+| `SUSPECTED` | Partial trace or unclear control flow. Something looks wrong but the path is not fully verified. |
+| `FALSE_POSITIVE` | A guard, type constraint, catch boundary, or unreachable path blocks the issue. |
 
 Do not assign numbers. Do not invent probability or confidence scores. State
 what you found and what evidence you have.
 
-## Build Minimal Reproducers
+## Test Guards, Do Not Debate Them
 
-For each candidate defect, write the smallest reproducer that triggers it.
-Prefer direct calls over integration tests. Use `doAssert` for assertions, not
+If you are unsure whether a guard blocks a path, write a reproducer that tests
+it. Do not spend time reasoning about whether a guard is sufficient when a
+three-line test can settle it.
+
+Common guard questions a reproducer can answer:
+
+- Does `except CatchableError` catch this exception? `Defect` subclasses
+  (`IndexDefect`, `OverflowDefect`, `AssertionDefect`) are not caught by it.
+- Does `-d:danger` change the behavior? `assert` is compiled out; `doAssert`
+  is not.
+- Does a bounds check, limit, range type, or parser guard actually block the
+  input shape you are testing?
+- Does a consumed-length parser leave trailing input unvalidated?
+
+## Use Compiler And Runtime As Primary Evidence
+
+Compiler output, runtime behavior, and sanitizer reports are stronger evidence
+than pure reasoning. The hybrid approach — use tools, then reason about their
+output — produces fewer false positives than reasoning alone.
+
+Build and run reproducers with `nim c -r`. Use `doAssert` for assertions, not
 `assert` — `assert` is compiled out under `-d:danger`.
 
 Default build:
@@ -105,8 +146,9 @@ Each finding needs:
 - what is wrong
 - how input reaches it
 - expected vs actual behavior
-- evidence: reproducer command and output for `CONFIRMED`, static trace for
-  `UNCONFIRMED`, blocking guard for `FALSE_POSITIVE`
+- evidence: reproducer command and output for `CONFIRMED`, complete static
+  trace for `TRACED`, partial trace and what is missing for `SUSPECTED`,
+  blocking guard for `FALSE_POSITIVE`
 - remediation direction
 
 Keep the report short. Prefer a few well-evidenced findings over many
@@ -115,19 +157,27 @@ speculative ones.
 # Workflow
 
 1. **Read the code.** Understand what it does, where input enters, and where
-   sensitive operations happen. Look for anything that could go wrong.
-2. **Trace candidate defects.** For each suspicious site, trace the path from
-   input to the operation. Check for guards along the way.
+   sensitive operations happen. Read callee functions and type definitions, not
+   just the entry point. Look for anything that could go wrong.
+2. **Trace candidate defects.** For each suspicious site, trace the full path
+   from input to the operation across function boundaries. Check for guards
+   along the way. If you cannot complete the trace, mark it `SUSPECTED` and say
+   what is missing.
 3. **Write a minimal reproducer.** Confirm the bug with the smallest possible
-   input. If you cannot reproduce it, state what is missing.
-4. **Report.** List confirmed findings with evidence, unconfirmed findings with
-   their static traces, and false positives with the blocking guard.
+   input. If a guard's sufficiency is unclear, test it with a reproducer
+   instead of debating it. If you cannot reproduce a traced finding, keep it as
+   `TRACED` and state what is missing.
+4. **Report.** List `CONFIRMED` findings with reproducer evidence, `TRACED`
+   findings with their complete static traces, `SUSPECTED` findings with what
+   is missing, and `FALSE_POSITIVE` findings with the blocking guard.
 
 # Common Mistakes
 
 | Mistake | Why it is wrong |
 |---|---|
 | Marking a source-only claim `CONFIRMED` | Confirmation requires executable evidence. |
+| Stopping the trace at the function with the risky API | Most false positives come from not reading callees and cross-function data flow. |
+| Debating whether a guard blocks a path instead of testing it | A three-line reproducer settles it faster and more reliably. |
 | Reporting a risky API call without a reachable path | API presence is not a defect. |
 | Ignoring `Defect` vs `CatchableError` | `IndexDefect`, `OverflowDefect`, and `AssertionDefect` escape ordinary handlers. |
 | Treating `assert` as a reliable guard | `assert` is compiled out in `-d:danger`; use `doAssert` in tests. |

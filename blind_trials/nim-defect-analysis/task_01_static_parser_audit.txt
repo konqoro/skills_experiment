@@ -25,9 +25,9 @@ Treat the input string passed to `handleMessage` as externally-controlled.
 Your report must:
 
 - identify reliability and correctness defects only
-- classify each finding as `CONFIRMED`, `LIKELY`, `LOW`, `FALSE_POSITIVE`, or `NON_DEFECT`
+- classify each finding as `CONFIRMED`, `TRACED`, `SUSPECTED`, or `FALSE_POSITIVE`
 - include a static trace from external input to the failure
-- include expected behavior, actual behavior, impact assessment, and confidence
+- include expected behavior, actual behavior, and impact assessment
 - include exact commands and observed output for every `CONFIRMED` finding
 - avoid fuzzing or long-running search
 

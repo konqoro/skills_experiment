@@ -30,14 +30,59 @@
       "evidence": "The old EvidenceFactor * ExploitabilityFactor * ImpactFactor rubric still allowed weak static claims to look numerically precise.",
       "check": "Confidence scoring should be coarse and evidence-gated.",
       "next_action": "skill edit"
+    },
+    {
+      "source_type": "project",
+      "source_task": "general skill review",
+      "bucket": "low-signal noise",
+      "summary": "Agents spent time debating 0.4 vs 0.6 confidence instead of finding and confirming bugs.",
+      "evidence": "The coarse 0.95/0.80/0.60/0.40/0.20 scoring table still encouraged numerical rating as the primary activity.",
+      "check": "Numerical ratings are useless and distract from bug finding.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "project",
+      "source_task": "general skill review",
+      "bucket": "low-signal noise",
+      "summary": "Five-class classification caused agents to spend effort on fine-grained rating rather than finding bugs.",
+      "evidence": "The CONFIRMED/LIKELY/LOW/FALSE_POSITIVE/NON_DEFECT taxonomy invited borderline calls between LIKELY and LOW that added no value.",
+      "check": "Classification should be action-oriented: confirmed, traced, suspected, or false positive.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "research",
+      "source_task": "Li et al. 2026, 222 CVEs; JITVul ACL 2025; NDSS 2025",
+      "bucket": "missing rule",
+      "summary": "Most false positives and false negatives come from incomplete cross-function reasoning.",
+      "evidence": "Shallow interprocedural reasoning is the #1 FP cause; missing cross-function context is the #1 FN cause. Agents stop at the function with the risky API without reading callees.",
+      "check": "Agents must trace across function boundaries, reading callee functions and return values.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "research",
+      "source_task": "CORRECT 2025; JITVul ACL 2025",
+      "bucket": "missing rule",
+      "summary": "Agents over-analyze guards, getting stuck debating whether a guard blocks a path instead of testing it.",
+      "evidence": "Overthinking bias reduces recall by ~10%. Agents treat security checks as vulnerabilities or debate their sufficiency statically.",
+      "check": "If a guard's sufficiency is unclear, write a reproducer that tests it.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "research",
+      "source_task": "Tencent 2026; ByteDance 2025",
+      "bucket": "missing rule",
+      "summary": "Pure reasoning produces more false positives than tool-verified findings.",
+      "evidence": "Hybrid SAT + LLM filtering eliminates 94-98% of false positives. Tool output as primary evidence is more reliable than reasoning alone.",
+      "check": "Use compiler output, runtime behavior, and sanitizer reports as primary evidence.",
+      "next_action": "skill edit"
     }
   ],
   "summary": {
-    "total_claims": 10,
+    "total_claims": 12,
     "testable": 4,
     "passed": 4,
     "failed": 0,
-    "not_testable": 6,
+    "not_testable": 8,
     "untested": 0
   },
   "claims": [
@@ -99,11 +144,11 @@
     },
     {
       "claim_id": "C11",
-      "claim_text": "Classification uses three classes: CONFIRMED (reproducer or test demonstrates the failure), UNCONFIRMED (static trace only), and FALSE_POSITIVE (guard blocks the path).",
+      "claim_text": "Classification uses four evidence-based classes: CONFIRMED (reproducer or test demonstrates the failure), TRACED (complete static trace but no reproducer), SUSPECTED (partial trace or unclear control flow), and FALSE_POSITIVE (guard blocks the path).",
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": "Workflow claim. Five classes (CONFIRMED/LIKELY/LOW/FALSE_POSITIVE/NON_DEFECT) caused agents to spend effort on fine-grained rating rather than finding bugs."
+      "evaluation_notes": "NUANCED. The first refinement collapsed to three classes (CONFIRMED/UNCONFIRMED/FALSE_POSITIVE), but research showed that conflating complete traces with partial traces loses useful signal. The CORRECT study (2025) found reasoning quality distinguishes true from false positives. Four action-oriented classes describe what the agent has done, not how confident it feels."
     },
     {
       "claim_id": "C12",
@@ -112,6 +157,30 @@
       "test_file_path": null,
       "test_passed": null,
       "evaluation_notes": "Workflow claim. The fixed regex pattern list and restrictive scope gate caused agents to miss logic errors and treat the checklist as the complete search space."
+    },
+    {
+      "claim_id": "C13",
+      "claim_text": "Most false positives and false negatives come from incomplete cross-function reasoning. Agents must read callee functions, check return values, and trace data paths through every intermediate function, not just the entry point and crash site.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Research-backed. Li et al. (2026, 222 CVEs) found shallow interprocedural reasoning is the #1 cause of false positives. JITVul (ACL 2025) and NDSS 2025 found missing cross-function context is the #1 cause of false negatives."
+    },
+    {
+      "claim_id": "C14",
+      "claim_text": "If a guard's sufficiency is unclear, write a reproducer that tests it instead of debating it statically.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Research-backed. The CORRECT study (2025) found an overthinking bias where extended reasoning with conservative assumptions reduces recall by ~10%. JITVul (ACL 2025) found agents over-analyze security guards, getting stuck debating them or treating them as vulnerabilities."
+    },
+    {
+      "claim_id": "C15",
+      "claim_text": "Compiler output, runtime behavior, and sanitizer reports are stronger evidence than pure reasoning. Use tools first, then reason about their output.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Research-backed. Du et al. (Tencent, 2026) showed hybrid SAT + LLM filtering eliminates 94-98% of false positives. The hybrid approach uses tool output as primary evidence."
     },
     {
       "claim_id": "C08",
@@ -141,11 +210,19 @@
   "corrections": [
     {
       "original_claim": "Confidence = EvidenceFactor * ExploitabilityFactor * ImpactFactor.",
-      "correction": "Use coarse evidence-gated confidence scores; do not multiply pseudo-probabilities."
+      "correction": "Do not assign numerical confidence or probability scores at all. State what was found and what evidence exists."
     },
     {
       "original_claim": "CONFIRMED can be assigned after strong-looking source reasoning.",
       "correction": "CONFIRMED requires executable evidence such as a reproducer, sanitizer/fuzzer artifact, or deterministic integration test."
+    },
+    {
+      "original_claim": "Use five classes: CONFIRMED, LIKELY, LOW, FALSE_POSITIVE, NON_DEFECT.",
+      "correction": "Use three classes: CONFIRMED, UNCONFIRMED, FALSE_POSITIVE. Fine-grained rating distracts from finding bugs."
+    },
+    {
+      "original_claim": "Search using this fixed list of regex patterns and review only code that matches the scope definition.",
+      "correction": "Search patterns are illustrative starting points, not an exhaustive checklist. Review code broadly including logic errors."
     }
   ],
   "uncovered_topics": [
