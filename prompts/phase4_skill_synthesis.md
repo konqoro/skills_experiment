@@ -82,10 +82,11 @@ If `CURRENT_VERIFIED_SKILL` does not exist, create it from scratch.
 
 ### Section guidance
 
-#### Preamble
+#### Frontmatter and title
 - YAML frontmatter with `name` and `description`
 - Follow `prompts/skill_header_conventions.md` for `name` and `description`
-- a short introduction
+- The `description` field already states what the skill does and when to use it. Do not restate that information in the body.
+- The title may be followed by at most one sentence of methodological framing if it encodes a principle the `description` does not. Do not add a `## Preamble` section header. If no such principle exists, go straight to `Rules`.
 
 #### Rules
 - short, high-signal rules grouped by topic
@@ -115,7 +116,7 @@ Each reference file must:
 - use a descriptive filename
 - begin with a one-line description
 - contain one complete example
-- end with a short `Key points` or `When to use` section
+- end with a short `Key points` or `When to use` section only when the example has non-obvious constraints, failure modes, or decision criteria not visible in the code itself. If the code is self-explanatory, omit the section.
 - each key point must make one distinct claim; do not cram multiple hooks or operations into a single bullet
 
 ## Example policy

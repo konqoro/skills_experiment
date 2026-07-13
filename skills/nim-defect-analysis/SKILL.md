@@ -5,9 +5,7 @@ description: Find reliability and security defects in Nim code. Use when reviewi
 
 # Nim Defect Analysis
 
-Use this skill to find real bugs in Nim code. Focus on finding and confirming
-defects, not on elaborate triage mechanics. A finding is real when you can
-demonstrate it; until then it is a hypothesis.
+A finding is real when you can demonstrate it; until then it is a hypothesis. Focus on finding and confirming defects, not on elaborate triage mechanics.
 
 # Rules
 

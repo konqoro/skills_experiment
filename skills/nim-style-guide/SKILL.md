@@ -5,8 +5,6 @@ description: Write clear, consistent Nim code in a simple stdlib-aligned style, 
 
 # Nim Style Guide
 
-Prefer concise, structured code that the compiler and reader can reason about.
-
 # Rules
 
 ## Formatting

@@ -5,11 +5,6 @@ description: Design clear public Nim APIs for libraries and modules, including e
 
 # Nim API Design
 
-## Preamble
-
-Use this skill when designing or reviewing a public Nim API.
-Default to plain data, one clear surface, and names that match the standard library.
-
 ## Rules
 
 ### Public shape
