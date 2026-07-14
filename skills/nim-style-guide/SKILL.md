@@ -62,6 +62,9 @@ description: Write clear, consistent Nim code in a simple stdlib-aligned style, 
 
 - Prefer compact wrapped calls over one-argument-per-line call blocks.
 - Use UFCS when it reads like an accessor.
+- Write `typeof(x)`, not the historical `type(x)`.
+- If `typeof(call)` can resolve to an iterator or a proc, it selects the
+  iterator. Use `typeof(call, typeOfProc)` to select the proc.
 - Use `let` by default.
 - Use `var` only for values that mutate.
 - Keep local declarations close to first use.

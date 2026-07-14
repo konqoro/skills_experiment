@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 41,
-    "testable": 34,
-    "passed": 34,
+    "total_claims": 45,
+    "testable": 38,
+    "passed": 38,
     "failed": 0,
     "not_testable": 7,
     "nuanced": 5,
@@ -335,11 +335,43 @@
     },
     {
       "claim_id": "C42",
-      "claim_text": "Use `static[T]` in a public proc parameter only when callers must supply a compile-time value; runtime values are rejected and each static argument combination creates a separate specialization.",
+      "claim_text": "Use `static[T]` in a public proc parameter only when callers must supply a compile-time value; a runtime value is rejected.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c42_static_contract.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A constant expression satisfies `static[int]`, a runtime variable does not, and distinct static values instantiate distinct array return types."
+      "evaluation_notes": "DETERMINISTIC. A constant expression satisfies `static[int]`, while a runtime variable does not."
+    },
+    {
+      "claim_id": "C43",
+      "claim_text": "Each distinct set of static argument values creates a separate specialization.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c42_static_contract.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Distinct static values instantiate distinct array return types."
+    },
+    {
+      "claim_id": "C44",
+      "claim_text": "A `typedesc` parameter lets callers select an operation by passing a type.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Type-directed default construction works for both `int` and `string`."
+    },
+    {
+      "claim_id": "C45",
+      "claim_text": "Separate bare `typedesc` parameters may receive different types.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A proc with two bare `typedesc` parameters accepts `int` and `string` together."
+    },
+    {
+      "claim_id": "C46",
+      "claim_text": "Several `typedesc[T]` parameters that share one explicit generic parameter `T` must receive the same type.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Two `typedesc[T]` parameters accept matching types and reject `int` paired with `string`."
     }
   ],
   "failure_samples": [

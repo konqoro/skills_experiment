@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 32,
-    "testable": 28,
-    "passed": 28,
+    "total_claims": 35,
+    "testable": 31,
+    "passed": 31,
     "failed": 0,
     "not_testable": 4,
     "nuanced": 2,
@@ -266,6 +266,30 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c29_c30_c31_c32_multiline_strings.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. `dedent()` on a literal with six spaces of shared padding strips those six spaces while preserving the two extra spaces before `There`."
+    },
+    {
+      "claim_id": "C33",
+      "claim_text": "Prefer `typeof(x)` over the historical `type(x)` spelling.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c33_c34_c35_typeof.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Both `typeof(value)` and its historical alias `type(value)` identify `int`."
+    },
+    {
+      "claim_id": "C34",
+      "claim_text": "When a call expression matches both an iterator and a proc, `typeof(call)` selects the iterator result type.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c33_c34_c35_typeof.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Plain `typeof` selects the iterator's `char` result instead of the proc's `int` result."
+    },
+    {
+      "claim_id": "C35",
+      "claim_text": "Pass `typeOfProc` as the second argument to `typeof` to select the proc result type.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c33_c34_c35_typeof.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `typeof(..., typeOfProc)` selects the proc's `int` result."
     }
   ],
   "uncovered_topics": [
