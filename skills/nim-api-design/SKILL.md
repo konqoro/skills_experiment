@@ -30,6 +30,8 @@ description: Design clear public Nim APIs for libraries and modules, including e
 ### Contracts
 
 - Prefer range types for constrained public parameters. Use base types for stored fields.
+- Use `static[T]` only when the public contract requires a compile-time value;
+  otherwise use `T`. Each static argument combination creates a specialization.
 - Use `distinct` when two values share a base type but must not mix.
 - If a public type can be used as a table or set key, define `hash` consistent
   with `==`.

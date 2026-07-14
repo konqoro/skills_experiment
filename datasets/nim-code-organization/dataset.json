@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 10,
-    "testable": 8,
-    "passed": 7,
+    "total_claims": 11,
+    "testable": 9,
+    "passed": 8,
     "failed": 1,
     "not_testable": 2,
     "nuanced": 1,
@@ -92,6 +92,14 @@
       "test_file_path": null,
       "test_passed": null,
       "evaluation_notes": "Design guideline. This follows the Zen of Nim preference for value-based datatypes and the stdlib tendency to keep parser/orchestration state explicit."
+    },
+    {
+      "claim_id": "C11",
+      "claim_text": "A `static[bool]` or `static[Mode]` enum proc parameter can drive `when` branches so related compile-time variants share one implementation.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-code-organization_verification/test_c11_static_variants.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A boolean variant safely omits code that is invalid for `void`, and a static enum selects named compile-time branches."
     }
   ],
   "uncovered_topics": [],

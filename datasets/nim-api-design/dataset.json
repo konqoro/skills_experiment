@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 40,
-    "testable": 33,
-    "passed": 33,
+    "total_claims": 41,
+    "testable": 34,
+    "passed": 34,
     "failed": 0,
     "not_testable": 7,
     "nuanced": 5,
@@ -332,6 +332,14 @@
       "test_file_path": "tests/nim-api-design_verification/test_c40_c41_sequence_deletion_order.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Deleting index 1 from `@[10, 20, 30, 40]` with `delete` produces `@[10, 30, 40]`, preserving the relative order of later elements."
+    },
+    {
+      "claim_id": "C42",
+      "claim_text": "Use `static[T]` in a public proc parameter only when callers must supply a compile-time value; runtime values are rejected and each static argument combination creates a separate specialization.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c42_static_contract.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A constant expression satisfies `static[int]`, a runtime variable does not, and distinct static values instantiate distinct array return types."
     }
   ],
   "failure_samples": [

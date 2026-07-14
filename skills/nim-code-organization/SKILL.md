@@ -23,6 +23,9 @@ Choose the smallest structure that exposes the real workflow.
 
 - Extract a helper when it names a meaningful step, is reused, isolates a
   contract, or makes an invariant easier to state.
+- To share an implementation across compile-time variants, parameterize one
+  helper with `static[bool]` or a static enum and branch with `when`; use `if`
+  or `case` when the choice is made at runtime.
 - Keep a short, one-use sequence in its driver when extraction would only move
   lines elsewhere.
 - Put helpers at module scope when several phases use them or they stand on
