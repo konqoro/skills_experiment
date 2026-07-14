@@ -32,7 +32,6 @@ description: Design clear public Nim APIs for libraries and modules, including e
 - Prefer range types for constrained public parameters. Use base types for stored fields.
 - Use `static[T]` only when the public contract requires a compile-time value;
   otherwise use `T`.
-- Each distinct set of static argument values creates a specialization.
 - Use a `typedesc` parameter when callers select an operation by passing a type.
 - `A, B: typedesc` may receive different types. To require the same type, use
   an explicit shared parameter: `proc sameType[T](A, B: typedesc[T])`.
