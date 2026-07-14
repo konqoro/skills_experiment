@@ -30,8 +30,7 @@ description: Design clear public Nim APIs for libraries and modules, including e
 ### Contracts
 
 - Prefer range types for constrained public parameters. Use base types for stored fields.
-- Use `static[T]` only when the public contract requires a compile-time value;
-  otherwise use `T`.
+- Use `static[T]` in public APIs only when callers must supply a compile-time constant.
 - Bare `typedesc` parameters may name different types; share `T` across
   `typedesc[T]` parameters when they must match.
 - Use `distinct` when two values share a base type but must not mix.
