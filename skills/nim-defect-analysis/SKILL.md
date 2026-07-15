@@ -181,6 +181,6 @@ speculative ones.
 | Treating `assert` as a reliable guard | `assert` is compiled out in `-d:danger`; use `doAssert` in tests. |
 | Assigning numerical confidence scores | Numbers add false precision without improving the analysis. |
 
-# References
+## References
 
 No reference files.

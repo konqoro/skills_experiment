@@ -68,4 +68,5 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 
 ## References
 
-- Read `references/batch_preview_boundary.md` when a batch must record per-item failures but abort if its reporting path fails.
+- `references/batch_preview_boundary.md` — Per-item batch failures with reporting failures allowed
+  to escape.

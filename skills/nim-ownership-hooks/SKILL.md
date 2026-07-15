@@ -137,7 +137,8 @@ Test these scenarios for every custom-hook type:
 
 ## References
 
-- `references/move_only_owner.md` — exclusive resource ownership, no copy allowed
-- `references/deep_owning_container.md` — manual allocation with deep copy
-- `references/shared_refcounted.md` — refcounted handle (separate counter + generic SharedPtr)
-- `references/custom_sink.md` — when and how to write a custom `=sink`
+- `references/move_only_owner.md` — Hooks for exclusive ownership with copying forbidden.
+- `references/deep_owning_container.md` — Destroy, copy, and duplicate hooks for raw storage with
+  independent copies.
+- `references/shared_refcounted.md` — Separate-counter and generic `SharedPtr` patterns for shared
+  ownership.

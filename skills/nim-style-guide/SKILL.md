@@ -148,7 +148,9 @@ See `references/multiline_strings.md`.
 | Turning every branch into an early `return` in a multi-step proc | It makes the normal path harder to scan. |
 | Using `continue` | A structured branch keeps the loop invariant visible. |
 
-# References
+## References
 
-- `references/core_patterns.md`: Simple default patterns for imports, callable kinds, wrapping, locals, and constructors.
-- `references/multiline_strings.md`: Triple-quoted multiline string patterns: leading newline, concatenation around interpolated values, and `dedent`.
+- `references/core_patterns.md` — General style patterns for imports, callable kinds, wrapping,
+  locals, and constructors.
+- `references/multiline_strings.md` — Whitespace-preserving triple-quoted strings, joins, and
+  dedenting.

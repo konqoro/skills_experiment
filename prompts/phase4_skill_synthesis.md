@@ -119,7 +119,11 @@ If `CURRENT_VERIFIED_SKILL` does not exist, create it from scratch.
 - a short line such as `No recurring mistakes recorded yet.` is acceptable until evidence exists
 
 #### References
-- list each reference file with a one-line description
+- list only existing reference files that remain useful
+- use one bullet per file: `references/file.md` — when to read it and which pattern or example it contains
+- make each description specific enough that an agent can choose the right file without opening every reference
+- do not list datasets, tests, audit sources, or repeat rules from the main skill
+- if the skill has no reference files, write `No reference files.` instead of inventing entries
 
 ## Reference files
 

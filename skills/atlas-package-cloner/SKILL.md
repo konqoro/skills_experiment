@@ -125,8 +125,9 @@ description: Use Atlas to initialize Nim projects, install or update Atlas-manag
 | Editing generated `nim.cfg` paths first | Atlas can regenerate that section; fix config, package metadata, or dependency resolution instead. |
 | Enabling plugins without inspection | Plugins are NimScript files and may execute external commands. |
 
-# References
+## References
 
-- `references/start_project.md`: Start an Atlas project and add a package dependency.
-- `references/custom_deps_and_overrides.md`: Use a custom deps directory and Atlas override fields.
-- `references/features_and_replay.md`: Run feature-aware installs and replay pinned dependencies.
+- `references/start_project.md` — Atlas adoption: project setup, dependency addition, and compile
+  flow.
+- `references/custom_deps_and_overrides.md` — Custom dependency directories and URL overrides.
+- `references/features_and_replay.md` — Optional features and lockfile replay commands.

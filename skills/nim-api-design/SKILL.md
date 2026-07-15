@@ -90,7 +90,9 @@ description: Design clear public Nim APIs for libraries and modules, including e
 4. Design the lookup surface.
    Provide one strict path for required data and one explicit safe path for optional data.
 5. Choose parameter modes and borrowed access.
-   Use `T` when the caller's variable stays unchanged, `var T` when the proc changes it, `sink T` when the proc takes ownership, and `lent T` to return a borrow. Use mutation procs when changes need validation or related updates.
+   Use `T` when the caller's variable stays unchanged, `var T` when the proc changes it, `sink T`
+   when the proc takes ownership, and `lent T` to return a borrow. Use mutation procs when changes
+   need validation or related updates.
 6. Verify the contract.
    Compile public examples. Exercise each mutation, ownership, and failure path.
 
@@ -111,13 +113,12 @@ description: Design clear public Nim APIs for libraries and modules, including e
 
 ## References
 
-- `references/representation_and_construction.md` — value data, shared identity,
-  and `initX`/`newX` construction
-- `references/lookup_and_mutation.md` — required lookup, optional membership,
-  borrowed reads, and controlled mutation
-- `references/parameter_and_result_shapes.md` — distinct identities, options,
-  constrained parameters, and semantic results
-- `references/parameter_ownership.md` — read, mutation, resizing, sink, and
-  borrowed-return parameter shapes
-- `references/template_usage.md` — template patterns where a `proc` cannot
-  substitute: scoped cleanup, caller-named access, and lazy evaluation
+- `references/representation_and_construction.md` — Choosing value or reference semantics with
+  `initX` and `newX` construction.
+- `references/lookup_and_mutation.md` — Collection access through required, optional, borrowed,
+  and controlled-mutation paths.
+- `references/parameter_and_result_shapes.md` — Domain IDs, related options, constrained
+  parameters, and named results in one public API.
+- `references/parameter_ownership.md` — Choosing `openArray`, `var`, `sink`, and `lent` parameters.
+- `references/template_usage.md` — Templates for scoped cleanup, caller-named access, and lazy
+  evaluation that a proc cannot express.

@@ -101,9 +101,9 @@ Choose the smallest structure that exposes the real workflow.
 | Exporting orchestration helpers or state by default | It turns implementation details into a public compatibility obligation |
 | Starting with `ref object` for locally owned state | It introduces aliasing and identity that the workflow does not require |
 
-# References
+## References
 
-- `references/orchestration_pattern.md` — choose between local closure state
-  and explicit multi-step state
-- `references/parser_state_pattern.md` — incremental state object with
-  top-level mutating procs
+- `references/orchestration_pattern.md` — Local versus explicit state for operations that share
+  invariants.
+- `references/parser_state_pattern.md` — A scanner object for incremental cursor and lifecycle
+  state.
