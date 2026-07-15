@@ -178,7 +178,7 @@
       "claim_text": "Before adding an error check, identify the documented promise the condition would break. If it breaks none, remove the check and document the valid behavior. Still report failure when the result cannot safely satisfy its API or the operation cannot meet its documented promise.",
       "source": "curated user feedback on API contracts and failure channels",
       "is_testable": false,
-      "evaluation_notes": "NUANCED. This contract test removes speculative checks without permitting unusable results or false success. Stricter validation belongs to the first operation that makes the stricter promise."
+      "evaluation_notes": "NUANCED. This contract test removes speculative checks without permitting unusable results or false success. An operation that requires a stronger guarantee than the API it calls owns that validation."
     },
     {
       "claim_id": "C23",

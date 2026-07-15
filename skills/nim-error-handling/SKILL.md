@@ -20,7 +20,7 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 - If a successful call guarantees valid output, do not add another nil, size, or range check.
 - If a condition breaks no documented promise, remove the check and document the valid behavior.
 - Report failure when the result cannot safely satisfy its API or the operation cannot meet its documented promise.
-- Put stricter validation in the first caller that requires the stricter result.
+- If an operation requires a stronger guarantee than the API it calls, validate that guarantee in that operation.
 - Use range types only as parameters.
 - Do not use range conversions such as `Positive(x)`; invalid values raise `Defect` and are silently accepted under `-d:danger`.
 
