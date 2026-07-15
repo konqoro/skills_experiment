@@ -36,7 +36,7 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 - Catch `CatchableError` only when the boundary handles every recoverable error. Do not catch bare `Exception`.
 - Add a custom exception only when callers handle it differently. Derive it from the closest existing `CatchableError` subtype.
 - Do not use `Defect` for recoverable failures; it represents a programming bug and is not caught by `CatchableError`.
-- Do not use a range conversion as recoverable validation. An invalid conversion raises `RangeDefect`, which is not caught by `CatchableError`.
+- Do not use range conversions for recoverable validation; invalid values raise `RangeDefect`.
 
 ### Translate and Inspect Errors
 

@@ -137,9 +137,9 @@
       "claim_id": "C29",
       "claim_text": "Emit balanced trees. Match the expected child categories for the tag you are constructing.",
       "is_testable": true,
-      "test_file_path": "tests/nimonyplugins_verification/nimony/test_c06_c32_validated.nim",
+      "test_file_path": "tests/nimonyplugins_verification/test_c29_constructed_tree_shape.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC."
+      "evaluation_notes": "DETERMINISTIC. A balanced `CallX` with an expression callee compiles and runs. A balanced `CallX` containing `StmtsS` where an expression is required is rejected by Nimony. C07 separately verifies that `withTree` closes the node it opens."
     },
     {
       "claim_id": "C30",
