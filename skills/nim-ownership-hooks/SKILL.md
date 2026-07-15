@@ -68,8 +68,8 @@ Only templates may safely appear between the type definition and the hooks. If a
 
 ### Move semantics
 
-- For an explicit transfer that must not copy, use `ensureMove(x)`. It fails at compile time if the move cannot be proved and prevents later use of the source.
-- Use `move(x)` only to force a move that last-use analysis cannot prove; the source remains usable in its default state.
+- For an explicit transfer that must not copy, use `ensureMove(x)`; it fails at compile time if the move cannot be proved.
+- Use `move(x)` only to force a move that last-use analysis cannot prove.
 - `sink` parameters are affine, not linear: the callee may consume the value once, or not at all.
 - Object and tuple fields are separate entities for sink last-use analysis.
 - When the compiler cannot prove a sink argument is last use, it inserts `=copy` or `=dup` before passing.
@@ -130,7 +130,7 @@ Test these scenarios for every custom-hook type:
 | Custom `=sink` when synthesized is fine | Adds unnecessary complexity with no benefit. |
 | `copyMem` in `=sink` or `=dup` | Bypasses child hook semantics and breaks the ownership chain for elements that have their own hooks. |
 | Missing zero-length guard | `alloc(0)` may return nil; subsequent indexing crashes. |
-| Using `move` when `ensureMove` would compile | Source is not consumed — using it afterward compiles and silently reads the default value. |
+| Using `move` when `ensureMove` would compile | Later reads of the source still compile and silently return its default value. |
 | `alloc` in multi-threaded code | Must use `allocShared`/`deallocShared` instead. |
 | Custom error string in `{.error: "msg"}` on `=copy` | The compiler ignores custom error messages. Use bare `{.error.}`. |
 | Skipping `=dup` on a move-only type | Add `=dup {.error.}`. Without it the compiler synthesizes one that produces nil instead of erroring. |

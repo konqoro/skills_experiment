@@ -28,14 +28,14 @@ description: Design clear public Nim APIs for libraries and modules, including e
 
 ### Contracts
 
-- Use range types for constrained public parameters; store their values in the underlying type (`int` for `Natural` or `Positive`).
+- Use range types for constrained public parameters; store their values in the underlying type
+  (`int` for `Natural` or `Positive`).
 - Pass arguments directly to range parameters; conversion is implicit, so do not write `Positive(x)`.
 - Use `static[T]` in public APIs only when callers must supply a compile-time constant.
-- Bare `typedesc` parameters may name different types; share `T` across
-  `typedesc[T]` parameters when they must match.
+- Bare `typedesc` parameters may name different types; share `T` across `typedesc[T]` parameters
+  when they must match.
 - Use `distinct` when two values share a base type but must not mix.
-- If a public type can be used as a table or set key, define `hash` consistent
-  with `==`.
+- If a public type can be used as a table or set key, define `hash` consistent with `==`.
 - Use `func` for pure query operations when purity is part of the public contract.
 - Use `{.raises: [].}` when a proc must not raise. Leave raising procs unannotated.
 
@@ -44,9 +44,9 @@ description: Design clear public Nim APIs for libraries and modules, including e
 - Use `initX()` for value types that copy by value.
 - Use `newX()` for ref types and for value types with reference semantics.
 - Use one `toX()` name for common conversions. Overload on input type.
-- Choose sequence-like batch parameters by required operation:
-  `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length
-  element mutation, and `var seq[T]` for resizing or replacement.
+- Choose sequence-like batch parameters by required operation: `openArray[T]` for read-only
+  traversal, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing
+  or replacement.
 - Keep the zero-argument path simple with sensible defaults.
 
 ### Parameter ownership
@@ -61,7 +61,8 @@ description: Design clear public Nim APIs for libraries and modules, including e
 - Separate required lookup from optional lookup.
 - A required lookup raises one specific catchable exception. It does not return a silent default.
 - Use `contains` or `hasKey` for membership checks and `getOrDefault` for explicit fallback values.
-- If several accessors fail the same way, route the failure through one private `{.noinline, noreturn.}` helper.
+- If several accessors fail the same way, route the failure through one private
+  `{.noinline, noreturn.}` helper.
 
 ### Borrowed and mutable access
 
@@ -74,9 +75,9 @@ description: Design clear public Nim APIs for libraries and modules, including e
 
 - Export only the stable surface. Keep helpers private.
 - Use descriptive public names.
-- In user code, gate version-specific API with `when (NimMajor, NimMinor) >= (x, y)`. Do not use stdlib-internal `{.since.}`.
-- Keep template lookup escape hatches such as `withValue` secondary to the
-  main lookup surface.
+- In user code, gate version-specific API with `when (NimMajor, NimMinor) >= (x, y)`. Do not use
+  stdlib-internal `{.since.}`.
+- Keep template lookup escape hatches such as `withValue` secondary to the main lookup surface.
 
 ## Workflow
 
