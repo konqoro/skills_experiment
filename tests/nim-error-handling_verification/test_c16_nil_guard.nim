@@ -1,29 +1,38 @@
-# C16: Guard resource creation — check nil and raise immediately.
+import std/assertions
 
 type
-  RawHandle = distinct pointer
+  Handle = ref object
+  Status = enum
+    success, failure
 
-proc createResource(shouldFail: bool): RawHandle =
-  if shouldFail:
-    RawHandle(nil)
+proc createWithNil(fail: bool): Handle =
+  if not fail:
+    result = Handle()
+
+proc acquireFromNil(fail: bool): Handle =
+  result = createWithNil(fail)
+  if result.isNil:
+    raise newException(IOError, "resource creation failed")
+
+proc createWithStatus(fail: bool): tuple[status: Status, handle: Handle] =
+  if fail:
+    result = (failure, nil)
   else:
-    RawHandle(unsafeAddr result)
+    result = (success, Handle())
 
-proc acquireResource*(shouldFail: bool): RawHandle =
-  result = createResource(shouldFail)
-  if pointer(result) == nil:
-    raise newException(IOError, "failed to acquire resource")
+proc acquireFromStatus(fail: bool): Handle =
+  let created = createWithStatus(fail)
+  if created.status == failure:
+    raise newException(IOError, "resource creation failed")
+  result = created.handle
 
-proc test() =
-  let h = acquireResource(false)
-  doAssert pointer(h) != nil
+block use_the_documented_failure_channel:
+  doAssert not acquireFromNil(false).isNil
+  doAssertRaises IOError:
+    discard acquireFromNil(true)
 
-  var caught = false
-  try:
-    discard acquireResource(true)
-  except IOError:
-    caught = true
-  doAssert caught
+  doAssert not acquireFromStatus(false).isNil
+  doAssertRaises IOError:
+    discard acquireFromStatus(true)
 
-test()
 echo "C16: PASS"

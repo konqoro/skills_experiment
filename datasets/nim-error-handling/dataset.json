@@ -1,39 +1,20 @@
 {
   "skill_name": "nim-error-handling",
-  "source_files": [
-    "~/chunktts/src/chunktts/retry_and_errors.nim",
-    "~/chunktts/src/chunktts/pipeline.nim",
-    "~/chunktts/src/chunktts/sndfile_wrap.nim",
-    "~/chunktts/src/chunktts/runtime_config.nim",
-    "~/pdfocr/src/pdfocr/pipeline.nim",
-    "~/pdfocr/src/pdfocr/pdfium_wrap.nim",
-    "~/pdfocr/src/pdfocr/pdf_render.nim",
-    "~/pdfocr/src/pdfocr/ocr_client.nim",
-    "~/chunkvec/src/chunkvec/embeddings_client.nim",
-    "~/chunkvec/src/chunkvec/chunk_store.nim",
-    "~/Projects/atlas/src/atlas.nim",
-    "~/Projects/atlas/src/basic/nimbleparser.nim",
-    "~/Projects/atlas/src/basic/nimblechecksums.nim",
-    "~/Projects/atlas/src/basic/reporters.nim",
-    "~/Projects/atlas/src/confighandler.nim",
-    "~/chunktts/deps/openai/src/openai/retry.nim",
-    "~/chunktts/deps/relay/src/relay.nim"
-  ],
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 33,
-    "testable": 24,
-    "passed": 24,
+    "total_claims": 34,
+    "testable": 26,
+    "passed": 26,
     "failed": 0,
-    "nuanced": 1,
-    "not_testable": 9
+    "nuanced": 3,
+    "not_testable": 8
   },
   "claims": [
     {
       "claim_id": "C01",
       "claim_text": "Use specific exception types (IOError, ValueError, OSError) with descriptive messages via newException.",
-      "source": "multiple files",
+      "source": "standalone exception-message verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c09_c10_newexception_msg.nim",
       "test_passed": true
@@ -41,7 +22,7 @@
     {
       "claim_id": "C02",
       "claim_text": "Catch errors only at the boundary where they become actionable — intermediate steps let exceptions propagate.",
-      "source": "chunktts/pipeline.nim, pdfocr/pipeline.nim",
+      "source": "standalone propagation verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c06_pipeline_bubble.nim",
       "test_passed": true
@@ -49,7 +30,7 @@
     {
       "claim_id": "C03",
       "claim_text": "CatchableError is the base for all recoverable exceptions. Use it as the catch-all. Do not catch bare Exception.",
-      "source": "all pipeline files, atlas/reporters.nim",
+      "source": "Nim exception hierarchy and standalone verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c11_catchable_base.nim",
       "test_passed": true
@@ -57,7 +38,7 @@
     {
       "claim_id": "C04",
       "claim_text": "When an adapter reports failure as `bool`, catch the errors it converts at that adapter boundary and return `false`.",
-      "source": "pdfocr/ocr_client.nim, chunktts/runtime_config.nim",
+      "source": "standalone bool-adapter verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c08_parse_helper_bool.nim",
       "test_passed": true
@@ -65,7 +46,7 @@
     {
       "claim_id": "C05",
       "claim_text": "Do not silently swallow exceptions — every except block does something useful.",
-      "source": "all files",
+      "source": "standalone propagation verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c04_c15_silently_swallow.nim",
       "test_passed": true
@@ -73,7 +54,7 @@
     {
       "claim_id": "C06",
       "claim_text": "Convert low-level errors at module boundaries by adding local context while preserving the original reason, usually via getCurrentExceptionMsg().",
-      "source": "pdfocr/pipeline.nim",
+      "source": "standalone exception-translation verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c07_c12_exception_translation.nim",
       "test_passed": true
@@ -81,7 +62,7 @@
     {
       "claim_id": "C07",
       "claim_text": "Use separate except branches when different error types need different handling.",
-      "source": "pdfocr/pipeline.nim (IOError→PdfError, ValueError→EncodeError)",
+      "source": "standalone exception-branch verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c07_separate_except_branches.nim",
       "test_passed": true
@@ -89,7 +70,7 @@
     {
       "claim_id": "C08",
       "claim_text": "Multiple exception types can share a handler: except ValueError, IOError, OSError:",
-      "source": "atlas/nimbleparser.nim",
+      "source": "standalone grouped-handler verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c08_multi_except.nim",
       "test_passed": true
@@ -97,7 +78,7 @@
     {
       "claim_id": "C09",
       "claim_text": "Use {.noinline.} on error-raising procs that build complex messages to avoid code bloat at call sites.",
-      "source": "pdfocr/pdfium_wrap.nim (raisePdfiumError), chunktts/sndfile_wrap.nim (raiseSndFileError)",
+      "source": "standalone compiler verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c09_c10_noinline_cerror.nim",
       "test_passed": true
@@ -105,7 +86,7 @@
     {
       "claim_id": "C10",
       "claim_text": "Translate C library error codes into Nim exceptions with human-readable descriptions.",
-      "source": "pdfocr/pdfium_wrap.nim, chunktts/sndfile_wrap.nim",
+      "source": "standalone error-code translation verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c09_c10_noinline_cerror.nim",
       "test_passed": true
@@ -113,7 +94,7 @@
     {
       "claim_id": "C11",
       "claim_text": "Use typed error enums and structured results for per-item pipeline outcomes, not exceptions.",
-      "source": "pdfocr/types.nim (PageResult), chunktts/retry_and_errors.nim (FinalError)",
+      "source": "standalone structured-outcome verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c11_error_enum.nim",
       "test_passed": true
@@ -121,7 +102,7 @@
     {
       "claim_id": "C12",
       "claim_text": "Distinguish retriable from final errors — classify before deciding retry vs. fail.",
-      "source": "openai/retry.nim (shouldRetry, isRetriableStatus), chunktts/retry_and_errors.nim",
+      "source": "standalone retry-classification verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c12_c13_retry_classify.nim",
       "test_passed": true
@@ -129,7 +110,7 @@
     {
       "claim_id": "C13",
       "claim_text": "On final failure after retries, raise a descriptive exception (not silently return).",
-      "source": "chunkvec/embeddings_client.nim",
+      "source": "standalone retry-exhaustion verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c12_c13_retry_classify.nim",
       "test_passed": true
@@ -137,7 +118,7 @@
     {
       "claim_id": "C14",
       "claim_text": "Use try/finally for resource cleanup (not try/except). Reserve except for actual error handling.",
-      "source": "chunkvec/chunk_store.nim, atlas/confighandler.nim, atlas/nimblechecksums.nim",
+      "source": "standalone cleanup verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c14_try_finally.nim",
       "test_passed": true
@@ -145,47 +126,48 @@
     {
       "claim_id": "C15",
       "claim_text": "Catch with `as` binding to access the exception object's fields (e.g., e.msg).",
-      "source": "atlas/atlas.nim (except OSError as e:), atlas/pkgsearch.nim (except CatchableError as exc:)",
+      "source": "standalone exception-binding verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c15_catch_as.nim",
       "test_passed": true
     },
     {
       "claim_id": "C16",
-      "claim_text": "Guard resource creation: check for nil results and raise immediately.",
-      "source": "pdfocr/pdfium_wrap.nim, chunktts/sndfile_wrap.nim",
+      "claim_text": "Match the resource API's failure convention: check nil for a nil-returning API, or check status for a status-returning API.",
+      "source": "standalone resource-failure-channel verification and curated user feedback",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c16_nil_guard.nim",
-      "test_passed": true
+      "test_passed": true,
+      "evaluation_notes": "NUANCED. The standalone test covers nil-as-failure and status-as-failure separately. The correct check depends on the called API's documentation."
     },
     {
       "claim_id": "C17",
       "claim_text": "Do not add custom exception types unless callers handle them differently from existing types.",
-      "source": "all projects — only AtlasFatalError exists as custom type, used for test-mode fatal errors",
+      "source": "curated API-design review",
       "is_testable": false
     },
     {
       "claim_id": "C18",
       "claim_text": "Prefer exception propagation over manual result-wrapper plumbing for recoverable errors.",
-      "source": "all pipeline files",
+      "source": "curated pipeline-design review",
       "is_testable": false
     },
     {
       "claim_id": "C19",
       "claim_text": "Do not introduce ad-hoc result objects that pass only ok/kind/message between steps.",
-      "source": "contrast: PageResult is structured orchestrator output, not step plumbing",
+      "source": "curated comparison of batch outcomes and step plumbing",
       "is_testable": false
     },
     {
       "claim_id": "C20",
       "claim_text": "Raise clear, bounded, actionable errors — include operation name, failure reason, and relevant codes.",
-      "source": "raisePdfiumError, raiseSndFileError patterns",
+      "source": "curated error-message review",
       "is_testable": false
     },
     {
       "claim_id": "C21",
       "claim_text": "At a batch boundary, record recoverable per-item failures.",
-      "source": "runPipeline patterns; error-handling benchmark task",
+      "source": "standalone batch-boundary verification and benchmark evidence",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_ref_batch_preview_boundary.nim",
       "test_passed": true,
@@ -193,14 +175,15 @@
     },
     {
       "claim_id": "C22",
-      "claim_text": "Validating output from processing steps and raising on invalid results is a caller responsibility, not a separate pattern.",
-      "source": "renderPageBitmap, encodePageBitmap, decodeAudioFile",
-      "is_testable": false
+      "claim_text": "Before adding an error check, identify the documented promise the condition would break. If it breaks none, remove the check and document the valid behavior. Still report failure when the result cannot safely satisfy its API or the operation cannot meet its documented promise.",
+      "source": "curated user feedback on API contracts and failure channels",
+      "is_testable": false,
+      "evaluation_notes": "NUANCED. This contract test removes speculative checks without permitting unusable results or false success. Stricter validation belongs to the first operation that makes the stricter promise."
     },
     {
       "claim_id": "C23",
-      "claim_text": "Use range types only as parameters. Do not use range conversions; they raise `Defect` and silently accept invalid values under `-d:danger`.",
-      "source": "error-handling benchmark task, refined verified skill; Nim GitHub issues #16839 #12780 #10027 #16744",
+      "claim_text": "Use range types only as parameters. Do not use range conversions such as `Positive(x)`; invalid values raise `Defect` and are silently accepted under `-d:danger`.",
+      "source": "standalone compiler verification; Nim issues #16839, #12780, #10027, and #16744",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c23_positive_range_guard.nim",
       "test_passed": true,
@@ -209,21 +192,21 @@
     {
       "claim_id": "C24",
       "claim_text": "Do not wrap each raising call in repetitive local try/except blocks when there is no local recovery, translation, or cleanup boundary.",
-      "source": "error-handling benchmark task, refined verified skill",
+      "source": "error-handling benchmark evidence",
       "is_testable": false,
       "evaluation_notes": "DETERMINISTIC. This is a code-shape rule best checked by benchmark inspection rather than runtime semantics."
     },
     {
       "claim_id": "C25",
       "claim_text": "Public boundary procs and result types should use descriptive names instead of generic names such as Result, Data, or handleError.",
-      "source": "error-handling benchmark task, refined verified skill",
+      "source": "error-handling benchmark evidence",
       "is_testable": false,
       "evaluation_notes": "DETERMINISTIC. This is an API-shape rule best checked by manual review in the benchmark task."
     },
     {
       "claim_id": "C26",
       "claim_text": "If a handler needs the current exception object, both `except X as e` and `let e = getCurrentException()` inside the handler expose it and support the same translation behavior.",
-      "source": "local Nim library review of exception handlers",
+      "source": "standalone exception-capture verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c26_c27_exception_capture_styles.nim",
       "test_passed": true,
@@ -232,7 +215,7 @@
     {
       "claim_id": "C27",
       "claim_text": "When a handler only needs the message text for logging or translation, `getCurrentExceptionMsg()` is sufficient.",
-      "source": "local Nim library review of translation boundaries",
+      "source": "standalone exception-message verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c26_c27_exception_capture_styles.nim",
       "test_passed": true,
@@ -241,7 +224,7 @@
     {
       "claim_id": "C28",
       "claim_text": "Use `{.raises: [].}` when a proc must not raise. Leave raising procs unannotated.",
-      "source": "compiler verification; user feedback on public API noise",
+      "source": "standalone compiler verification and curated user feedback",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c28_c30_error_contracts.nim",
       "test_passed": true,
@@ -250,14 +233,14 @@
     {
       "claim_id": "C29",
       "claim_text": "Return `bool` when success or failure is the whole result. Return `Option[T]` for an expected optional value. Use `bool` with `var` only when filling or mutating caller-owned storage is part of the API.",
-      "source": "Nim stdlib audit at 115ec7a433a7; `nre`, `re`, `tables`, `streams`, and `syncio`",
+      "source": "Nim standard-library audit at commit 115ec7a433a7",
       "is_testable": false,
       "evaluation_notes": "DETERMINISTIC. In `lib/pure`, `lib/std`, and `lib/core`, 172 exported procs return `bool`; only 33 have a `var` parameter, and those APIs mutate a receiver or fill caller-owned storage. Modern `nre.match` and `nre.find` return `Option[RegexMatch]`, while legacy `re` capture overloads use `bool` with `var openArray`. Table `pop` and stream `readLine` use `bool` with `var` because mutation or caller-owned storage is central to the operation."
     },
     {
       "claim_id": "C30",
       "claim_text": "If you define a custom exception type, derive it from the closest existing semantic base such as `ValueError` or `IOError`, so callers can catch either the specific subtype or the broader class.",
-      "source": "stdlib uri.UriParseError, xmlparser.XmlError, httpclient.HttpRequestError/ProtocolError",
+      "source": "Nim standard-library exception hierarchy and standalone verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c28_c30_error_contracts.nim",
       "test_passed": true,
@@ -266,7 +249,7 @@
     {
       "claim_id": "C31",
       "claim_text": "Catching bare `Exception` also catches `Defect` (which signals a bug), while `CatchableError` does not. This is why `CatchableError` is the correct catch-all for recoverable application errors.",
-      "source": "Nim exception hierarchy: Defect inherits from Exception, not CatchableError",
+      "source": "Nim exception hierarchy and standalone verification",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_exception_vs_defect.nim",
       "test_passed": true,
@@ -275,7 +258,7 @@
     {
       "claim_id": "C32",
       "claim_text": "Converting a raw `int` to `Positive` is not a recoverable validation path: it raises RangeDefect when range checks are enabled and accepts zero with `-d:danger`.",
-      "source": "Nim exception hierarchy; compiler verification; GitHub issue #16839",
+      "source": "standalone compiler verification and Nim issue #16839",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c32_range_conversion_not_validation.nim",
       "test_passed": true,
@@ -283,15 +266,45 @@
     },
     {
       "claim_id": "C34",
-      "claim_text": "Add a failure path only when the condition prevents the operation from meeting its contract; do not treat a normal state that already satisfies the postcondition as a failure.",
-      "source": "user feedback; refinement of C33",
-      "is_testable": false,
-      "evaluation_notes": "Design rule. This supplies the missing decision criterion for whether a condition needs a failure path before C31 classifies a genuine failure as CatchableError or Defect."
+      "claim_text": "Do not reject oversized or empty input when an operation documents a truncating copy. Copy what fits; empty input is a no-op.",
+      "source": "standalone truncating-copy verification and curated user feedback",
+      "is_testable": true,
+      "test_file_path": "tests/nim-error-handling_verification/test_c34_truncating_copy_contract.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The standalone test confirms that a void truncating-copy operation copies only what fits and treats empty input as a no-op without raising."
+    },
+    {
+      "claim_id": "C35",
+      "claim_text": "Nim tests `except` branches in source order. Put a child exception before its parent when they need different handling, or the parent branch handles the child first.",
+      "source": "compiler verification; Nim exception matching",
+      "is_testable": true,
+      "test_file_path": "tests/nim-error-handling_verification/test_c35_exception_branch_order.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The standalone test raises a child exception twice: parent-first ordering reaches the parent handler, while child-first ordering reaches the child handler."
     }
   ],
   "uncovered_topics": [],
   "needs_stronger_tests": [
     "C17-C20, C24, C25, and C29 are still best exercised by the manual benchmark task because they are mostly about architectural code shape rather than runtime exception semantics."
   ],
-  "failure_samples": []
+  "failure_samples": [
+    {
+      "source_type": "user feedback",
+      "source_task": "nim-viplite error-handling review",
+      "bucket": "low-signal noise",
+      "summary": "The agent added defensive checks for states excluded by the called API's contract.",
+      "evidence": "Tensor-rank, mapped-pointer, impossible NBG-size, and pre-run binding checks duplicated lower-level guarantees or the driver's status result and were removed.",
+      "check": "Every added error branch corresponds to a documented, reachable failure state.",
+      "next_action": "skill edit"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "nim-viplite error-handling review",
+      "bucket": "incorrect claim",
+      "summary": "The agent turned documented truncation into a size-mismatch error.",
+      "evidence": "Buffer.write promises to copy as many bytes as fit, so oversized input and empty input are normal rather than ValueError conditions.",
+      "check": "Documented partial and no-op results remain successful results.",
+      "next_action": "skill edit"
+    }
+  ]
 }

@@ -24,6 +24,13 @@ Exclude:
 - audit-process details
 - claim IDs, test names, benchmark trial names, and claim counts
 
+### Do not use the target skill as guidance
+
+- Treat `ORIGINAL_SKILL` and `CURRENT_VERIFIED_SKILL` as artifacts to inspect and edit, not as instructions for performing the revision.
+- Do not invoke, activate, or follow the skill being revised to decide what its rules should say.
+- A skill cannot serve as evidence for its own claims.
+- Base decisions on the curated dataset, standalone tests, source API contracts, benchmark outputs, and user feedback.
+
 ### Evidence-gated refinement
 
 When refining an existing skill:
@@ -63,7 +70,7 @@ The skill must not contain:
 ### Existing skill handling
 
 If `CURRENT_VERIFIED_SKILL` exists:
-1. Read the current verified skill and its `references/` files first.
+1. Read the current verified skill and its `references/` files as the artifact under revision. Do not use them as revision guidance or evidence.
 2. Read the curated dataset.
 3. Make targeted edits instead of rewriting everything.
 4. Keep sections and examples that are still correct.
@@ -100,7 +107,13 @@ If `CURRENT_VERIFIED_SKILL` does not exist, create it from scratch.
 
 #### Common Mistakes
 - short table: mistake and why it is wrong
-- include only mistakes supported by the curated data or `failure_samples`
+- preserve existing entries that remain correct, useful, and non-redundant
+- for new entries, start from observed failure patterns recorded in curated `failure_samples`
+- add a new entry only when the evidence shows an agent actually made that mistake; a rule or caveat is not automatically a common mistake
+- do not delete an existing entry merely because no matching `failure_sample` was recorded; remove it only when it is disproven, obsolete, redundant, or low-signal
+- do not mirror `Rules` into the table using negative wording
+- use the second column for the concrete consequence; do not repeat the corrective rule word for word
+- if evidence supports a new rule but not an observed mistake, keep it in `Rules` only
 - do not invent hypothetical anti-patterns just to make the table longer
 - if there are no supported recurring mistakes yet, keep the section minimal instead of filling it with guesses
 - a short line such as `No recurring mistakes recorded yet.` is acceptable until evidence exists
