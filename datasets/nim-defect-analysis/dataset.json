@@ -33,9 +33,9 @@
     }
   ],
   "summary": {
-    "total_claims": 13,
-    "testable": 4,
-    "passed": 4,
+    "total_claims": 14,
+    "testable": 5,
+    "passed": 5,
     "failed": 0,
     "not_testable": 9,
     "untested": 0
@@ -144,6 +144,14 @@
       "test_file_path": null,
       "test_passed": null,
       "evaluation_notes": "Research-backed. Du et al. (Tencent, 2026) showed hybrid SAT + LLM filtering eliminates 94-98% of false positives. The hybrid approach uses tool output as primary evidence."
+    },
+    {
+      "claim_id": "C14",
+      "claim_text": "An invalid explicit or implicit range conversion raises `RangeDefect` while range checks are enabled, but the same conversion is accepted under `-d:danger`.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-defect-analysis_verification/test_c14_range_guard_build_modes.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The standalone test covers both `Positive(raw)` and passing `raw` directly to a `Positive` parameter. Default and release builds raise `RangeDefect`; the danger build accepts zero in both cases."
     }
   ],
   "corrections": [

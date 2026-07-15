@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 45,
-    "testable": 38,
-    "passed": 38,
+    "total_claims": 46,
+    "testable": 39,
+    "passed": 39,
     "failed": 0,
     "not_testable": 7,
     "nuanced": 5,
@@ -263,11 +263,11 @@
     },
     {
       "claim_id": "C33",
-      "claim_text": "Prefer range types for constrained public parameters. Use base types for stored fields. Range checks apply in debug and release builds but are removed by danger mode or disabled range checks.",
+      "claim_text": "Prefer range types for constrained public parameters and base types for stored fields.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c33_range_type_boundaries.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Debug and release reject `-1` at `int`-to-`Natural` parameter and field conversions. Danger, `--rangeChecks:off`, and `--checks:off` accept it. Generated C uses `NI` for both field types, inserts checks only at `int`-to-`Natural` conversions, and adds no second check when storing an already validated `Natural` parameter. In Nim devel 115ec7a433a7, excluding `times`, `lib/pure` and `lib/std` contain 100 non-comment `Natural`/`Positive` tokens across 26 files; only two actual `Natural` object fields were found, both private, and no exported `Natural` or `Positive` fields were found."
+      "evaluation_notes": "DETERMINISTIC. The standalone test accepts an `int` variable through a `Natural` parameter and stores it in an `int` field. It also confirms that a range type has the same size as its base type. In Nim devel 115ec7a433a7, excluding `times`, `lib/pure` and `lib/std` contain 100 non-comment `Natural`/`Positive` tokens across 26 files; only two actual `Natural` object fields were found, both private, and no exported `Natural` or `Positive` fields were found."
     },
     {
       "claim_id": "C34",
@@ -372,6 +372,14 @@
       "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Two `typedesc[T]` parameters accept matching types and reject `int` paired with `string`."
+    },
+    {
+      "claim_id": "C47",
+      "claim_text": "Arguments are implicitly converted to a range-typed parameter, so callers do not need an explicit conversion such as `Positive(x)`.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c47_range_parameter_conversion.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The standalone test passes `int` variables directly to `range[1..65535]` and `Positive` parameters and receives the corresponding range-typed values. This matches the Nim manual's implicit downsizing conversion rules."
     }
   ],
   "failure_samples": [
@@ -523,7 +531,7 @@
     {
       "claim_id": "C33",
       "original_claim": "Keep constraints in types. Use `Natural`, `Positive`, and ranges instead of weakening to `int`.",
-      "correction": "Prefer range types for constrained public parameters and base types for stored fields. Range checks are not enforced in danger mode or when disabled."
+      "correction": "Prefer range types for constrained public parameters and base types for stored fields. Pass base-type arguments directly to range-typed parameters."
     },
     {
       "claim_id": "C38",

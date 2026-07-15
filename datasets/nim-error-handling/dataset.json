@@ -3,11 +3,11 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 34,
-    "testable": 26,
-    "passed": 26,
+    "total_claims": 33,
+    "testable": 25,
+    "passed": 25,
     "failed": 0,
-    "nuanced": 3,
+    "nuanced": 2,
     "not_testable": 8
   },
   "claims": [
@@ -181,15 +181,6 @@
       "evaluation_notes": "NUANCED. This contract test removes speculative checks without permitting unusable results or false success. An operation that requires a stronger guarantee than the API it calls owns that validation."
     },
     {
-      "claim_id": "C23",
-      "claim_text": "Use range types only as parameters. Do not use range conversions such as `Positive(x)`; invalid values raise `Defect` and are silently accepted under `-d:danger`.",
-      "source": "standalone compiler verification; Nim issues #16839, #12780, #10027, and #16744",
-      "is_testable": true,
-      "test_file_path": "tests/nim-error-handling_verification/test_c23_positive_range_guard.nim",
-      "test_passed": true,
-      "evaluation_notes": "NUANCED. Range types are safe as proc parameters only for compile-time literals — the compiler rejects out-of-range literals at compile time. Passing an int variable to a range parameter is an implicit conversion that compiles silently and raises RangeDefect at runtime (#16839). Range checks are ignored in template parameters (#12780), and range type identity is swallowed in type unions (#10027). C32 confirms that range checks are absent under `-d:danger`."
-    },
-    {
       "claim_id": "C24",
       "claim_text": "Do not wrap each raising call in repetitive local try/except blocks when there is no local recovery, translation, or cleanup boundary.",
       "source": "error-handling benchmark evidence",
@@ -257,12 +248,12 @@
     },
     {
       "claim_id": "C32",
-      "claim_text": "Converting a raw `int` to `Positive` is not a recoverable validation path: it raises RangeDefect when range checks are enabled and accepts zero with `-d:danger`.",
-      "source": "standalone compiler verification and Nim issue #16839",
+      "claim_text": "Do not use a range conversion as recoverable validation. An invalid conversion raises `RangeDefect`, which is not caught by `CatchableError`.",
+      "source": "standalone compiler verification and Nim exception hierarchy",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c32_range_conversion_not_validation.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The test catches RangeDefect for `Positive(0)` normally, while its `-d:danger` branch confirms the same conversion evaluates to zero. GitHub #16839 shows the broader problem: implicit int-to-range conversions compile silently and raise Defect at runtime, with no compile-time warning."
+      "evaluation_notes": "DETERMINISTIC. The standalone test converts zero to `Positive` inside an `except CatchableError` boundary. The conversion bypasses that handler and reaches the outer `except RangeDefect` branch."
     },
     {
       "claim_id": "C34",

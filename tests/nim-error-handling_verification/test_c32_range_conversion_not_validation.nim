@@ -1,15 +1,20 @@
 import std/assertions
 
-when defined(danger):
-  let raw = 0
-  doAssert Positive(raw).int == 0
-else:
-  let raw = 0
-  var raised = false
+let raw = 0
+
+when compileOption("rangeChecks"):
+  var caughtAsCatchable = false
+  var caughtAsRangeDefect = false
+
   try:
-    discard Positive(raw)
+    try:
+      discard Positive(raw)
+    except CatchableError:
+      caughtAsCatchable = true
   except RangeDefect:
-    raised = true
-  doAssert raised
+    caughtAsRangeDefect = true
+
+  doAssert not caughtAsCatchable
+  doAssert caughtAsRangeDefect
 
 echo "C32: PASS"

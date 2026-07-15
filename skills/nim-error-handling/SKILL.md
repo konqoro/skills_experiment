@@ -21,8 +21,6 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 - If a condition breaks no documented promise, remove the check and document the valid behavior.
 - Report failure when the result cannot safely satisfy its API or the operation cannot meet its documented promise.
 - If an operation requires a stronger guarantee than the API it calls, validate that guarantee in that operation.
-- Use range types only as parameters.
-- Do not use range conversions such as `Positive(x)`; invalid values raise `Defect` and are silently accepted under `-d:danger`.
 
 ### Place Boundaries
 
@@ -38,6 +36,7 @@ description: Design clear Nim error-handling flows; when to raise exceptions vs 
 - Catch `CatchableError` only when the boundary handles every recoverable error. Do not catch bare `Exception`.
 - Add a custom exception only when callers handle it differently. Derive it from the closest existing `CatchableError` subtype.
 - Do not use `Defect` for recoverable failures; it represents a programming bug and is not caught by `CatchableError`.
+- Do not use a range conversion as recoverable validation. An invalid conversion raises `RangeDefect`, which is not caught by `CatchableError`.
 
 ### Translate and Inspect Errors
 
