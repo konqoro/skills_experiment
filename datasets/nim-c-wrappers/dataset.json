@@ -278,7 +278,7 @@
     },
     {
       "claim_id": "C30",
-      "claim_text": "Prefer ensureMove() (compiler-verified) over move() to force ownership transfer; use move() only to force a move.",
+      "claim_text": "Use ensureMove(x) to initialize a move-only owner from an existing variable when copying must be rejected.",
       "is_testable": true,
       "test_file_path": "tests/nim-c-wrappers_verification/test_c30_ensuremove.nim",
       "test_passed": true,

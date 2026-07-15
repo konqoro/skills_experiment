@@ -52,22 +52,23 @@ description: Design clear public Nim APIs for libraries and modules, including e
 
 ### Parameter ownership
 
-- Use `T` when the caller's variable stays unchanged, `var T` when the proc changes it, and `sink T` when the proc takes ownership. Use `lent T` only for borrowed returns.
-- Pass sink arguments normally. Nim moves proven last-use values and copies others. Use `ensureMove(x)` only to reject a copy at compile time.
+- Use `T` when the caller's variable stays unchanged, `var T` when the proc changes it, and
+  `sink T` when the proc takes ownership. Use `lent T` only for borrowed returns.
+- Pass sink arguments normally; Nim moves proven last-use values and copies otherwise. Use
+  `ensureMove(x)` only when copying must be a compile-time error.
 
 ### Lookup surface
 
 - Separate required lookup from optional lookup.
 - A required lookup raises one specific catchable exception. It does not return a silent default.
-- Use `contains` or `hasKey` for membership checks and `getOrDefault` for
-  explicit fallback values.
+- Use `contains` or `hasKey` for membership checks and `getOrDefault` for explicit fallback values.
 - If several accessors fail the same way, route the failure through one private `{.noinline, noreturn.}` helper.
 
 ### Borrowed and mutable access
 
 - Use `lent T` for read accessors that return storage owned by the receiver.
-- Return `var T` only for deliberate mutable views. If changes require
-  validation or related updates, expose mutation procs instead.
+- Return `var T` only for deliberate mutable views. If changes require validation or related
+  updates, expose mutation procs instead.
 - In `lent` and `var` accessors, return directly from storage. Do not route through a temp local.
 
 ### Public boundary
