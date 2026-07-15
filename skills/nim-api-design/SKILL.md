@@ -29,9 +29,8 @@ description: Design clear public Nim APIs for libraries and modules, including e
 
 ### Contracts
 
-- Prefer range types for constrained public parameters.
+- Use range types for constrained public parameters; store their values in the underlying type (`int` for `Natural` or `Positive`).
 - Pass arguments directly to range parameters; conversion is implicit, so do not write `Positive(x)`.
-- Use base types for stored fields.
 - Use `static[T]` in public APIs only when callers must supply a compile-time constant.
 - Bare `typedesc` parameters may name different types; share `T` across
   `typedesc[T]` parameters when they must match.
