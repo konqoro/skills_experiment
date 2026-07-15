@@ -481,7 +481,7 @@
     },
     {
       "claim_id": "C55",
-      "claim_text": "For an explicit transfer that must not copy, prefer ensureMove over move. ensureMove is a compile-time gate that makes the source dead; move leaves the source usable in its moved-from state.",
+      "claim_text": "For an explicit transfer that must not copy, prefer ensureMove over move. ensureMove is a compile-time gate that makes the source dead; later use after move still compiles and can silently read the default value.",
       "source": "--expandArc analysis (cycle 3)",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c55_prefer_ensuremove.nim",

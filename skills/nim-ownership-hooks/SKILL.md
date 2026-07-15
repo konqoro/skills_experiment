@@ -69,7 +69,7 @@ Only templates may safely appear between the type definition and the hooks. If a
 ### Move semantics
 
 - For an explicit transfer that must not copy, use `ensureMove(x)`. It fails at compile time if the move cannot be proved and prevents later use of the source.
-- Use `move(x)` only to force a move that last-use analysis cannot prove; the source remains usable in its moved-from state.
+- Use `move(x)` only to force a move that last-use analysis cannot prove; the source remains usable in its default state.
 - `sink` parameters are affine, not linear: the callee may consume the value once, or not at all.
 - Object and tuple fields are separate entities for sink last-use analysis.
 - When the compiler cannot prove a sink argument is last use, it inserts `=copy` or `=dup` before passing.

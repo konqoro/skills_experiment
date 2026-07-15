@@ -10,21 +10,20 @@ description: Design clear public Nim APIs for libraries and modules, including e
 ### Public shape
 
 - Prefer plain `object` types for public data models.
-- Use `ref object` only when identity, aliasing, shared mutation, graph structure, or handle lifetime is part of the contract.
-- Export one primary public representation per concept. Add paired value/ref
-  APIs only when both forms are part of the contract.
-- Prefer procs, overloads, generics, and iterators. Do not default to methods or runtime dispatch for ordinary APIs.
+- Use `ref object` only when identity, aliasing, shared mutation, graph structure, or handle
+  lifetime is part of the contract.
+- Export one primary public representation per concept. Add paired value/ref APIs only when both
+  forms are part of the contract.
+- Prefer procs, overloads, generics, and iterators. Do not default to methods or runtime dispatch
+  for ordinary APIs.
 - Use named `object` types for public semantic data.
 - Use tuples only for local glue or iterator yields such as `(key, val)`.
-- Reuse stdlib names when the behavior matches: `len`, `find`,
-  `contains`/`hasKey`, `[]`, `[]=`, `items`/`mitems`, `pairs`/`mpairs`,
-  `add`, `del`, `clear`, `incl`/`excl`, and `push`/`pop`.
-- When indexed removal must preserve sequence order, use `delete(index)`, not
-  `del(index)`.
-- Use `find` for an index or position result. Use `contains` or `hasKey` for
-  boolean membership.
-- For collection-like types, expose `items` and `pairs`. Add `mitems` and
-  `mpairs` only when callers may safely mutate yielded values.
+- Reuse stdlib names when the behavior matches: `len`, `find`, `contains`/`hasKey`, `[]`, `[]=`,
+  `items`/`mitems`, `pairs`/`mpairs`, `add`, `del`, `clear`, `incl`/`excl`, and `push`/`pop`.
+- When indexed removal must preserve sequence order, use `delete(index)`, not `del(index)`.
+- Use `find` for an index or position result. Use `contains` or `hasKey` for boolean membership.
+- For collection-like types, expose `items` and `pairs`. Add `mitems` and `mpairs` only when
+  callers may safely mutate yielded values.
 - For comparable types, define `==`, `<` and `<=`. Do not define `!=`, `>`, or `>=`; Nim derives them.
 
 ### Contracts
