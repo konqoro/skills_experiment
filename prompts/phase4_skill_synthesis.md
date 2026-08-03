@@ -133,6 +133,7 @@ Each reference file must:
 - use a descriptive filename
 - begin with a one-line description
 - contain one complete example
+- not include verification `doAssert`s; a reference example demonstrates a pattern, it is not a test
 - end with a short `Key points` or `When to use` section only when the example has non-obvious constraints, failure modes, or decision criteria not visible in the code itself. If the code is self-explanatory, omit the section.
 - each key point must make one distinct claim; do not cram multiple hooks or operations into a single bullet
 

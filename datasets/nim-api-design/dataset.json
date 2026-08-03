@@ -4,11 +4,11 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 48,
-    "testable": 41,
-    "passed": 41,
+    "total_claims": 50,
+    "testable": 42,
+    "passed": 42,
     "failed": 0,
-    "not_testable": 7,
+    "not_testable": 8,
     "nuanced": 5,
     "untested": 0
   },
@@ -396,6 +396,22 @@
       "test_file_path": "tests/nim-api-design_verification/test_c48_c49_enum_string_values.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. `wcOk = (0, \"OK\")` gives `ord(wcOk) == 0` and `$wcOk == \"OK\"`; `wcFatal = (2, \"FATAL\")` gives `ord(wcFatal) == 2` and `$wcFatal == \"FATAL\"`. Hole ordinals `a = 2, b = 4, c = 89` compile and report the given ords."
+    },
+    {
+      "claim_id": "C50",
+      "claim_text": "Use `openArray[T]` only at a public boundary that must accept both arrays and seqs. When you control the callers, name the concrete type (`array[N, T]` or `seq[T]`).",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "Design guideline. The supporting facts are tested in C51's test: `openArray` accepts arrays (including enum-indexed) and seqs, while a `seq[T]` parameter rejects arrays. The boundary choice itself is a design decision, not a compiler behavior."
+    },
+    {
+      "claim_id": "C51",
+      "claim_text": "An `openArray[T]` parameter accepts arrays (any index type) and seqs; a `seq[T]` parameter rejects arrays. Forwarding an `openArray` parameter to a `seq[T]`-taking callee with `@items` copies the whole sequence, even when the caller already held a seq.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c50_c51_openarray_boundary.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `compiles(array -> seq param)` is false; `compiles(array -> openArray)`, `compiles(enum-indexed array -> openArray)`, and `compiles(seq -> openArray)` are true. Forwarding `openArray` to a seq-taking callee via `@x` invoked 2 element copies; forwarding a `seq` directly invoked 0."
     }
   ],
   "failure_samples": [
