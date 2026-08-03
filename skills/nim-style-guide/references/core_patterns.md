@@ -19,8 +19,8 @@ func find(notes: openArray[ReleaseNote]; title: string): int =
     if note.title == title:
       return i
 
-func formatNote(number: int; title, details: string): string =
-  result = $number & "."
+func formatNote(n: int; title, details: string): string =
+  result = $n & "."
   if title.len > 0:
     result.add " " & title
   if details.len > 0:
@@ -33,11 +33,11 @@ proc makeOptions(heading = ""; includeUntitled = false): RenderOptions =
   result.includeUntitled = includeUntitled
 
 proc renderNotes(notes: openArray[ReleaseNote];
-    options = RenderOptions()): seq[string] =
-  result.add options.heading
+    opts = RenderOptions()): seq[string] =
+  result.add opts.heading
   for i, note in notes:
     let title = note.title.strip
-    if title.len > 0 or options.includeUntitled:
+    if title.len > 0 or opts.includeUntitled:
       result.add formatNote(i + 1, title,
         details = note.details.strip)
 ```
