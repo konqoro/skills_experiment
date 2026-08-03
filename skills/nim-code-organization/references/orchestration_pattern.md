@@ -8,13 +8,13 @@ type
     rejected: int
     messages: seq[string]
 
-proc recordAccepted(state: var ReportState; name: string) =
-  inc state.accepted
-  state.messages.add "accepted " & name
+proc recordAccepted(st: var ReportState; name: string) =
+  inc st.accepted
+  st.messages.add "accepted " & name
 
-proc recordRejected(state: var ReportState; name: string) =
-  inc state.rejected
-  state.messages.add "rejected " & name
+proc recordRejected(st: var ReportState; name: string) =
+  inc st.rejected
+  st.messages.add "rejected " & name
 
 proc buildReport(names: openArray[string]): seq[string] =
   var state: ReportState

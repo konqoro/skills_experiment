@@ -57,6 +57,8 @@ description: Write clear, consistent Nim code in a simple stdlib-aligned style, 
 - Use a nested proc when the logic is truly local or when you want a closure.
 - A nested proc may capture outer locals. If a nested proc must stay non-capturing, mark it `{.nimcall.}`.
 - Use `macro` only when syntax transformation is required.
+- Mark one-expression forwarders and field accessors `{.inline.}`. Skip it for
+  constructors, loops, and procs that raise.
 
 ## Calls, Locals, And Types
 
@@ -117,9 +119,9 @@ See `references/multiline_strings.md`.
 ## Control Flow
 
 - Use structured control flow.
-- Build the normal return value in `result`.
-- When a loop finds the return value, return it directly instead of using a
-  flag.
+- If the body is exactly one expression, end with that expression, as in `func len(s: string): int = s.len`
+- Otherwise build the return value in `result` at the end of the body — one assignment, or one per branch.
+- When a loop finds the return value, return it directly instead of using a flag.
 - Do not use `continue`. Put the remaining loop body inside a condition.
 
 # Workflow

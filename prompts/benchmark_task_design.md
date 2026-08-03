@@ -59,6 +59,27 @@ Do not mix scorer-only rules into the worker-facing sections.
 7. Validate locally with a temporary reference implementation.
 8. Update `TASK_FILE`.
 
+## Information boundary
+
+Write the worker-facing task from the user's external point of view. For every
+sentence in sections 1 to 5, ask:
+
+- Would a real user need to state this to define a correct deliverable?
+- Is it an actual input or API contract?
+- Or is it present mainly because the checklist scores it?
+
+Remove the sentence if the third answer is yes. Do not paraphrase the skill's
+central rule, name the mistake being tested, or explain the intended judgment.
+
+When the benchmark scores where a check belongs, whether a lower-level call
+must still happen, or which successful result should be trusted, state only the
+public outcome. Keep the call path, check placement, and forbidden redundant
+branches in `## Judge Checklist`.
+
+Fixture documentation may state the fixture API's real failure channels and
+post-success guarantees. Do not repeat the conclusion the worker should draw
+from those contracts in the task text.
+
 ## Worker-facing sections
 
 Keep sections 1 to 5 plain and direct.
@@ -75,6 +96,10 @@ They may include:
 - exact module boundaries only if organization is the benchmark target
 
 They must not include judge-only logic.
+
+Do not require the worker to write smoke assertions whose only purpose is to
+prove a judge-only call path or anti-pattern is absent. Prefer judge-run checks
+or direct source inspection for those distinctions.
 
 Unless the benchmark is explicitly about that exact convention, do not tell the worker:
 
@@ -120,6 +145,14 @@ Allowed evidence:
 
 Checklist items must be reviewable from that trial directory alone.
 
+Prefer checks run by the judge over asking the worker to demonstrate the
+scored distinction in its own smoke test. A worker-authored test is part of the
+deliverable, not independent evidence that the implementation is correct.
+
+If a runtime check would reveal a scorer-only distinction, put its harness
+under `blind_trials/{SKILL_NAME}/judge/`. Mention it only in the checklist. The
+benchmark runner must stage judge-only files after the worker finishes.
+
 Do not use:
 
 - vague quality judgments
@@ -152,6 +185,10 @@ Before saving, ask:
 1. Could a strong worker pass mainly by transcribing the task text?
 2. Did I copy solution ideas from the skill into the worker-facing task?
 3. Would a no-skill worker be pushed toward the same implementation by the task text alone?
+4. Does a worker-facing requirement reveal which layer owns a check, which
+   internal call must occur, or which defensive branch must be absent?
+5. Could a worker satisfy most checklist items by turning each Required
+   Behavior bullet directly into one branch or assertion?
 
 If yes to any, the task is too tight and must be revised.
 
@@ -165,6 +202,15 @@ Validate the task locally before finalizing it:
 - run the exact commands from `## Required Commands`
 - validate any relocation, fixture, or runtime edge the task depends on
 - use validation failures to improve the task wording
+
+After the reference implementation passes, map every checklist item back to
+the worker-facing text. If that text states the scored implementation decision
+instead of only the external contract, remove or relax it.
+
+When an independent worker runner is available, use one disposable no-skill
+pilot to check ceiling risk. This is task-design validation, not a benchmark
+run: do not score it or store its output. If it passes the discriminating items
+mainly by following explicit task wording, revise the task before the blind run.
 
 Do not commit validation notes or benchmark result files.
 The later benchmark run should keep only isolated failure samples in the dataset.
@@ -188,6 +234,7 @@ Before saving, confirm:
 3. The checklist is binary and reviewable.
 4. The task is realistic enough that the skill matters.
 5. Different implementations are still possible.
+6. The worker must make the target judgment rather than read it from the task.
 
 ## Reusability
 

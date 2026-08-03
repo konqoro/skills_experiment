@@ -20,7 +20,7 @@ description: Design clear public Nim APIs for libraries and modules, including e
 - Use tuples only for local glue or iterator yields such as `(key, val)`.
 - Reuse stdlib names when the behavior matches: `len`, `find`, `contains`/`hasKey`, `[]`, `[]=`,
   `items`/`mitems`, `pairs`/`mpairs`, `add`, `del`, `clear`, `incl`/`excl`, and `push`/`pop`.
-- When indexed removal must preserve sequence order, use `delete(index)`, not `del(index)`.
+- When indexed removal must preserve sequence order, use `delete(idx)`, not `del(idx)`.
 - Use `find` for an index or position result. Use `contains` or `hasKey` for boolean membership.
 - For collection-like types, expose `items` and `pairs`. Add `mitems` and `mpairs` only when
   callers may safely mutate yielded values.

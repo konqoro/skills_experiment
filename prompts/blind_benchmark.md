@@ -31,7 +31,7 @@ Do not resolve skills from installed locations, home-directory skill stores, or 
 Use this run shape unless the user explicitly asks for a different one:
 
 - one benchmark run
-- one orchestrator subagent
+- one orchestrator; use the current agent unless the user explicitly requests delegation
 - three arms: `original`, `verified`, `no-skill`
 - `NUM_TRIALS = 3`
 - for each trial index from `1` to `NUM_TRIALS`, spawn exactly three workers:
@@ -78,13 +78,15 @@ The runner must:
    - make sure required commands do not read from shared repo paths
    - make sure different trials do not share an output path
 7. If any trial-local check fails, stop and mark the run invalid.
-8. Spawn one fresh worker subagent for every staged trial directory.
+8. Launch one fresh worker for every staged trial directory.
 9. Run each worker with its cwd set to its own trial directory.
 10. Pass the absolute trial directory path to each worker in plain text.
 11. Wait for every worker trial to finish.
-12. Score every trial only from the files in the current run directory, using only `## Judge Checklist`.
-13. Extract isolated failure samples into `DATASET_FILE`.
-14. Unblind the arm mapping and report the outcome.
+12. Stage any scorer-only files from `blind_trials/{SKILL_NAME}/judge/` into
+    each completed trial. These files must not be present while workers run.
+13. Score every trial only from the files in the current run directory, using only `## Judge Checklist`.
+14. Extract isolated failure samples into `DATASET_FILE`.
+15. Unblind the arm mapping and report the outcome.
 
 ## Allowed durable writes
 
@@ -101,6 +103,9 @@ Do not create or update benchmark result files, trial directories, scratch solut
 If Crush is used for worker trials, isolate skills with a temporary `HOME` per
 worker. Do not mutate the real `~/.config/crush/skills` symlink and do not rely
 on installed or home-directory skills.
+
+The current orchestrator must launch Crush directly. Do not add an intermediate
+agent to stage trials, invoke Crush, or score the run.
 
 For every Crush worker:
 
@@ -224,7 +229,7 @@ Allowed `next_action` values:
 
 Mark the run invalid and stop if:
 
-- the orchestrator cannot be spawned
+- the current orchestrator cannot launch fresh independent workers
 - fresh independent worker trials cannot be created
 - any trial output was authored by the orchestrator
 - any arm uses simulated or hand-written substitute outputs instead of real worker trials
@@ -233,6 +238,7 @@ Mark the run invalid and stop if:
 - any worker writes benchmark outputs into a shared path outside its own trial directory
 - any benchmark-generated file is written under a version-controlled repo path other than `DATASET_FILE`
 - any fixture path referenced by `TASK.md` is missing from the staged trial directory
+- a judge-only file is visible to a worker before its trial finishes
 - any two trials share an output path
 - the task file still points workers at repo-root or stale fixture paths
 - `ORIGINAL_SKILL` or `VERIFIED_SKILL` was resolved from outside this repo
@@ -245,10 +251,10 @@ Invalid runs report a short failure summary, not benchmark scores.
 
 ## Hard rules
 
-- one orchestrator subagent per benchmark run
+- one orchestrator per benchmark run; do not delegate Crush orchestration
 - use an existing task file
 - do not redesign the task here
-- one fresh worker subagent per trial
+- one fresh worker process per trial
 - workers may run in batches
 - each trial must be self-contained
 - each worker must run in its own trial directory
