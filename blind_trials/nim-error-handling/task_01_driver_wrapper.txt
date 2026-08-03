@@ -1,0 +1,123 @@
+# Task
+
+Implement a small Nim wrapper around the staged fake device driver.
+
+## Deliverables
+
+- `subject_solution.nim`
+
+## Inputs and Fixtures
+
+The trial contains:
+
+```text
+fixtures/fake_driver.nim
+```
+
+Import this module and use its public API. Do not modify the fixture.
+Treat its documentation as the driver API contract.
+
+Expose this public surface from `subject_solution.nim`:
+
+```nim
+type
+  BackendError* = object of CatchableError
+
+  TensorInfo* = object
+    dimensions*: seq[int]
+
+  Buffer* = object
+    # private fields are your choice
+
+  Network* = object
+    # private fields are your choice
+
+proc initNetwork*(mode = "ok"; inputCount: Natural = 2): Network
+proc bindInput*(network: var Network; index: Natural; capacity: Natural)
+proc input*(network: Network; index: Natural): lent Buffer
+proc write*(buffer: Buffer; data: openArray[byte])
+proc contents*(buffer: Buffer): seq[byte]
+proc tensorInfo*(network: Network): TensorInfo
+proc run*(network: Network)
+proc loadTensorFile*(buffer: Buffer; path: string)
+```
+
+## Required Behavior
+
+Translate every non-success `DriverStatus` returned by an operation used by
+the wrapper into `BackendError`. Include the operation and
+`statusMessage(status)` in the exception message.
+
+`bindInput` binds a newly allocated raw buffer to the requested input slot.
+
+`input` has two distinct failures:
+
+- an index outside the input collection raises `IndexDefect`
+- a valid index with no bound buffer raises `ValueError`
+
+`write` copies as many bytes as fit in the destination buffer. Oversized input
+is truncated. Empty input succeeds without changing the buffer.
+
+`contents` returns the current destination bytes.
+
+`tensorInfo` returns the dimensions reported by a successful driver query.
+
+Missing bindings and execution failures from `run` are reported through
+`BackendError`.
+
+`loadTensorFile` treats the file as one complete tensor:
+
+- the file length must exactly equal the buffer capacity
+- a mismatch raises `ValueError`
+- rejection must leave the buffer unchanged
+- an exact-size file is copied into the buffer
+
+Add a `when isMainModule:` smoke run that:
+
+- creates a normal two-input network
+- binds both inputs
+- writes `[1'u8, 2, 3, 4]` to a four-byte buffer and checks its contents
+- checks that `tensorInfo().dimensions == @[3, 4]`
+- runs the network successfully
+
+The smoke run must print exactly:
+
+```text
+SMOKE: PASS
+```
+
+## Required Commands
+
+Run from the trial directory:
+
+```bash
+nim c -r --nimcache:nimcache subject_solution.nim
+```
+
+## Judge Checklist
+
+- The required command succeeds and the program's standard output is exactly
+  `SMOKE: PASS`.
+- `nim c -r --nimcache:judge_nimcache judge_contracts.nim` succeeds and prints
+  exactly `JUDGE: PASS`.
+- `subject_solution.nim` exposes the required public surface and does not
+  modify or replace `fixtures/fake_driver.nim`.
+- Each call to `bindRawInput`, `queryRawTensor`, and `runRawNetwork` uses the
+  returned status. Every non-`driverOk` result raises `BackendError` whose
+  message includes the operation and `statusMessage(status)`.
+- After `queryRawTensor` returns `driverOk`, `tensorInfo` uses the reported
+  rank and dimensions without adding zero, range, or maximum-rank validation.
+- `write` uses the smaller of source length and buffer capacity. It has no
+  size-mismatch or empty-input error branch.
+- The result of `mapRawBuffer` is not checked for nil and is not wrapped in an
+  exception handler; the fixture documents no failure result for this call.
+- `input` raises `ValueError` for a valid unbound slot, while normal collection
+  indexing supplies `IndexDefect` for an out-of-range index.
+- A missing-binding call to `run` reaches `runRawNetwork` exactly once and
+  becomes `BackendError`; `run` does not precheck the wrapper's binding
+  collection.
+- `loadTensorFile` owns the exact-size check. A wrong-size file raises
+  `ValueError` before calling `write` or changing the buffer, while an
+  exact-size file succeeds.
+- The worker smoke run performs the required happy-path operations before
+  printing `SMOKE: PASS`.
