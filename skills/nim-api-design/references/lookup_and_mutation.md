@@ -96,27 +96,6 @@ iterator items*(inv: Inventory): lent Product =
 iterator pairs*(inv: Inventory): (Sku, lent Product) =
   for idx, sku in inv.ids:
     yield (sku, inv.products[idx])
-
-let hammer = Sku("hammer")
-var inv: Inventory
-inv.add hammer, initProduct("Hammer", ["tool"], 4)
-doAssert inv.find(hammer) == 0
-doAssert inv.contains(hammer)
-doAssert inv.product(hammer).name == "Hammer"
-doAssert inv.getOrDefault(Sku("missing"),
-  initProduct("Fallback", [], 0)).name == "Fallback"
-inv.labels(hammer).add "steel"
-inv.setStock(hammer, 6)
-doAssert inv.product(hammer).labels.len == 2
-doAssert inv.product(hammer).stock == 6
-for sku, p in inv.pairs:
-  doAssert sku == hammer
-  doAssert p.name == "Hammer"
-inv.del hammer
-inv.del hammer
-doAssert inv.find(hammer) == -1
-inv.clear()
-doAssert inv.find(hammer) == -1
 ```
 
 ## Key points

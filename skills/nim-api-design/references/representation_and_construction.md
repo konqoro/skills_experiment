@@ -30,17 +30,6 @@ func format*(o: EncoderOptions): string {.inline.} =
 
 proc recordFrame*(s: EncoderSession) =
   inc s.frames
-
-let defaults = initEncoderOptions()
-let custom = initEncoderOptions(95)
-doAssert defaults.quality == 80
-doAssert defaults.format == "png"
-
-let session = newEncoderSession(custom)
-let alias = session
-alias.recordFrame()
-doAssert session.frames == 1
-doAssert session.quality == 95
 ```
 
 ## Key points

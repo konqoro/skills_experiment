@@ -32,15 +32,6 @@ proc countNonEmpty(names: openArray[string]): int =
   for name in names:
     if name.len > 0:
       inc result
-
-doAssert countNonEmpty(["alpha", "", "beta"]) == 2
-doAssert buildReport(["alpha", "", "beta"]) == @[
-  "accepted alpha",
-  "rejected <empty>",
-  "accepted beta",
-  "accepted 2",
-  "rejected 1"
-]
 ```
 
 ## Key points

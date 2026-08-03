@@ -25,14 +25,6 @@ proc next(s: var WordScanner): string =
 
 proc close(s: var WordScanner) =
   s = WordScanner()
-
-var scanner: WordScanner
-scanner.open("alpha beta")
-doAssert scanner.next() == "alpha"
-doAssert scanner.next() == "beta"
-doAssert scanner.next() == ""
-scanner.close()
-doAssert not scanner.opened
 ```
 
 ## Key points
