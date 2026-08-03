@@ -4,10 +4,11 @@
 import std/strutils
 
 type
-  Priority = enum
-    priLow = "low"
-    priNormal = "normal"
-    priHigh = "high"
+  Direction = enum
+    dirNorth = "north"
+    dirEast = "east"
+    dirSouth = "south"
+    dirWest = "west"
 
   WireCode = enum
     wcOk = (0, "OK")
@@ -18,15 +19,15 @@ type
     a = 2, b = 4, c = 89  # holes are valid
 
 # C48: `$` yields the custom string, not the field name.
-doAssert $priHigh == "high"
+doAssert $dirNorth == "north"
 doAssert $wcFatal == "FATAL"
 
 # C48: parseEnum parses the custom string back.
-doAssert parseEnum[Priority]("high") == priHigh
-doAssert parseEnum[Priority]("low") == priLow
+doAssert parseEnum[Direction]("north") == dirNorth
+doAssert parseEnum[Direction]("west") == dirWest
 
 # C48: an unknown string raises unless a default is given.
-doAssert parseEnum[Priority]("nope", priLow) == priLow
+doAssert parseEnum[Direction]("nope", dirNorth) == dirNorth
 
 # C49: tuple form sets ordinal and string together.
 doAssert ord(wcOk) == 0
