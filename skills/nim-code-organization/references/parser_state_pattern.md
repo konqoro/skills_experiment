@@ -16,7 +16,7 @@ proc skipSpaces(s: var WordScanner) =
     inc s.pos
 
 proc next(s: var WordScanner): string =
-  doAssert s.opened
+  assert s.opened
   s.skipSpaces()
   let start = s.pos
   while s.pos < s.input.len and s.input[s.pos] != ' ':
