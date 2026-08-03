@@ -37,7 +37,7 @@ proc newHandle(width, height: int): Handle =
   Handle(raw: raw)
 
 proc main =
-  var first = initHandle(640, 480)
+  var first = newHandle(640, 480)
   var handle = ensureMove(first)
   doAssert handle.raw != nil
   doAssert handle.raw.w == 640

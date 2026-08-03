@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 11,
-    "testable": 9,
-    "passed": 8,
+    "total_claims": 13,
+    "testable": 11,
+    "passed": 10,
     "failed": 1,
     "not_testable": 2,
     "nuanced": 1,
@@ -100,6 +100,22 @@
       "test_file_path": "tests/nim-code-organization_verification/test_c11_static_variants.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. A boolean variant safely omits code that is invalid for `void`, and a static enum selects named compile-time branches."
+    },
+    {
+      "claim_id": "C12",
+      "claim_text": "Compile-time symbols persist for the whole compilation: one module's `{.define: flag.}` silently changes what later modules see, so import order decides `when defined(flag)`.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-code-organization_verification/test_c12_c13_compile_time_symbols.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. Compiling mainAB (import modA, modB) prints 'modA: modeFlag is OFF'; mainBA (import modB, modA) prints 'modA: modeFlag is ON'. Same modA file, result decided by import order."
+    },
+    {
+      "claim_id": "C13",
+      "claim_text": "A module that needs a compile-time symbol off must state that itself with `{.undef: flag.}` at the top of the file.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-code-organization_verification/test_c12_c13_compile_time_symbols.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. modA_fixed adds {.undef: modeFlag.} at the top; with import modB, modA_fixed it prints 'modA_fixed: modeFlag is OFF' while modB still sees ON."
     }
   ],
   "uncovered_topics": [],
@@ -108,5 +124,16 @@
   ],
   "corrections": [
     "C01: The original skill implies ORC corruption risk from nested closures. Testing shows no such risk for simple cases. The advice should be framed as a code clarity/maintainability preference, not a correctness hazard."
+  ],
+  "failure_samples": [
+    {
+      "source_type": "user report",
+      "source_task": "field bug report: compile-time switch flipped as a local convenience",
+      "bucket": "missing rule",
+      "summary": "A module flipped a global compile-time flag as a 'local' convenience; every module compiled after it silently inherited the new value, so a strictness check degraded into a no-op depending on import order.",
+      "evidence": "mainAB (import modA, modB): 'modA: modeFlag is OFF'. mainBA (import modB, modA): 'modA: modeFlag is ON'. Same modA.nim, different result.",
+      "check": "skill had no rule on compile-time symbol persistence across modules",
+      "next_action": "skill edit: added C12/C13 rule to Module boundaries"
+    }
   ]
 }
