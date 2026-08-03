@@ -18,14 +18,18 @@ description: Write clear, consistent Nim code in a simple stdlib-aligned style, 
   `range[0..<n]` is invalid.
 - Indent wrapped declarations, calls, and conditions one extra level.
 
-## Imports And Naming
+## Imports
 
 - Use `std/...` imports for stdlib modules.
 - Group imports from the same directory: `import std/[a, b, c]`,
   `import lib/[x, y, z]`.
 - Use `from foo import bar, baz` when you only need a small API slice.
 - `import` brings symbols into scope without qualification.
+- `export` takes only the module name: `export baz`, not `export foo/bar/baz`.
 - Use qualified `module.symbol` access only to resolve genuine name conflicts between imported modules.
+
+## Naming
+
 - Types use `PascalCase`.
 - Procs, funcs, iterators, templates, vars, and fields use `camelCase`.
 - Constants may use `camelCase` or `PascalCase`.

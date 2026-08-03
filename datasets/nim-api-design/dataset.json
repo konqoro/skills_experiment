@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 46,
-    "testable": 39,
-    "passed": 39,
+    "total_claims": 48,
+    "testable": 41,
+    "passed": 41,
     "failed": 0,
     "not_testable": 7,
     "nuanced": 5,
@@ -380,6 +380,22 @@
       "test_file_path": "tests/nim-api-design_verification/test_c47_range_parameter_conversion.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The standalone test passes `int` variables directly to `range[1..65535]` and `Positive` parameters and receives the corresponding range-typed values. This matches the Nim manual's implicit downsizing conversion rules."
+    },
+    {
+      "claim_id": "C48",
+      "claim_text": "When an enum's string form is part of the public contract, set explicit strings (`dirNorth = \"north\"`) so `$` and `parseEnum[T]` round-trip.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c48_c49_enum_string_values.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `$priHigh == \"high\"` and `$wcFatal == \"FATAL\"` return the custom strings, not the field names. `parseEnum[Priority](\"high\") == priHigh` parses the string back; an unknown string with a default returns the default."
+    },
+    {
+      "claim_id": "C49",
+      "claim_text": "An enum field can set its ordinal and string value together with a tuple `(ordinal, \"string\")`; ordinal values must be ascending.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-api-design_verification/test_c48_c49_enum_string_values.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `wcOk = (0, \"OK\")` gives `ord(wcOk) == 0` and `$wcOk == \"OK\"`; `wcFatal = (2, \"FATAL\")` gives `ord(wcFatal) == 2` and `$wcFatal == \"FATAL\"`. Hole ordinals `a = 2, b = 4, c = 89` compile and report the given ords."
     }
   ],
   "failure_samples": [

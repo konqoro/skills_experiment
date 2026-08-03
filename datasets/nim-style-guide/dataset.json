@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 39,
-    "testable": 33,
-    "passed": 33,
+    "total_claims": 40,
+    "testable": 34,
+    "passed": 34,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 2,
@@ -322,6 +322,14 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c39_expression_body_result.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. An expression-bodied func returns the expression value, and a multi-branch body assigning `result` once per branch returns the expected value. The rule is a readability preference; both shapes are legal Nim."
+    },
+    {
+      "claim_id": "C40",
+      "claim_text": "The `export` statement takes only the module name, not the path: `import foo/bar/baz` pairs with `export baz`, not `export foo/bar/baz`.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c40_export_module_name.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `import test_c40_export_module_name_src/foo/bar/baz` + `export baz` compiles and re-exports `bazValue`. Negative test `export foo/bar/baz` fails to compile: 'cannot export: foo / bar / baz'."
     }
   ],
   "uncovered_topics": [
