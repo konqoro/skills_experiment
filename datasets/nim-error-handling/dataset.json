@@ -3,9 +3,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 33,
-    "testable": 25,
-    "passed": 25,
+    "total_claims": 34,
+    "testable": 26,
+    "passed": 26,
     "failed": 0,
     "nuanced": 2,
     "not_testable": 8
@@ -175,10 +175,10 @@
     },
     {
       "claim_id": "C22",
-      "claim_text": "Before adding an error check, identify the documented promise the condition would break. If it breaks none, remove the check and document the valid behavior. Still report failure when the result cannot safely satisfy its API or the operation cannot meet its documented promise.",
+      "claim_text": "Before adding a raising error check, identify the documented promise the condition would break. If a successful call guarantees valid output, do not add another raising nil, size, or range check. If a condition breaks no documented promise, remove the raising check and document the valid behavior. Still report failure when the result cannot safely satisfy its API or the operation cannot meet its documented promise.",
       "source": "curated user feedback on API contracts and failure channels",
       "is_testable": false,
-      "evaluation_notes": "NUANCED. This contract test removes speculative checks without permitting unusable results or false success. An operation that requires a stronger guarantee than the API it calls owns that validation."
+      "evaluation_notes": "NUANCED. This contract test removes speculative raising checks without permitting unusable results or false success. It is scoped to raising checks so `assert` remains available for programming-bug guards. An operation that requires a stronger guarantee than the API it calls owns that validation."
     },
     {
       "claim_id": "C24",
@@ -248,12 +248,12 @@
     },
     {
       "claim_id": "C32",
-      "claim_text": "Do not use a range conversion as recoverable validation. An invalid conversion raises `RangeDefect`, which is not caught by `CatchableError`.",
+      "claim_text": "Do not use range conversions for recoverable validation, e.g. `Positive(parseInt(s))`; invalid values raise `RangeDefect`, which is not caught by `CatchableError`.",
       "source": "standalone compiler verification and Nim exception hierarchy",
       "is_testable": true,
       "test_file_path": "tests/nim-error-handling_verification/test_c32_range_conversion_not_validation.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The standalone test converts zero to `Positive` inside an `except CatchableError` boundary. The conversion bypasses that handler and reaches the outer `except RangeDefect` branch."
+      "evaluation_notes": "DETERMINISTIC. Both a direct `Positive(raw)` conversion and the skill example `Positive(parseInt(\"0\"))` raise `RangeDefect` inside an `except CatchableError` boundary. The conversion bypasses that handler and reaches the outer `except RangeDefect` branch."
     },
     {
       "claim_id": "C34",
@@ -272,6 +272,15 @@
       "test_file_path": "tests/nim-error-handling_verification/test_c35_exception_branch_order.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The standalone test raises a child exception twice: parent-first ordering reaches the parent handler, while child-first ordering reaches the child handler."
+    },
+    {
+      "claim_id": "C36",
+      "claim_text": "Use `assert` for conditions whose failure means a programming bug: preconditions, internal invariants, and state guards, as in `assert s.opened, \"next called before open\"`.",
+      "source": "standalone compiler verification and Nim exception hierarchy",
+      "is_testable": true,
+      "test_file_path": "tests/nim-error-handling_verification/test_c36_assert_programming_bug.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A failing `assert` raises `AssertionDefect`, a `Defect` that escapes `except CatchableError` boundaries, and carries the given message. With `--assertions:off` the assert is a no-op, so it is a debug-mode guard, not runtime validation."
     }
   ],
   "uncovered_topics": [],

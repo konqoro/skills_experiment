@@ -327,7 +327,7 @@
     },
     {
       "claim_id": "C41",
-      "claim_text": "For `seq`, `delete(index)` shifts later elements and preserves their order.",
+      "claim_text": "For `seq`, `delete(idx)` shifts later elements and preserves their order.",
       "is_testable": true,
       "test_file_path": "tests/nim-api-design_verification/test_c40_c41_sequence_deletion_order.nim",
       "test_passed": true,
@@ -536,7 +536,7 @@
     {
       "claim_id": "C38",
       "original_claim": "For collection operations, use `add`, `del`, and `clear`. Table-style keyed `del` is a no-op for absent keys; indexed deletion removes an existing position.",
-      "correction": "Do not prescribe `add`, `del`, and `clear` for every collection shape. For sequences, use `delete(index)` when removal must preserve order; `del(index)` changes the order."
+      "correction": "Do not prescribe `add`, `del`, and `clear` for every collection shape. For sequences, use `delete(idx)` when removal must preserve order; `del(idx)` changes the order."
     }
   ]
 }

@@ -4,11 +4,11 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 35,
-    "testable": 31,
-    "passed": 31,
+    "total_claims": 39,
+    "testable": 33,
+    "passed": 33,
     "failed": 0,
-    "not_testable": 4,
+    "not_testable": 6,
     "nuanced": 2,
     "untested": 0
   },
@@ -290,6 +290,38 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c33_c34_c35_typeof.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. `typeof(..., typeOfProc)` selects the proc's `int` result."
+    },
+    {
+      "claim_id": "C36",
+      "claim_text": "Do not stutter the type name into its fields; `Product.name`, not `Product.productName`.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "STYLE. Naming convention consistent with the standard library; no compiler check."
+    },
+    {
+      "claim_id": "C37",
+      "claim_text": "Use short names for parameters and locals that echo the type, as in `inv: Inventory` or `s: Session`.",
+      "is_testable": false,
+      "test_file_path": null,
+      "test_passed": null,
+      "evaluation_notes": "STYLE. Readability convention; no compiler check."
+    },
+    {
+      "claim_id": "C38",
+      "claim_text": "Mark one-expression forwarders and field accessors `{.inline.}`. Skip it for constructors, loops, and procs that raise.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c38_inline_accessor_forwarder.nim",
+      "test_passed": true,
+      "evaluation_notes": "NUANCED. One-expression accessors and forwarders marked `{.inline.}` compile and behave identically to unmarked ones. `{.inline.}` is also accepted on procs that raise, so the skip clauses are performance guidance, not compiler restrictions."
+    },
+    {
+      "claim_id": "C39",
+      "claim_text": "If the body is exactly one expression, end with that expression, as in `func len(b: Bag): int = b.items.len`. Otherwise build the return value in `result` at the end of the body, one assignment or one per branch.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c39_expression_body_result.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. An expression-bodied func returns the expression value, and a multi-branch body assigning `result` once per branch returns the expected value. The rule is a readability preference; both shapes are legal Nim."
     }
   ],
   "uncovered_topics": [
