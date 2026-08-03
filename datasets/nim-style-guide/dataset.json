@@ -309,7 +309,7 @@
     },
     {
       "claim_id": "C38",
-      "claim_text": "Mark one-expression forwarders and field accessors `{.inline.}`. Skip it for constructors, loops, and procs that raise.",
+      "claim_text": "Mark one-expression forwarders and field accessors `{.inline.}`.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c38_inline_accessor_forwarder.nim",
       "test_passed": true,

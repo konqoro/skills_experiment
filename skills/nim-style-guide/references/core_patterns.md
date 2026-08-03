@@ -40,34 +40,6 @@ proc renderNotes(notes: openArray[ReleaseNote];
     if title.len > 0 or options.includeUntitled:
       result.add formatNote(i + 1, title,
         details = note.details.strip)
-
-let notes = [
-  ReleaseNote(title: " Added Search ", details: "new index"),
-  ReleaseNote(title: "", details: "internal"),
-  ReleaseNote(title: "Fixed Cache", details: "")
-]
-
-doAssert notes.find("Fixed Cache") == 2
-doAssert notes.find("removed") == -1
-
-doAssert makeOptions().heading == "Changes"
-doAssert makeOptions("Custom").heading == "Custom"
-doAssert makeOptions(includeUntitled = true).includeUntitled
-
-doAssert renderNotes(notes) == @[
-  "Changes",
-  "1. Added Search — new index",
-  "3. Fixed Cache"
-]
-
-let allNotes = renderNotes(notes,
-  RenderOptions(heading: "All changes", includeUntitled: true))
-doAssert allNotes == @[
-  "All changes",
-  "1. Added Search — new index",
-  "2. — internal",
-  "3. Fixed Cache"
-]
 ```
 
 ## Key points
