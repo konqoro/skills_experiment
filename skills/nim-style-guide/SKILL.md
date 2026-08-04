@@ -49,8 +49,7 @@ description: Write clear, consistent Nim code in a simple stdlib-aligned style, 
 - Name a cheap, side-effect-free field getter `foo`. Use `getFoo` when the operation has side
   effects or is not O(1).
 - Pair `foo` with `foo=` and `getFoo` with `setFoo`.
-- Accessors may share the field's name, no collision: keep the field private, and dot access
-  routes outside the module to the accessors.
+- Accessors may share the field's name, no collision.
 
 ## Proc, Func, Template, Macro
 

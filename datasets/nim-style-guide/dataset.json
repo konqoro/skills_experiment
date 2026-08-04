@@ -349,13 +349,13 @@
     },
     {
       "claim_id": "C43",
-      "claim_text": "A getter/setter pair may share the name of the field it wraps (`host`/`host=` alongside a field `host`): no declaration collision. Outside the defining module, `x.host` calls the getter and `x.host = value` calls the setter when the field is not visible there; inside the module, dot access reaches the field. Exporting the field makes dot access win, bypassing the accessors.",
+      "claim_text": "A getter/setter pair may share the name of the field it wraps (`host`/`host=` alongside a field `host`): no declaration collision.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c43_accessor_field_name.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. From the importing module, `s.host = 34` increments the setter counter and `s.host` increments the getter counter. Inside the defining module, `s.host = v` and `s.host` reach the field (both counters stay 0). An exported field `val*` bypasses `val=` (setter counter stays 0).",
+      "evaluation_notes": "DETERMINISTIC. A defining module declaring a private field `host` plus public `host`/`host=` compiles and both accessors are callable; there is no declaration collision. Field-visibility routing behavior is tracked in the nim-api-design dataset.",
       "source": "manual Properties section",
-      "source_quote": "These rules ensure that object fields and accessors can have the same name. Within the module x.f is then always interpreted as field access and outside the module it is interpreted as an accessor proc call."
+      "source_quote": "These rules ensure that object fields and accessors can have the same name."
     }
   ],
   "uncovered_topics": [

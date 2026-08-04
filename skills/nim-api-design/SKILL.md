@@ -78,6 +78,8 @@ description: Design clear public Nim APIs for libraries and modules, including e
 ### Public boundary
 
 - Export only the stable surface. Keep helpers private.
+- Keep accessor-backed fields private, so external dot access routes to the
+  accessors; an exported field would bypass them.
 - Use descriptive public names.
 - In user code, gate version-specific API with `when (NimMajor, NimMinor) >= (x, y)`. Do not use
   stdlib-internal `{.since.}`.

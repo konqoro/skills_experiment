@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 50,
-    "testable": 42,
-    "passed": 42,
+    "total_claims": 51,
+    "testable": 43,
+    "passed": 43,
     "failed": 0,
     "not_testable": 8,
     "nuanced": 5,
@@ -412,6 +412,14 @@
       "test_file_path": "tests/nim-api-design_verification/test_c50_c51_openarray_boundary.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. `compiles(array -> seq param)` is false; `compiles(array -> openArray)`, `compiles(enum-indexed array -> openArray)`, and `compiles(seq -> openArray)` are true. Forwarding `openArray` to a seq-taking callee via `@x` invoked 2 element copies; forwarding a `seq` directly invoked 0."
+    },
+    {
+      "claim_id": "C52",
+      "claim_text": "Keep accessor-backed fields private. Outside the defining module, `x.host` calls the getter and `x.host = value` calls the setter when the field is not visible; inside the module, dot access reaches the field. An exported field bypasses the accessors.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c43_accessor_field_name.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. From the importing module, `s.host = 34` increments the setter counter and `s.host` increments the getter counter. Inside the defining module, `s.host = v` and `s.host` reach the field (both counters stay 0). An exported field `val*` bypasses `val=` (setter counter stays 0)."
     }
   ],
   "failure_samples": [
