@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 41,
-    "testable": 35,
-    "passed": 35,
+    "total_claims": 42,
+    "testable": 36,
+    "passed": 36,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 2,
@@ -338,6 +338,14 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c41_result_initialization.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. fieldMutationOnly() returns label \"\" (zero; defaults lost) while initializedThenMutated() returns label \"worker\" (constructor-applied defaults); assignsResultExplicitly() returns 6. Current Nim 2.3.1 also returns the last expression of a statement-list body (42) and returns 0 when the body ends in a void statement; the test documents both so a future behavior change breaks it. `nim c --experimental:strictDefs --warningAsError:Uninit` errors on `result.retryLimit = 5` before construction: 'use explicit initialization of result for clarity [Uninit]'."
+    },
+    {
+      "claim_id": "C42",
+      "claim_text": "`T()` construction works only for object types. Arrays initialize with `arrayWith(value, N)` or `arrayWithDefault[T](N)`, anonymous and named tuples need literals (`(0, \"\")`, `(id: 1, name: \"x\")`), strings use `\"\"`, seqs use `@[]`, and `default(T)` is the universal fallback, including inside generics.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c42_initializer_forms.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. compiles(array[3,int]()), compiles(string()), compiles(seq[int]()), and compiles(Named(id: 1, name: \"x\")) are all false ('object constructor needs an object type'); arrayWith(0, 3) and arrayWithDefault[int](3) both give [0, 0, 0]; tuple literals (0, \"\") and (id: 1, name: \"x\") compile; DistInt(0) and default(DistInt) both work (`==` defined with {.borrow.}); default(T) gives [0,0,0], (0, \"\"), \"\", and @[], and works inside genericDefault[T]."
     }
   ],
   "uncovered_topics": [

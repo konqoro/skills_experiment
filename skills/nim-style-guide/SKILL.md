@@ -73,8 +73,10 @@ description: Write clear, consistent Nim code in a simple stdlib-aligned style, 
 - Keep local declarations close to first use.
 - Keep public and reusable types at module scope.
 - Group related fields with the same type when it improves readability.
-- Always initialize `result` explicitly; prefer object constructors
+- Initialize `result` explicitly; prefer object constructors
   (`TypeName(field: value)`) over field-by-field assignment.
+- `T()` works only for objects; arrays use `arrayWith`, tuples use literals,
+  strings/seqs use `""`/`@[]`, `default(T)` as fallback.
 - Omit fields that should keep their declared defaults.
 
 ## Parsing-Sensitive Whitespace
