@@ -46,9 +46,11 @@ description: Write clear, consistent Nim code in a simple stdlib-aligned style, 
 - Name domain predicates subject-first, as in `fileExists`, not `existsFile`.
 - Use established stdlib names when behavior matches: `initX`, `newX`, `find`,
   `contains`, `add`, `cmp`, `len`, `cap`, `items`, `pairs`, `incl`, and `excl`.
-- Name a cheap, side-effect-free field getter `foo`. Use `getFoo` when the
-  operation has side effects or is not O(1).
+- Name a cheap, side-effect-free field getter `foo`. Use `getFoo` when the operation has side
+  effects or is not O(1).
 - Pair `foo` with `foo=` and `getFoo` with `setFoo`.
+- Accessors may share the field's name, no collision: keep the field private, and dot access
+  routes outside the module to the accessors.
 
 ## Proc, Func, Template, Macro
 

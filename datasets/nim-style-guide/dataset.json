@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 42,
-    "testable": 36,
-    "passed": 36,
+    "total_claims": 43,
+    "testable": 37,
+    "passed": 37,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 2,
@@ -346,6 +346,16 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c42_initializer_forms.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. compiles(array[3,int]()), compiles(string()), compiles(seq[int]()), and compiles(Named(id: 1, name: \"x\")) are all false ('object constructor needs an object type'); arrayWith(0, 3) and arrayWithDefault[int](3) both give [0, 0, 0]; tuple literals (0, \"\") and (id: 1, name: \"x\") compile; DistInt(0) and default(DistInt) both work (`==` defined with {.borrow.}); default(T) gives [0,0,0], (0, \"\"), \"\", and @[], and works inside genericDefault[T]."
+    },
+    {
+      "claim_id": "C43",
+      "claim_text": "A getter/setter pair may share the name of the field it wraps (`host`/`host=` alongside a field `host`): no declaration collision. Outside the defining module, `x.host` calls the getter and `x.host = value` calls the setter when the field is not visible there; inside the module, dot access reaches the field. Exporting the field makes dot access win, bypassing the accessors.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c43_accessor_field_name.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. From the importing module, `s.host = 34` increments the setter counter and `s.host` increments the getter counter. Inside the defining module, `s.host = v` and `s.host` reach the field (both counters stay 0). An exported field `val*` bypasses `val=` (setter counter stays 0).",
+      "source": "manual Properties section",
+      "source_quote": "These rules ensure that object fields and accessors can have the same name. Within the module x.f is then always interpreted as field access and outside the module it is interpreted as an accessor proc call."
     }
   ],
   "uncovered_topics": [
