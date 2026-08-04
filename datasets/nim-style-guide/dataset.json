@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 40,
-    "testable": 34,
-    "passed": 34,
+    "total_claims": 41,
+    "testable": 35,
+    "passed": 35,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 2,
@@ -330,6 +330,14 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c40_export_module_name.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. `import test_c40_export_module_name_src/foo/bar/baz` + `export baz` compiles and re-exports `bazValue`. Negative test `export foo/bar/baz` fails to compile: 'cannot export: foo / bar / baz'."
+    },
+    {
+      "claim_id": "C41",
+      "claim_text": "Always initialize `result` explicitly. The implicit `result` starts at the type's zero value, so mutating `result` fields without prior construction (`result = TypeName()`) loses declared field defaults, and a statement-list body returns its last expression implicitly today, so forgetting to assign `result` silently yields the zero value.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c41_result_initialization.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. fieldMutationOnly() returns label \"\" (zero; defaults lost) while initializedThenMutated() returns label \"worker\" (constructor-applied defaults); assignsResultExplicitly() returns 6. Current Nim 2.3.1 also returns the last expression of a statement-list body (42) and returns 0 when the body ends in a void statement; the test documents both so a future behavior change breaks it. `nim c --experimental:strictDefs --warningAsError:Uninit` errors on `result.retryLimit = 5` before construction: 'use explicit initialization of result for clarity [Uninit]'."
     }
   ],
   "uncovered_topics": [
@@ -337,6 +345,15 @@
   ],
   "needs_stronger_tests": [],
   "failure_samples": [
+    {
+      "source_type": "project",
+      "source_task": "external project",
+      "bucket": "missing rule",
+      "summary": "Coding agent built procs that never assign `result`, relying on the implicit zero-initialized value for objects and other types",
+      "evidence": "return value silently zero or missing declared field defaults",
+      "check": "result_explicitly_initialized",
+      "next_action": "skill edit"
+    },
     {
       "source_type": "project",
       "source_task": "external project",
