@@ -4,12 +4,12 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 13,
-    "testable": 11,
-    "passed": 10,
+    "total_claims": 12,
+    "testable": 10,
+    "passed": 9,
     "failed": 1,
     "not_testable": 2,
-    "nuanced": 1,
+    "nuanced": 0,
     "untested": 0
   },
   "claims": [
@@ -103,19 +103,11 @@
     },
     {
       "claim_id": "C12",
-      "claim_text": "Compile-time symbols persist for the whole compilation: one module's `{.define: flag.}` silently changes what later modules see, so import order decides `when defined(flag)`.",
+      "claim_text": "`{.define.}`/`{.undef.}` do not scope behavior across modules: a proc bakes its `when defined(flag)` branch at its own definition site, so a later module's define/undef around a call cannot change it. To scope a flag per call, use a runtime parameter.",
       "is_testable": true,
-      "test_file_path": "tests/nim-code-organization_verification/test_c12_c13_compile_time_symbols.nim",
+      "test_file_path": "tests/nim-code-organization_verification/test_c12_compile_time_symbols.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Compiling mainAB (import modA, modB) prints 'modA: modeFlag is OFF'; mainBA (import modB, modA) prints 'modA: modeFlag is ON'. Same modA file, result decided by import order."
-    },
-    {
-      "claim_id": "C13",
-      "claim_text": "A module that needs a compile-time symbol off must state that itself with `{.undef: flag.}` at the top of the file.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-code-organization_verification/test_c12_c13_compile_time_symbols.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. modA_fixed adds {.undef: modeFlag.} at the top; with import modB, modA_fixed it prints 'modA_fixed: modeFlag is OFF' while modB still sees ON."
+      "evaluation_notes": "DETERMINISTIC. modB wraps a call to modA.parseC with {.define: modeFlag.} ... {.undef: modeFlag.}; parseC was compiled in modA with the flag off, so it still raises and chatParseC returns 'caught'. The runtime-parameter variant parseR scopes correctly: strict call raises ('runtime_strict=caught'), lenient call returns ON ('runtime_lenient=ON'). Consolidates former C12/C13: the import-order leakage and per-module undef pinning are real but low-signal, so the single actionable rule is the cross-module prohibition plus the runtime-parameter alternative."
     }
   ],
   "uncovered_topics": [],
@@ -123,17 +115,21 @@
     "C07 and C10 are design-default claims that are better reinforced by benchmark tasks than by tiny compile/run tests."
   ],
   "corrections": [
-    "C01: The original skill implies ORC corruption risk from nested closures. Testing shows no such risk for simple cases. The advice should be framed as a code clarity/maintainability preference, not a correctness hazard."
+    "C01: The original skill implies ORC corruption risk from nested closures. Testing shows no such risk for simple cases. The advice should be framed as a code clarity/maintainability preference, not a correctness hazard.",
+    {
+      "original_claim": "C12/C13: compile-time symbols persist for the whole compilation; import order decides when defined(flag); use {.undef: flag.} for modules that need it off.",
+      "correction": "The import-order leakage and per-module undef pinning are verified but low-signal. The actionable core is that define/undef cannot reach across module boundaries into an already-compiled proc. The skill now states a single rule: do not use define/undef to scope behavior across modules; use a runtime parameter. The import-order/undef framing was removed as not actionable."
+    }
   ],
   "failure_samples": [
     {
       "source_type": "user report",
-      "source_task": "field bug report: compile-time switch flipped as a local convenience",
-      "bucket": "missing rule",
-      "summary": "A module flipped a global compile-time flag as a 'local' convenience; every module compiled after it silently inherited the new value, so a strictness check degraded into a no-op depending on import order.",
-      "evidence": "mainAB (import modA, modB): 'modA: modeFlag is OFF'. mainBA (import modB, modA): 'modA: modeFlag is ON'. Same modA.nim, different result.",
-      "check": "skill had no rule on compile-time symbol persistence across modules",
-      "next_action": "skill edit: added C12/C13 rule to Module boundaries"
+      "source_task": "field bug report: compile-time switch flipped as a local convenience to scope per-call behavior",
+      "bucket": "ambiguous wording",
+      "summary": "A module wrapped a proc call with {.define.}/{.undef.} expecting per-call scoping; the flag did not reach the callee, which was already compiled in another module with the flag off. The same leakage also makes a caller's own when defined(flag) import-order-dependent.",
+      "evidence": "modB wraps the parseC call with {.define: modeFlag.} ... {.undef: modeFlag.}; parseC (compiled in modA, flag off) still raises, so chatParseC returns 'caught'. The runtime-parameter variant parseR scopes correctly per call.",
+      "check": "skill rule implied define/undef could pin per-module intent; the cross-module scoping an agent expects does not work",
+      "next_action": "skill edit: replaced former C12/C13 with a single rule: do not use {.define.}/{.undef.} to scope behavior across modules; use a runtime parameter."
     }
   ]
 }
