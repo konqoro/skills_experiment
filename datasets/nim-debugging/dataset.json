@@ -4,12 +4,12 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 31,
-    "testable": 29,
-    "passed": 29,
+    "total_claims": 32,
+    "testable": 31,
+    "passed": 31,
     "failed": 0,
     "nuanced": 2,
-    "not_testable": 2
+    "not_testable": 1
   },
   "claims": [
     {
@@ -259,6 +259,15 @@
       "test_file_path": "tests/nim-debugging_verification/test_c19_c23_c28_asan_oom.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. The full recipe reports heap-buffer-overflow; the same instrumented program without -d:useMalloc does not report the overflow."
+    },
+    {
+      "claim_id": "C32",
+      "claim_text": "Last-use auto-sink analysis fires inside named procs but not at module top level. Measuring copy/destructor counts at top level misreports every case because the compiler does not apply last-use analysis there. Always measure ARC/ORC copy/move behavior inside a named proc, never at top level.",
+      "source": "research: nim-sink-move-copies.md",
+      "is_testable": true,
+      "test_file_path": "tests/nim-debugging_verification/test_c32_autosink_proc_vs_toplevel.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. Same let-local-to-sink pattern: 0 copies inside a proc, 1 copy at top level. Confirmed in debug and -d:release. Pair a copy counter with --expandArc for runtime confirmation of generated ops."
     }
   ],
   "corrections": [
