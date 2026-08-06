@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 43,
-    "testable": 37,
-    "passed": 37,
+    "total_claims": 44,
+    "testable": 38,
+    "passed": 38,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 2,
@@ -317,11 +317,11 @@
     },
     {
       "claim_id": "C39",
-      "claim_text": "If the body is exactly one expression, end with that expression, as in `func len(b: Bag): int = b.items.len`. Otherwise build the return value in `result` at the end of the body, one assignment or one per branch.",
+      "claim_text": "If the body is exactly one expression, end with that expression, as in `func len(b: Bag): int = b.items.len`. Otherwise assign the return value to `result` explicitly: as a default at the start, at the end, or once per branch.",
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c39_expression_body_result.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. An expression-bodied func returns the expression value, and a multi-branch body assigning `result` once per branch returns the expected value. The rule is a readability preference; both shapes are legal Nim."
+      "evaluation_notes": "DETERMINISTIC. An expression-bodied func returns the expression value, and a multi-branch body assigning `result` once per branch returns the expected value. The rule is a readability preference; all shapes are legal Nim."
     },
     {
       "claim_id": "C40",
@@ -356,6 +356,14 @@
       "evaluation_notes": "DETERMINISTIC. A defining module declaring a private field `host` plus public `host`/`host=` compiles and both accessors are callable; there is no declaration collision. Field-visibility routing behavior is tracked in the nim-api-design dataset.",
       "source": "manual Properties section",
       "source_quote": "These rules ensure that object fields and accessors can have the same name."
+    },
+    {
+      "claim_id": "C44",
+      "claim_text": "A default `result` may be overridden by a later assignment on the branch that produces the value; when no branch overrides it, the default is retained.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c39_expression_body_result.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. In `pick`, the start default \"default\" is overridden to \"positive\"/\"negative\" when a guard fires and is retained when no guard fires. Reassigning `result` is legal Nim; the pattern is a readability preference."
     }
   ],
   "uncovered_topics": [
@@ -380,6 +388,15 @@
       "evidence": "raw.MY_ENUM_VALUE used throughout instead of importing raw and using MY_ENUM_VALUE",
       "check": "unqualified_import_preferred",
       "next_action": "no action"
+    },
+    {
+      "source_type": "project",
+      "source_task": "external project",
+      "bucket": "ambiguous wording",
+      "summary": "Agent read the rule listing result placements ('at the start, at the end, or once per branch') as three mutually exclusive options and stopped to ask whether assigning a default `result` at the start and overriding it in the success branch is allowed.",
+      "evidence": "Refactoring of multi-guard procs (readyObserver/readyWriter/readyJudge): the guard-chain pattern assigns `result = none(...)` once at the start and overrides it inside positive guards, which the placement list did not clearly permit.",
+      "check": "result_placement_options_combine",
+      "next_action": "skill edit"
     }
   ],
   "corrections_vs_original_skill": [
