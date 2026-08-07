@@ -1,582 +1,582 @@
 {
-  "skill_name": "nim-api-design",
-  "source_file": "original_skills/nim-api-design/SKILL.md",
-  "nim_version": "2.3.1",
-  "mm_mode": "orc",
-  "summary": {
-    "total_claims": 51,
-    "testable": 43,
-    "passed": 43,
-    "failed": 0,
-    "not_testable": 8,
-    "nuanced": 5,
-    "untested": 0
+ "skill_name": "nim-api-design",
+ "source_file": "original_skills/nim-api-design/SKILL.md",
+ "nim_version": "2.3.1",
+ "mm_mode": "orc",
+ "summary": {
+  "total_claims": 51,
+  "testable": 44,
+  "passed": 44,
+  "failed": 0,
+  "not_testable": 7,
+  "nuanced": 5,
+  "untested": 0
+ },
+ "claims": [
+  {
+   "claim_id": "C01",
+   "claim_text": "Weakening a proc contract (e.g. replacing Positive with int) and then adding manual checks is incorrect \u2014 the type-level contract should be relied upon instead.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c01_contract_weakening.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. Positive parameter rejects negative values via range check. Weakening to int + manual check is lossy: the manual check fires at runtime after type-level protection was removed. The type-level contract is strictly better."
   },
-  "claims": [
-    {
-      "claim_id": "C01",
-      "claim_text": "Weakening a proc contract (e.g. replacing Positive with int) and then adding manual checks is incorrect \u2014 the type-level contract should be relied upon instead.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c01_contract_weakening.nim",
-      "test_passed": true,
-      "evaluation_notes": "PASS. Positive parameter rejects negative values via range check. Weakening to int + manual check is lossy: the manual check fires at runtime after type-level protection was removed. The type-level contract is strictly better."
-    },
-    {
-      "claim_id": "C02",
-      "claim_text": "Redundant runtime checks that restate existing type or proc contracts should not be added unless required by a boundary.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c02_redundant_checks.nim",
-      "test_passed": true,
-      "evaluation_notes": "PASS. A Natural parameter already prevents negative values at runtime (range check). Adding a manual `if i < 0: raise ...` check inside is dead code \u2014 the branch can never execute because Natural guarantees i >= 0."
-    },
-    {
-      "claim_id": "C03",
-      "claim_text": "Named object types should be used for semantic data; tuples should be used only for short local values.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Design guideline. Stdlib consistently uses named objects for public API types (Table, Deque, HeapQueue, CritBitTree). Tuples used only for internal pairs like (key, value) in table internals and iterator yield values."
-    },
-    {
-      "claim_id": "C04",
-      "claim_text": "If a tuple grows beyond a small pair or triple, it should be converted to a named object type.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Design guideline. Corroborated by stdlib pattern: no public API returns tuples with more than 2-3 fields."
-    },
-    {
-      "claim_id": "C05",
-      "claim_text": "Accessors should treat invalid index and missing required data as contract violations that raise a specific catchable exception such as ValueError or KeyError.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c05_accessor_valueerror.nim",
-      "test_passed": true,
-      "evaluation_notes": "NUANCED. Accessor raises ValueError on invalid index and missing required data in the test, but review of ~/Projects/Nim/lib shows the exact exception type varies by API shape. The supported rule is: raise a specific catchable exception rather than silently returning a default."
-    },
-    {
-      "claim_id": "C06",
-      "claim_text": "Accessor errors should be routed through one shared helper proc marked {.noinline, noreturn.} for consistent behavior.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c06_noinline_noreturn.nim",
-      "test_passed": true,
-      "evaluation_notes": "PASS. Shared {.noinline, noreturn.} helper raises ValueError correctly. Multiple accessors calling the same helper produce identical error messages. noreturn contract verified (code after call is unreachable). Stdlib confirms: tables.nim uses raiseKeyError, dynlib.nim uses raiseInvalidLibrary, syncio.nim uses raiseEIO \u2014 all {.noinline, noreturn.}."
-    },
-    {
-      "claim_id": "C07",
-      "claim_text": "Read accessors that borrow from object fields should use lent T.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c07_lent_accessor.nim",
-      "test_passed": true,
-      "evaluation_notes": "PASS. lent T accessor compiles, returns correct values, and works on immutable (let) holders. Lent provides read-only semantics. Stdlib confirms pervasive use: Table.[], Deque.[], Deque.peekFirst/peekLast, CritBitTree.[], HeapQueue.[], all iterators (items, values, keys) return lent T."
-    },
-    {
-      "claim_id": "C08",
-      "claim_text": "var T accessor overloads should be deliberate mutable views into caller-editable state.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c08_var_accessor.nim",
-      "test_passed": true,
-      "evaluation_notes": "PASS. name and tags return mutable views into the receiver, and mutation updates the underlying fields. A scan of Nim 2.3.1 stdlib found common m-prefixed mutable collection names, but also non-m var-returning APIs such as [], get, getData, and peekFirst/peekLast; the supported rule is deliberate mutable access, not a universal m-prefix."
-    },
-    {
-      "claim_id": "C09",
-      "claim_text": "A scalar var accessor such as var int returns a caller-visible mutable view into the source field.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c09_no_var_scalar.nim",
-      "test_passed": true,
-      "evaluation_notes": "NUANCED. var int from a direct field reference DOES propagate mutations back to the source object (it's a real reference to the field). This proves scalar var accessors leak mutation, but the skill should not rely on a scalar-specific ban. The supported rule is: return var T only for deliberate mutable views and prefer mutation procs when changes require validation or related updates."
-    },
-    {
-      "claim_id": "C10",
-      "claim_text": "In lent and var accessors, temporary locals should be avoided in favor of direct indexing from the owner object because temporaries can trigger escaping-borrow issues.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c10_no_temp_locals.nim",
-      "test_passed": true,
-      "evaluation_notes": "PASS. Lent accessor with temp local (`let temp = d.items[i]; result = temp`) fails to compile: 'temp escapes its stack frame'. Direct indexing (`result = d.items[i]`) compiles and works correctly. Negative test in test_c10_temp_local_negative.nim confirms compile failure. Direct indexing also works for nested fields."
-    },
-    {
-      "claim_id": "C12",
-      "claim_text": "A required accessor should not silently return a default value when data is missing; it should raise instead. Default-returning access is acceptable only as an explicit optional path such as `getOrDefault`.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c12_silent_default.nim",
-      "test_passed": true,
-      "evaluation_notes": "PASS. A silent-default primary accessor returns empty string for a missing key, making absence indistinguishable from a legitimate empty value. A raising primary accessor correctly surfaces the missing-key error. An explicit optional accessor like `getOrDefault` is fine as a secondary API path; the problem is using silent defaulting as the main required lookup."
-    },
-    {
-      "claim_id": "C13",
-      "claim_text": "Use `initX()` for value types that copy by value. Use `newX()` for ref types and for value types with reference semantics.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A self-contained value/ref pair with `initCatalog()` and `newCatalog()` compiles and behaves coherently. A value type with reference semantics (`Buffer` owning a pointer) uses `newBuffer()` and returns `T`. Review of ~/Projects/Nim/lib also shows this naming pattern where paired value/ref APIs exist."
-    },
-    {
-      "claim_id": "C14",
-      "claim_text": "Use one `toX()` name for common conversions and overload it on input type instead of inventing parallel constructor names.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Overloaded `toCatalog()` conversions from `openArray[string]` and `string` compile and keep one obvious conversion entry point."
-    },
-    {
-      "claim_id": "C15",
-      "claim_text": "Constructor tuning knobs should use default parameter values so the no-argument call stays the main path.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Both `initCatalog()` and `newCatalog()` work with no explicit size argument while still allowing an override."
-    },
-    {
-      "claim_id": "C16",
-      "claim_text": "Template lookup escape hatches such as withValue are specialized container patterns, not the default lookup surface.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "NUANCED. Nim 2.3.1 std/tables defines four withValue overloads and std/sharedtables defines two. They provide scoped access to present values and optional else branches, but they are table-specific escape hatches rather than the default lookup surface for new APIs."
-    },
-    {
-      "claim_id": "C17",
-      "claim_text": "Use distinct types to prevent accidental mixing of conceptually different values that share the same base type (e.g. BackwardsIndex = distinct int, Color = distinct int, Port = distinct uint16). Provide {.borrow.} procs for == and $.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c17_distinct_type.nim",
-      "test_passed": true,
-      "evaluation_notes": "PASS. distinct type prevents implicit conversion from base type (compiles check fails). {.borrow.} procs for == and $ work correctly. No implicit arithmetic on distinct types."
-    },
-    {
-      "claim_id": "C18",
-      "claim_text": "`{.raises: [].}` is a compiler-enforced non-raising contract.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c18_raises_annotation.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The compiler accepts non-raising calls inside a `{.raises: [].}` proc and rejects calls that may raise."
-    },
-    {
-      "claim_id": "C19",
-      "claim_text": "If a type deliberately exposes both value and ref forms, pair `initX` with `newX` and keep the key accessor names aligned across both.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The test value/ref pair exposes the same `len` and `item` names on both forms. Review of ~/Projects/Nim/lib shows paired surfaces exist, but they are a deliberate design choice rather than a default."
-    },
-    {
-      "claim_id": "C20",
-      "claim_text": "User code should document version requirements with `when (NimMajor, NimMinor) >= (x, y)` guards; `{.since.}` is stdlib-internal.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c20_since_pragma.nim",
-      "test_passed": true,
-      "evaluation_notes": "NUANCED. The test confirms `{.since.}` is not available in user code and that `when` guards are the correct user-level mechanism."
-    },
-    {
-      "claim_id": "C21",
-      "claim_text": "Mark only the intended public API with *; keep all internal helpers unexported. A module should have a clear public surface \u2014 typically constructors, accessors, and mutation operations \u2014 with implementation details private.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Design guideline. Stdlib modules consistently export only their public surface (types, constructors, accessors) while keeping internal helpers unexported."
-    },
-    {
-      "claim_id": "C22",
-      "claim_text": "Default to one public representation for a new library type. Add a ref wrapper only when shared identity or aliasing semantics are part of the contract.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Design guideline. Review of ~/Projects/Nim/lib shows most modules expose one primary representation: value-only collections such as Deque, HeapQueue, and HashSet, or ref-only handles such as Stream, Socket, and Logger. Paired value/ref APIs exist, but they are specialized rather than the default."
-    },
-    {
-      "claim_id": "C23",
-      "claim_text": "Plain `object` assignment copies, while `ref object` assignment aliases. For public data models that do not require identity or shared mutation, plain objects are the default representation.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c23_value_vs_ref_semantics.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Runtime test matches the Zen of Nim value-type example: assigning an object copies fields, while assigning a ref object shares the same instance. This supports plain objects as the default public data model when identity or aliasing is not required."
-    },
-    {
-      "claim_id": "C24",
-      "claim_text": "Prefer static dispatch via procs, overloads, generics, and distinct types over method-based runtime dispatch for ordinary public APIs.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Design guideline. The Zen of Nim explicitly prefers static binding and shows overloading as the extension mechanism. Stdlib public APIs are overwhelmingly proc/func/iterator surfaces rather than method-based OOP."
-    },
-    {
-      "claim_id": "C25",
-      "claim_text": "Use `func` for pure query operations when purity is part of the public contract; the compiler rejects side effects in a `func` body.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c25_func_query_contract_negative.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Negative compile test fails as expected when a `func` body calls a side-effecting proc. This makes `func` a concrete API contract for pure queries, not just a naming preference."
-    },
-    {
-      "claim_id": "C26",
-      "claim_text": "A lent accessor that assigns through a temp local fails to compile due to escaping borrow.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c10_temp_local_negative.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Negative compile test: 'temp' escapes its stack frame."
-    },
-    {
-      "claim_id": "C27",
-      "claim_text": "Choose sequence-like batch parameters by required operations: use `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` when the callee must resize or replace the caller's sequence.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c27_batch_parameter_operations.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. `openArray[int]` accepts arrays, seqs, and literals for read-only traversal but rejects mutation. `var openArray[int]` accepts arrays and seqs and propagates element mutation while rejecting `setLen` and replacement. `var seq[int]` permits caller-visible resizing."
-    },
-    {
-      "claim_id": "C28",
-      "claim_text": "In public proc signatures, use `T` when the caller's variable stays unchanged and reserve `lent T` for borrowed return types; the compiler rejects `lent T` parameters.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c28_lent_parameter_negative.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The negative compile test rejects `proc inspect(item: lent Item)` with `invalid type: 'lent Item' in this context`."
-    },
-    {
-      "claim_id": "C29",
-      "claim_text": "Use a `sink T` parameter when the callee takes ownership of a value. Sink permits a move but does not guarantee caller consumption: the compiler copies when it cannot prove last use, and the callee may consume the parameter once or not at all.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c29_sink_parameter_contract.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. An owning value passed to `sink Token` is copied when retained after the call, while a temporary is passed without invoking the copy hook. The ownership-hooks affine-sink test also confirms the callee may consume the parameter or leave it unused."
-    },
-    {
-      "claim_id": "C30",
-      "claim_text": "Pass sink arguments normally. Use `ensureMove(x)` only when a copy must be a compile-time error. `move(x)` forces transfer but leaves the source usable in its moved-from state.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c30_ownership_transfer.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A normal last-use sink call moves without invoking the copy hook. `ensureMove` accepts a provable move and the companion negative test rejects an expression that would require a copy. `move` transfers the value but leaves the source usable with its moved-from default state."
-    },
-    {
-      "claim_id": "C31",
-      "claim_text": "Return `var T` only when callers may freely modify the value. If changes require validation or related updates, expose mutation procs instead.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c31_mutation_invariants.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A `var seq[string]` accessor lets the caller insert invalid data without updating cached length. A mutation proc rejects empty and duplicate values and keeps cached state synchronized."
-    },
-    {
-      "claim_id": "C32",
-      "claim_text": "Use a sentinel default only when that value has one unambiguous domain meaning.",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Design guideline. A sentinel is appropriate only when the API assigns it one clear meaning; otherwise the caller cannot distinguish absence from an ordinary value."
-    },
-    {
-      "claim_id": "C33",
-      "claim_text": "Prefer range types for constrained public parameters and base types for stored fields.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c33_range_type_boundaries.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The standalone test accepts an `int` variable through a `Natural` parameter and stores it in an `int` field. It also confirms that a range type has the same size as its base type. In Nim devel 115ec7a433a7, excluding `times`, `lib/pure` and `lib/std` contain 100 non-comment `Natural`/`Positive` tokens across 26 files; only two actual `Natural` object fields were found, both private, and no exported `Natural` or `Positive` fields were found."
-    },
-    {
-      "claim_id": "C34",
-      "claim_text": "Use `{.raises: [].}` when non-raising behavior is part of the public contract. Leave raising public procs unannotated; `{.raises: [Exception].}` permits arbitrary exceptions and adds no useful restriction.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c34_raises_contract.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The compiler rejects a `{.raises: [].}` proc that calls a raising proc. A `{.raises: [Exception].}` proc compiles while raising unrelated `ValueError` and `IOError` types, so the broad annotation does not narrow the exception surface."
-    },
-    {
-      "claim_id": "C35",
-      "claim_text": "For comparable public types, define `==`, `<`, and `<=`; do not define `!=`, `>`, or `>=` because Nim derives them from system templates.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c35_derived_comparison_operators.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A type with `==`, `<`, and `<=` gets working `!=`, `>`, and `>=` behavior from system templates. Direct definitions of `!=`, `>`, and `>=` compile and override the derived behavior, allowing inconsistent comparison results."
-    },
-    {
-      "claim_id": "C36",
-      "claim_text": "If a public type can be used as a table or set key, it needs a `hash` operation consistent with `==`; borrowing `==` and `$` for a distinct type is not enough for table use.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c36_c37_container_names_and_hash.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. `Table[Sku, int]` works when `hash(sku): Hash {.borrow.}` is defined. The negative test `test_c36_missing_hash_bad.nim` fails to compile because `hash(key)` is unavailable for a distinct key with only `==` and `$`."
-    },
-    {
-      "claim_id": "C37",
-      "claim_text": "Collection-like public types should use the standard `items` and `pairs` iterator names; add mutable iterator names only when yielded mutation is safe.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c36_c37_container_names_and_hash.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A custom inventory with `items` and `pairs` supports normal `for value in inventory.items` and `for key, value in inventory.pairs` iteration."
-    },
-    {
-      "claim_id": "C38",
-      "claim_text": "Collection-like APIs should use `add`, `del`, and `clear` for mutation, `find` for index or position lookup, and `contains` or `hasKey` for boolean membership. Table-style keyed `del` should be a no-op for absent keys; indexed deletion removes an existing position.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c38_collection_operation_names.nim",
-      "test_passed": true,
-      "evaluation_notes": "NUANCED. The custom inventory validates its stated operations, but the blanket naming rule is too broad for every collection shape. The original valid-index seq test also does not distinguish unordered `del` from order-preserving `delete`; C40 and C41 cover that distinction."
-    },
-    {
-      "claim_id": "C39",
-      "claim_text": "Optional lookup should expose `contains` or `hasKey` for membership checks and `getOrDefault` for explicit fallback values.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c39_optional_lookup_paths.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The test uses `contains` and `hasKey` for boolean membership and `getOrDefault` for explicit fallback lookup. It verifies missing, present, and present-empty cases, matching the std/tables lookup convention."
-    },
-    {
-      "claim_id": "C40",
-      "claim_text": "For `seq`, `del(index)` replaces the removed position with the last element and therefore does not preserve order.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c40_c41_sequence_deletion_order.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Deleting index 1 from `@[10, 20, 30, 40]` with `del` produces `@[10, 40, 30]`, proving that the last element fills the removed position."
-    },
-    {
-      "claim_id": "C41",
-      "claim_text": "For `seq`, `delete(idx)` shifts later elements and preserves their order.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c40_c41_sequence_deletion_order.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Deleting index 1 from `@[10, 20, 30, 40]` with `delete` produces `@[10, 30, 40]`, preserving the relative order of later elements."
-    },
-    {
-      "claim_id": "C42",
-      "claim_text": "Use `static[T]` in a public proc parameter only when callers must supply a compile-time value; a runtime value is rejected.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c42_static_contract.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A constant expression satisfies `static[int]`, while a runtime variable does not."
-    },
-    {
-      "claim_id": "C43",
-      "claim_text": "Each distinct set of static argument values creates a separate specialization.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c42_static_contract.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Distinct static values instantiate distinct array return types."
-    },
-    {
-      "claim_id": "C44",
-      "claim_text": "A `typedesc` parameter lets callers select an operation by passing a type.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Type-directed default construction works for both `int` and `string`."
-    },
-    {
-      "claim_id": "C45",
-      "claim_text": "Separate bare `typedesc` parameters may receive different types.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A proc with two bare `typedesc` parameters accepts `int` and `string` together."
-    },
-    {
-      "claim_id": "C46",
-      "claim_text": "Several `typedesc[T]` parameters that share one explicit generic parameter `T` must receive the same type.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Two `typedesc[T]` parameters accept matching types and reject `int` paired with `string`."
-    },
-    {
-      "claim_id": "C47",
-      "claim_text": "Arguments are implicitly converted to a range-typed parameter, so callers do not need an explicit conversion such as `Positive(x)`.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c47_range_parameter_conversion.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. The standalone test passes `int` variables directly to `range[1..65535]` and `Positive` parameters and receives the corresponding range-typed values. This matches the Nim manual's implicit downsizing conversion rules."
-    },
-    {
-      "claim_id": "C48",
-      "claim_text": "When an enum's string form is part of the public contract, set explicit strings (`dirNorth = \"north\"`) so `$` and `parseEnum[T]` round-trip.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c48_c49_enum_string_values.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. `$priHigh == \"high\"` and `$wcFatal == \"FATAL\"` return the custom strings, not the field names. `parseEnum[Priority](\"high\") == priHigh` parses the string back; an unknown string with a default returns the default."
-    },
-    {
-      "claim_id": "C49",
-      "claim_text": "An enum field can set its ordinal and string value together with a tuple `(ordinal, \"string\")`; ordinal values must be ascending.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c48_c49_enum_string_values.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. `wcOk = (0, \"OK\")` gives `ord(wcOk) == 0` and `$wcOk == \"OK\"`; `wcFatal = (2, \"FATAL\")` gives `ord(wcFatal) == 2` and `$wcFatal == \"FATAL\"`. Hole ordinals `a = 2, b = 4, c = 89` compile and report the given ords."
-    },
-    {
-      "claim_id": "C50",
-      "claim_text": "Use `openArray[T]` only at a public boundary that must accept both arrays and seqs. When you control the callers, name the concrete type (`array[N, T]` or `seq[T]`).",
-      "is_testable": false,
-      "test_file_path": null,
-      "test_passed": null,
-      "evaluation_notes": "Design guideline. The supporting facts are tested in C51's test: `openArray` accepts arrays (including enum-indexed) and seqs, while a `seq[T]` parameter rejects arrays. The boundary choice itself is a design decision, not a compiler behavior."
-    },
-    {
-      "claim_id": "C51",
-      "claim_text": "An `openArray[T]` parameter accepts arrays (any index type) and seqs; a `seq[T]` parameter rejects arrays. Forwarding an `openArray` parameter to a `seq[T]`-taking callee with `@items` copies the whole sequence, even when the caller already held a seq.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-api-design_verification/test_c50_c51_openarray_boundary.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. `compiles(array -> seq param)` is false; `compiles(array -> openArray)`, `compiles(enum-indexed array -> openArray)`, and `compiles(seq -> openArray)` are true. Forwarding `openArray` to a seq-taking callee via `@x` invoked 2 element copies; forwarding a `seq` directly invoked 0."
-    },
-    {
-      "claim_id": "C52",
-      "claim_text": "Keep accessor-backed fields private. Outside the defining module, `x.host` calls the getter and `x.host = value` calls the setter when the field is not visible; inside the module, dot access reaches the field. An exported field bypasses the accessors.",
-      "is_testable": true,
-      "test_file_path": "tests/nim-style-guide_verification/test_c43_accessor_field_name.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. From the importing module, `s.host = 34` increments the setter counter and `s.host` increments the getter counter. Inside the defining module, `s.host = v` and `s.host` reach the field (both counters stay 0). An exported field `val*` bypasses `val=` (setter counter stays 0)."
-    }
-  ],
-  "failure_samples": [
-    {
-      "source_type": "agent feedback",
-      "source_task": "skills/nim-api-design/SKILL.md",
-      "bucket": "ambiguous wording",
-      "summary": "The blanket batch-input rule led an agent to recommend `openArray` without first checking whether the callee needs mutation or resizing.",
-      "evidence": "The response treated `openArray` and `seq` as the only choices, omitting `var openArray` for fixed-length element mutation and omitting that caller-visible resizing requires `var seq`.",
-      "check": "Parameter shape matches the operations required by the callee.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/SKILL.md",
-      "bucket": "missing rule",
-      "summary": "Agents use `lent T` for input parameters instead of reserving it for borrowed returns.",
-      "evidence": "`proc inspect(item: lent Item)` fails to compile because `lent Item` is invalid in parameter position.",
-      "check": "Every public parameter mode is valid and matches caller-visible behavior.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/SKILL.md",
-      "bucket": "missing rule",
-      "summary": "Agents treat `sink T` as unconditional consumption of the caller's variable.",
-      "evidence": "A retained argument is copied before a sink call; the caller's value remains valid.",
-      "check": "Ownership-taking parameters document move-or-copy behavior accurately.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/SKILL.md",
-      "bucket": "ambiguous wording",
-      "summary": "Agents wrap routine sink arguments in `ensureMove` even when normal last-use analysis is sufficient.",
-      "evidence": "`t.dest.addTree(ensureMove(replacement))` adds no value when `addTree` accepts `sink T` and `replacement` is already at last use.",
-      "check": "Routine sink calls rely on normal move-or-copy analysis without redundant annotations.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/SKILL.md",
-      "bucket": "missing rule",
-      "summary": "Agents expose `var` access to state whose mutations require validation or bookkeeping.",
-      "evidence": "A `var seq` accessor can insert invalid values and leave cached state stale.",
-      "check": "Public mutable access cannot bypass owner invariants.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/references/parameter_and_result_shapes.md",
-      "bucket": "missing rule",
-      "summary": "Sentinel-default guidance was removed even though it changes optional-parameter design.",
-      "evidence": "A sentinel such as `\"\"` is useful when it has one defined domain meaning and ambiguous when it can also be ordinary data.",
-      "check": "Optional parameter defaults represent one unambiguous meaning.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/references/parameter_and_result_shapes.md",
-      "bucket": "ambiguous wording",
-      "summary": "Broad range-type guidance can lead agents to use `Natural` for every stored field.",
-      "evidence": "Generated C adds no check after a `Natural` parameter is validated, and the stdlib overwhelmingly uses range types in callable signatures rather than object fields.",
-      "check": "Range types constrain public parameters without spreading into stored fields.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/SKILL.md",
-      "bucket": "ambiguous wording",
-      "summary": "Selective `{.raises.}` guidance leads agents to annotate ordinary raising public procs.",
-      "evidence": "`{.raises: [Exception].}` accepts arbitrary exception types and does not narrow the contract.",
-      "check": "Only non-raising public contracts receive a default raises annotation.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/SKILL.md",
-      "bucket": "missing rule",
-      "summary": "Agents define `!=`, `>`, or `>=` directly instead of relying on Nim's derived comparison templates.",
-      "evidence": "Direct definitions of `!=`, `>`, and `>=` compile and override the system templates that derive them from `==`, `<`, and `<=`.",
-      "check": "Comparable public types expose one consistent base comparison surface.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "Nim standard library naming report",
-      "bucket": "missing rule",
-      "summary": "The API skill under-specified standard container names and omitted `hash` for public key types.",
-      "evidence": "A distinct key with borrowed `==` and `$` still fails in `Table` until `hash` is defined; collection APIs should use names such as `items`, `pairs`, `add`, `del`, `clear`, `find`, and `getOrDefault`.",
-      "check": "Container-like APIs use standard operation names and key types support hashing when used in hash containers.",
-      "next_action": "skill edit"
-    },
-    {
-      "source_type": "user feedback",
-      "source_task": "skills/nim-api-design/SKILL.md",
-      "bucket": "ambiguous wording",
-      "summary": "The blanket collection-operation rule treats `add`, `del`, and `clear` as universal collection operations and omits the order-changing behavior of `seq.del`.",
-      "evidence": "The rule says to use `add`, `del`, and `clear` for collection operations, while `seq.del(1)` changes `@[10, 20, 30, 40]` to `@[10, 40, 30]`.",
-      "check": "A sequence-removal recommendation distinguishes unordered `del` from order-preserving `delete`.",
-      "next_action": "skill edit"
-    }
-  ],
-  "uncovered_topics": [],
-  "needs_stronger_tests": [
-    "C03, C04, C16, C21, C22, and C24 are best exercised by a benchmark task that scores public API shape: named objects, one main representation, proc-based static dispatch, descriptive names, and avoidance of stdlib-only escape hatches."
-  ],
-  "corrections_vs_original_skill": [
-    {
-      "claim_id": "C05",
-      "original_claim": "Accessors should raise ValueError on invalid index and missing required data.",
-      "correction": "The principle is correct (raise on contract violation), but the exact exception type is flexible. Stdlib tables.nim raises KeyError, not ValueError. The key rule is: raise a specific, catchable exception \u2014 not necessarily ValueError."
-    },
-    {
-      "claim_id": "C09",
-      "original_claim": "var overloads should not be added for simple scalar outputs.",
-      "correction": "var int DOES propagate mutations back to the source field; it is a real mutable view. The skill rule should not be a scalar-specific ban. Return var T only for deliberate mutable views, and use mutation procs when updates need validation or bookkeeping."
-    },
-    {
-      "claim_id": "C20",
-      "original_claim": "Use {.since: (version).} pragmas on procs to document API evolution.",
-      "correction": "{.since.} is stdlib-internal (defined in std/private/since.nim as a template). User code should use `when (NimMajor, NimMinor) >= (x, y)` guards instead. The principle of version-annotating API additions is sound, but the mechanism differs by context."
-    },
-    {
-      "claim_id": "C16",
-      "original_claim": "Use a template-based pattern like `withValue` when you want missing-key handling without exceptions.",
-      "correction": "Template escape hatches like `withValue` are specialized container APIs, not a default rule for new libraries. Keep the main library surface simple first; add a secondary missing-value API only when the domain clearly needs it."
-    },
-    {
-      "claim_id": "C18",
-      "original_claim": "Mark procs that cannot raise with `{.raises: [].}` to make the exception surface explicit.",
-      "correction": "Use `{.raises: [].}` when non-raising behavior is part of the public contract. Leave raising public procs unannotated by default."
-    },
-    {
-      "claim_id": "C12",
-      "original_claim": "An accessor that silently returns a default value when data is missing is incorrect; it should raise an error instead.",
-      "correction": "This is too broad. Required lookup should raise on missing data, but stdlib also provides explicit optional paths such as `getOrDefault`. The real problem is a silent-default primary accessor that hides absence."
-    },
-    {
-      "claim_id": "C27",
-      "original_claim": "Accept `openArray` for batch inputs when callers naturally have arrays, seqs, or literals.",
-      "correction": "Choose sequence-like batch parameters by required operations: `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing or replacing the caller's sequence."
-    },
-    {
-      "claim_id": "C30",
-      "original_claim": "Use `ensureMove(x)` when transfer must be explicit and last-use checked.",
-      "correction": "Pass routine sink arguments normally. Use `ensureMove(x)` only when compilation should fail rather than permit a copy."
-    },
-    {
-      "claim_id": "C33",
-      "original_claim": "Keep constraints in types. Use `Natural`, `Positive`, and ranges instead of weakening to `int`.",
-      "correction": "Prefer range types for constrained public parameters and base types for stored fields. Pass base-type arguments directly to range-typed parameters."
-    },
-    {
-      "claim_id": "C38",
-      "original_claim": "For collection operations, use `add`, `del`, and `clear`. Table-style keyed `del` is a no-op for absent keys; indexed deletion removes an existing position.",
-      "correction": "Do not prescribe `add`, `del`, and `clear` for every collection shape. For sequences, use `delete(idx)` when removal must preserve order; `del(idx)` changes the order."
-    }
-  ]
+  {
+   "claim_id": "C02",
+   "claim_text": "Redundant runtime checks that restate existing type or proc contracts should not be added unless required by a boundary.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c02_redundant_checks.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. A Natural parameter already prevents negative values at runtime (range check). Adding a manual `if i < 0: raise ...` check inside is dead code \u2014 the branch can never execute because Natural guarantees i >= 0."
+  },
+  {
+   "claim_id": "C03",
+   "claim_text": "Named object types should be used for semantic data; tuples should be used only for short local values.",
+   "is_testable": false,
+   "test_file_path": null,
+   "test_passed": null,
+   "evaluation_notes": "Design guideline. Stdlib consistently uses named objects for public API types (Table, Deque, HeapQueue, CritBitTree). Tuples used only for internal pairs like (key, value) in table internals and iterator yield values."
+  },
+  {
+   "claim_id": "C04",
+   "claim_text": "If a tuple grows beyond a small pair or triple, it should be converted to a named object type.",
+   "is_testable": false,
+   "test_file_path": null,
+   "test_passed": null,
+   "evaluation_notes": "Design guideline. Corroborated by stdlib pattern: no public API returns tuples with more than 2-3 fields."
+  },
+  {
+   "claim_id": "C05",
+   "claim_text": "Accessors should treat invalid index and missing required data as contract violations that raise a specific catchable exception such as ValueError or KeyError.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c05_accessor_valueerror.nim",
+   "test_passed": true,
+   "evaluation_notes": "NUANCED. Accessor raises ValueError on invalid index and missing required data in the test, but review of ~/Projects/Nim/lib shows the exact exception type varies by API shape. The supported rule is: raise a specific catchable exception rather than silently returning a default."
+  },
+  {
+   "claim_id": "C06",
+   "claim_text": "Accessor errors should be routed through one shared helper proc marked {.noinline, noreturn.} for consistent behavior.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c06_noinline_noreturn.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. Shared {.noinline, noreturn.} helper raises ValueError correctly. Multiple accessors calling the same helper produce identical error messages. noreturn contract verified (code after call is unreachable). Stdlib confirms: tables.nim uses raiseKeyError, dynlib.nim uses raiseInvalidLibrary, syncio.nim uses raiseEIO \u2014 all {.noinline, noreturn.}."
+  },
+  {
+   "claim_id": "C07",
+   "claim_text": "Read accessors that borrow from object fields should use lent T.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c07_lent_accessor.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. lent T accessor compiles, returns correct values, and works on immutable (let) holders. Lent provides read-only semantics. Stdlib confirms pervasive use: Table.[], Deque.[], Deque.peekFirst/peekLast, CritBitTree.[], HeapQueue.[], all iterators (items, values, keys) return lent T."
+  },
+  {
+   "claim_id": "C08",
+   "claim_text": "var T accessor overloads should be deliberate mutable views into caller-editable state.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c08_var_accessor.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. name and tags return mutable views into the receiver, and mutation updates the underlying fields. A scan of Nim 2.3.1 stdlib found common m-prefixed mutable collection names, but also non-m var-returning APIs such as [], get, getData, and peekFirst/peekLast; the supported rule is deliberate mutable access, not a universal m-prefix."
+  },
+  {
+   "claim_id": "C09",
+   "claim_text": "A scalar var accessor such as var int returns a caller-visible mutable view into the source field.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c09_no_var_scalar.nim",
+   "test_passed": true,
+   "evaluation_notes": "NUANCED. var int from a direct field reference DOES propagate mutations back to the source object (it's a real reference to the field). This proves scalar var accessors leak mutation, but the skill should not rely on a scalar-specific ban. The supported rule is: return var T only for deliberate mutable views and prefer mutation procs when changes require validation or related updates."
+  },
+  {
+   "claim_id": "C10",
+   "claim_text": "In lent and var accessors, temporary locals should be avoided in favor of direct indexing from the owner object because temporaries can trigger escaping-borrow issues.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c10_no_temp_locals.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. Lent accessor with temp local (`let temp = d.items[i]; result = temp`) fails to compile: 'temp escapes its stack frame'. Direct indexing (`result = d.items[i]`) compiles and works correctly. Negative test in test_c10_temp_local_negative.nim confirms compile failure. Direct indexing also works for nested fields."
+  },
+  {
+   "claim_id": "C12",
+   "claim_text": "A required accessor should not silently return a default value when data is missing; it should raise instead. Default-returning access is acceptable only as an explicit optional path such as `getOrDefault`.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c12_silent_default.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. A silent-default primary accessor returns empty string for a missing key, making absence indistinguishable from a legitimate empty value. A raising primary accessor correctly surfaces the missing-key error. An explicit optional accessor like `getOrDefault` is fine as a secondary API path; the problem is using silent defaulting as the main required lookup."
+  },
+  {
+   "claim_id": "C13",
+   "claim_text": "Use `initX()` for value types that copy by value. Use `newX()` for ref types and for value types with reference semantics.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. A self-contained value/ref pair with `initCatalog()` and `newCatalog()` compiles and behaves coherently. A value type with reference semantics (`Buffer` owning a pointer) uses `newBuffer()` and returns `T`. Review of ~/Projects/Nim/lib also shows this naming pattern where paired value/ref APIs exist."
+  },
+  {
+   "claim_id": "C14",
+   "claim_text": "Use one `toX()` name for common conversions and overload it on input type instead of inventing parallel constructor names.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Overloaded `toCatalog()` conversions from `openArray[string]` and `string` compile and keep one obvious conversion entry point."
+  },
+  {
+   "claim_id": "C15",
+   "claim_text": "Constructor tuning knobs should use default parameter values so the no-argument call stays the main path.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Both `initCatalog()` and `newCatalog()` work with no explicit size argument while still allowing an override."
+  },
+  {
+   "claim_id": "C16",
+   "claim_text": "Template lookup escape hatches such as withValue are specialized container patterns, not the default lookup surface.",
+   "is_testable": false,
+   "test_file_path": null,
+   "test_passed": null,
+   "evaluation_notes": "NUANCED. Nim 2.3.1 std/tables defines four withValue overloads and std/sharedtables defines two. They provide scoped access to present values and optional else branches, but they are table-specific escape hatches rather than the default lookup surface for new APIs."
+  },
+  {
+   "claim_id": "C17",
+   "claim_text": "Use distinct types to prevent accidental mixing of conceptually different values that share the same base type (e.g. BackwardsIndex = distinct int, Color = distinct int, Port = distinct uint16). Provide {.borrow.} procs for == and $.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c17_distinct_type.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. distinct type prevents implicit conversion from base type (compiles check fails). {.borrow.} procs for == and $ work correctly. No implicit arithmetic on distinct types."
+  },
+  {
+   "claim_id": "C18",
+   "claim_text": "`{.raises: [].}` is a compiler-enforced non-raising contract.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c18_raises_annotation.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. The compiler accepts non-raising calls inside a `{.raises: [].}` proc and rejects calls that may raise."
+  },
+  {
+   "claim_id": "C19",
+   "claim_text": "If a type deliberately exposes both value and ref forms, pair `initX` with `newX` and keep the key accessor names aligned across both.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. The test value/ref pair exposes the same `len` and `item` names on both forms. Review of ~/Projects/Nim/lib shows paired surfaces exist, but they are a deliberate design choice rather than a default."
+  },
+  {
+   "claim_id": "C20",
+   "claim_text": "User code should document version requirements with `when (NimMajor, NimMinor) >= (x, y)` guards; `{.since.}` is stdlib-internal.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c20_since_pragma.nim",
+   "test_passed": true,
+   "evaluation_notes": "NUANCED. The test confirms `{.since.}` is not available in user code and that `when` guards are the correct user-level mechanism."
+  },
+  {
+   "claim_id": "C21",
+   "claim_text": "Mark only the intended public API with *; keep all internal helpers unexported. A module should have a clear public surface \u2014 typically constructors, accessors, and mutation operations \u2014 with implementation details private.",
+   "is_testable": false,
+   "test_file_path": null,
+   "test_passed": null,
+   "evaluation_notes": "Design guideline. Stdlib modules consistently export only their public surface (types, constructors, accessors) while keeping internal helpers unexported."
+  },
+  {
+   "claim_id": "C22",
+   "claim_text": "Default to one public representation for a new library type. Add a ref wrapper only when shared identity or aliasing semantics are part of the contract.",
+   "is_testable": false,
+   "test_file_path": null,
+   "test_passed": null,
+   "evaluation_notes": "Design guideline. Review of ~/Projects/Nim/lib shows most modules expose one primary representation: value-only collections such as Deque, HeapQueue, and HashSet, or ref-only handles such as Stream, Socket, and Logger. Paired value/ref APIs exist, but they are specialized rather than the default."
+  },
+  {
+   "claim_id": "C23",
+   "claim_text": "Plain `object` assignment copies, while `ref object` assignment aliases. For public data models that do not require identity or shared mutation, plain objects are the default representation.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c23_value_vs_ref_semantics.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Runtime test matches the Zen of Nim value-type example: assigning an object copies fields, while assigning a ref object shares the same instance. This supports plain objects as the default public data model when identity or aliasing is not required."
+  },
+  {
+   "claim_id": "C24",
+   "claim_text": "Prefer static dispatch via procs, overloads, generics, and distinct types over method-based runtime dispatch for ordinary public APIs.",
+   "is_testable": false,
+   "test_file_path": null,
+   "test_passed": null,
+   "evaluation_notes": "Design guideline. The Zen of Nim explicitly prefers static binding and shows overloading as the extension mechanism. Stdlib public APIs are overwhelmingly proc/func/iterator surfaces rather than method-based OOP."
+  },
+  {
+   "claim_id": "C25",
+   "claim_text": "Use `func` for pure query operations when purity is part of the public contract; the compiler rejects side effects in a `func` body.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c25_func_query_contract_negative.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Negative compile test fails as expected when a `func` body calls a side-effecting proc. This makes `func` a concrete API contract for pure queries, not just a naming preference."
+  },
+  {
+   "claim_id": "C26",
+   "claim_text": "A lent accessor that assigns through a temp local fails to compile due to escaping borrow.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c10_temp_local_negative.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Negative compile test: 'temp' escapes its stack frame."
+  },
+  {
+   "claim_id": "C27",
+   "claim_text": "Choose sequence-like batch parameters by required operations: use `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` when the callee must resize or replace the caller's sequence.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c27_batch_parameter_operations.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. `openArray[int]` accepts arrays, seqs, and literals for read-only traversal but rejects mutation. `var openArray[int]` accepts arrays and seqs and propagates element mutation while rejecting `setLen` and replacement. `var seq[int]` permits caller-visible resizing."
+  },
+  {
+   "claim_id": "C28",
+   "claim_text": "In public proc signatures, use `T` when the caller's variable stays unchanged and reserve `lent T` for borrowed return types; the compiler rejects `lent T` parameters.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c28_lent_parameter_negative.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. The negative compile test rejects `proc inspect(item: lent Item)` with `invalid type: 'lent Item' in this context`."
+  },
+  {
+   "claim_id": "C29",
+   "claim_text": "Use a `sink T` parameter when the callee takes ownership of a value. Sink permits a move but does not guarantee caller consumption: the compiler copies when it cannot prove last use, and the callee may consume the parameter once or not at all.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c29_sink_parameter_contract.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. An owning value passed to `sink Token` is copied when retained after the call, while a temporary is passed without invoking the copy hook. The ownership-hooks affine-sink test also confirms the callee may consume the parameter or leave it unused."
+  },
+  {
+   "claim_id": "C30",
+   "claim_text": "Pass sink arguments normally. Use `ensureMove(x)` only when a copy must be a compile-time error. `move(x)` forces transfer but leaves the source usable in its moved-from state.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c30_ownership_transfer.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. A normal last-use sink call moves without invoking the copy hook. `ensureMove` accepts a provable move and the companion negative test rejects an expression that would require a copy. `move` transfers the value but leaves the source usable with its moved-from default state."
+  },
+  {
+   "claim_id": "C31",
+   "claim_text": "Return `var T` only when callers may freely modify the value. If changes require validation or related updates, expose mutation procs instead.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c31_mutation_invariants.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. A `var seq[string]` accessor lets the caller insert invalid data without updating cached length. A mutation proc rejects empty and duplicate values and keeps cached state synchronized."
+  },
+  {
+   "claim_id": "C32",
+   "claim_text": "Use a sentinel default only when that value has one unambiguous domain meaning.",
+   "is_testable": false,
+   "test_file_path": null,
+   "test_passed": null,
+   "evaluation_notes": "Design guideline. A sentinel is appropriate only when the API assigns it one clear meaning; otherwise the caller cannot distinguish absence from an ordinary value."
+  },
+  {
+   "claim_id": "C33",
+   "claim_text": "Prefer range types for constrained public parameters and base types for stored fields.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c33_range_type_boundaries.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. The standalone test accepts an `int` variable through a `Natural` parameter and stores it in an `int` field. It also confirms that a range type has the same size as its base type. In Nim devel 115ec7a433a7, excluding `times`, `lib/pure` and `lib/std` contain 100 non-comment `Natural`/`Positive` tokens across 26 files; only two actual `Natural` object fields were found, both private, and no exported `Natural` or `Positive` fields were found."
+  },
+  {
+   "claim_id": "C34",
+   "claim_text": "Use `{.raises: [].}` when non-raising behavior is part of the public contract. Leave raising public procs unannotated; `{.raises: [Exception].}` permits arbitrary exceptions and adds no useful restriction.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c34_raises_contract.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. The compiler rejects a `{.raises: [].}` proc that calls a raising proc. A `{.raises: [Exception].}` proc compiles while raising unrelated `ValueError` and `IOError` types, so the broad annotation does not narrow the exception surface."
+  },
+  {
+   "claim_id": "C35",
+   "claim_text": "For comparable public types, define `==`, `<`, and `<=`; do not define `!=`, `>`, or `>=` because Nim derives them from system templates.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c35_derived_comparison_operators.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. A type with `==`, `<`, and `<=` gets working `!=`, `>`, and `>=` behavior from system templates. Direct definitions of `!=`, `>`, and `>=` compile and override the derived behavior, allowing inconsistent comparison results."
+  },
+  {
+   "claim_id": "C36",
+   "claim_text": "If a public type can be used as a table or set key, it needs a `hash` operation consistent with `==`; borrowing `==` and `$` for a distinct type is not enough for table use.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c36_c37_container_names_and_hash.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. `Table[Sku, int]` works when `hash(sku): Hash {.borrow.}` is defined. The negative test `test_c36_missing_hash_bad.nim` fails to compile because `hash(key)` is unavailable for a distinct key with only `==` and `$`."
+  },
+  {
+   "claim_id": "C37",
+   "claim_text": "Collection-like public types should use the standard `items` and `pairs` iterator names; add mutable iterator names only when yielded mutation is safe.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c36_c37_container_names_and_hash.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. A custom inventory with `items` and `pairs` supports normal `for value in inventory.items` and `for key, value in inventory.pairs` iteration."
+  },
+  {
+   "claim_id": "C38",
+   "claim_text": "Collection-like APIs should use `add`, `del`, and `clear` for mutation, `find` for index or position lookup, and `contains` or `hasKey` for boolean membership. Table-style keyed `del` should be a no-op for absent keys; indexed deletion removes an existing position.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c38_collection_operation_names.nim",
+   "test_passed": true,
+   "evaluation_notes": "NUANCED. The custom inventory validates its stated operations, but the blanket naming rule is too broad for every collection shape. The original valid-index seq test also does not distinguish unordered `del` from order-preserving `delete`; C40 and C41 cover that distinction."
+  },
+  {
+   "claim_id": "C39",
+   "claim_text": "Optional lookup should expose `contains` or `hasKey` for membership checks and `getOrDefault` for explicit fallback values.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c39_optional_lookup_paths.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. The test uses `contains` and `hasKey` for boolean membership and `getOrDefault` for explicit fallback lookup. It verifies missing, present, and present-empty cases, matching the std/tables lookup convention."
+  },
+  {
+   "claim_id": "C40",
+   "claim_text": "For `seq`, `del(index)` replaces the removed position with the last element and therefore does not preserve order.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c40_c41_sequence_deletion_order.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Deleting index 1 from `@[10, 20, 30, 40]` with `del` produces `@[10, 40, 30]`, proving that the last element fills the removed position."
+  },
+  {
+   "claim_id": "C41",
+   "claim_text": "For `seq`, `delete(idx)` shifts later elements and preserves their order.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c40_c41_sequence_deletion_order.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Deleting index 1 from `@[10, 20, 30, 40]` with `delete` produces `@[10, 30, 40]`, preserving the relative order of later elements."
+  },
+  {
+   "claim_id": "C42",
+   "claim_text": "Use `static[T]` in a public proc parameter only when callers must supply a compile-time value; a runtime value is rejected.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c42_static_contract.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. A constant expression satisfies `static[int]`, while a runtime variable does not."
+  },
+  {
+   "claim_id": "C43",
+   "claim_text": "Each distinct set of static argument values creates a separate specialization.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c42_static_contract.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Distinct static values instantiate distinct array return types."
+  },
+  {
+   "claim_id": "C44",
+   "claim_text": "A `typedesc` parameter lets callers select an operation by passing a type.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Type-directed default construction works for both `int` and `string`."
+  },
+  {
+   "claim_id": "C45",
+   "claim_text": "Separate bare `typedesc` parameters may receive different types.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. A proc with two bare `typedesc` parameters accepts `int` and `string` together."
+  },
+  {
+   "claim_id": "C46",
+   "claim_text": "Several `typedesc[T]` parameters that share one explicit generic parameter `T` must receive the same type.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c44_c45_c46_typedesc_contract.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Two `typedesc[T]` parameters accept matching types and reject `int` paired with `string`."
+  },
+  {
+   "claim_id": "C47",
+   "claim_text": "Arguments are implicitly converted to a range-typed parameter, so callers do not need an explicit conversion such as `Positive(x)`.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c47_range_parameter_conversion.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. The standalone test passes `int` variables directly to `range[1..65535]` and `Positive` parameters and receives the corresponding range-typed values. This matches the Nim manual's implicit downsizing conversion rules."
+  },
+  {
+   "claim_id": "C48",
+   "claim_text": "When an enum's string form is part of the public contract, set explicit strings (`dirNorth = \"north\"`) so `$` and `parseEnum[T]` round-trip.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c48_c49_enum_string_values.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. `$priHigh == \"high\"` and `$wcFatal == \"FATAL\"` return the custom strings, not the field names. `parseEnum[Priority](\"high\") == priHigh` parses the string back; an unknown string with a default returns the default."
+  },
+  {
+   "claim_id": "C49",
+   "claim_text": "An enum field can set its ordinal and string value together with a tuple `(ordinal, \"string\")`; ordinal values must be ascending.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c48_c49_enum_string_values.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. `wcOk = (0, \"OK\")` gives `ord(wcOk) == 0` and `$wcOk == \"OK\"`; `wcFatal = (2, \"FATAL\")` gives `ord(wcFatal) == 2` and `$wcFatal == \"FATAL\"`. Hole ordinals `a = 2, b = 4, c = 89` compile and report the given ords."
+  },
+  {
+   "claim_id": "C50",
+   "claim_text": "Use `openArray[T]` only at a public boundary that must accept both arrays and seqs. When you control the callers, name the concrete type (`array[N, T]` or `seq[T]`).",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c50_openarray_type_erasure.nim",
+   "test_passed": true,
+   "evaluation_notes": "Design guideline whose supporting compiler facts are now tested: openArray is not a valid return type, cannot be assigned to a seq result, and forwarding openArray-typed data to a seq-taking callee copies all elements (@s) even when the caller already held a seq, while a seq parameter passes straight through with 0 copies. The boundary choice itself remains a design decision."
+  },
+  {
+   "claim_id": "C51",
+   "claim_text": "An `openArray[T]` parameter accepts arrays (any index type) and seqs; a `seq[T]` parameter rejects arrays. Forwarding an `openArray` parameter to a `seq[T]`-taking callee with `@items` copies the whole sequence, even when the caller already held a seq.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c50_c51_openarray_boundary.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. `compiles(array -> seq param)` is false; `compiles(array -> openArray)`, `compiles(enum-indexed array -> openArray)`, and `compiles(seq -> openArray)` are true. Forwarding `openArray` to a seq-taking callee via `@x` invoked 2 element copies; forwarding a `seq` directly invoked 0."
+  },
+  {
+   "claim_id": "C52",
+   "claim_text": "Keep accessor-backed fields private. Outside the defining module, `x.host` calls the getter and `x.host = value` calls the setter when the field is not visible; inside the module, dot access reaches the field. An exported field bypasses the accessors.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-style-guide_verification/test_c43_accessor_field_name.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. From the importing module, `s.host = 34` increments the setter counter and `s.host` increments the getter counter. Inside the defining module, `s.host = v` and `s.host` reach the field (both counters stay 0). An exported field `val*` bypasses `val=` (setter counter stays 0)."
+  }
+ ],
+ "failure_samples": [
+  {
+   "source_type": "agent feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "ambiguous wording",
+   "summary": "The blanket batch-input rule led an agent to recommend `openArray` without first checking whether the callee needs mutation or resizing.",
+   "evidence": "The response treated `openArray` and `seq` as the only choices, omitting `var openArray` for fixed-length element mutation and omitting that caller-visible resizing requires `var seq`.",
+   "check": "Parameter shape matches the operations required by the callee.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "missing rule",
+   "summary": "Agents use `lent T` for input parameters instead of reserving it for borrowed returns.",
+   "evidence": "`proc inspect(item: lent Item)` fails to compile because `lent Item` is invalid in parameter position.",
+   "check": "Every public parameter mode is valid and matches caller-visible behavior.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "missing rule",
+   "summary": "Agents treat `sink T` as unconditional consumption of the caller's variable.",
+   "evidence": "A retained argument is copied before a sink call; the caller's value remains valid.",
+   "check": "Ownership-taking parameters document move-or-copy behavior accurately.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "ambiguous wording",
+   "summary": "Agents wrap routine sink arguments in `ensureMove` even when normal last-use analysis is sufficient.",
+   "evidence": "`t.dest.addTree(ensureMove(replacement))` adds no value when `addTree` accepts `sink T` and `replacement` is already at last use.",
+   "check": "Routine sink calls rely on normal move-or-copy analysis without redundant annotations.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "missing rule",
+   "summary": "Agents expose `var` access to state whose mutations require validation or bookkeeping.",
+   "evidence": "A `var seq` accessor can insert invalid values and leave cached state stale.",
+   "check": "Public mutable access cannot bypass owner invariants.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/references/parameter_and_result_shapes.md",
+   "bucket": "missing rule",
+   "summary": "Sentinel-default guidance was removed even though it changes optional-parameter design.",
+   "evidence": "A sentinel such as `\"\"` is useful when it has one defined domain meaning and ambiguous when it can also be ordinary data.",
+   "check": "Optional parameter defaults represent one unambiguous meaning.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/references/parameter_and_result_shapes.md",
+   "bucket": "ambiguous wording",
+   "summary": "Broad range-type guidance can lead agents to use `Natural` for every stored field.",
+   "evidence": "Generated C adds no check after a `Natural` parameter is validated, and the stdlib overwhelmingly uses range types in callable signatures rather than object fields.",
+   "check": "Range types constrain public parameters without spreading into stored fields.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "ambiguous wording",
+   "summary": "Selective `{.raises.}` guidance leads agents to annotate ordinary raising public procs.",
+   "evidence": "`{.raises: [Exception].}` accepts arbitrary exception types and does not narrow the contract.",
+   "check": "Only non-raising public contracts receive a default raises annotation.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "missing rule",
+   "summary": "Agents define `!=`, `>`, or `>=` directly instead of relying on Nim's derived comparison templates.",
+   "evidence": "Direct definitions of `!=`, `>`, and `>=` compile and override the system templates that derive them from `==`, `<`, and `<=`.",
+   "check": "Comparable public types expose one consistent base comparison surface.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "Nim standard library naming report",
+   "bucket": "missing rule",
+   "summary": "The API skill under-specified standard container names and omitted `hash` for public key types.",
+   "evidence": "A distinct key with borrowed `==` and `$` still fails in `Table` until `hash` is defined; collection APIs should use names such as `items`, `pairs`, `add`, `del`, `clear`, `find`, and `getOrDefault`.",
+   "check": "Container-like APIs use standard operation names and key types support hashing when used in hash containers.",
+   "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "ambiguous wording",
+   "summary": "The blanket collection-operation rule treats `add`, `del`, and `clear` as universal collection operations and omits the order-changing behavior of `seq.del`.",
+   "evidence": "The rule says to use `add`, `del`, and `clear` for collection operations, while `seq.del(1)` changes `@[10, 20, 30, 40]` to `@[10, 40, 30]`.",
+   "check": "A sequence-removal recommendation distinguishes unordered `del` from order-preserving `delete`.",
+   "next_action": "skill edit"
+  }
+ ],
+ "uncovered_topics": [],
+ "needs_stronger_tests": [
+  "C03, C04, C16, C21, C22, and C24 are best exercised by a benchmark task that scores public API shape: named objects, one main representation, proc-based static dispatch, descriptive names, and avoidance of stdlib-only escape hatches."
+ ],
+ "corrections_vs_original_skill": [
+  {
+   "claim_id": "C05",
+   "original_claim": "Accessors should raise ValueError on invalid index and missing required data.",
+   "correction": "The principle is correct (raise on contract violation), but the exact exception type is flexible. Stdlib tables.nim raises KeyError, not ValueError. The key rule is: raise a specific, catchable exception \u2014 not necessarily ValueError."
+  },
+  {
+   "claim_id": "C09",
+   "original_claim": "var overloads should not be added for simple scalar outputs.",
+   "correction": "var int DOES propagate mutations back to the source field; it is a real mutable view. The skill rule should not be a scalar-specific ban. Return var T only for deliberate mutable views, and use mutation procs when updates need validation or bookkeeping."
+  },
+  {
+   "claim_id": "C20",
+   "original_claim": "Use {.since: (version).} pragmas on procs to document API evolution.",
+   "correction": "{.since.} is stdlib-internal (defined in std/private/since.nim as a template). User code should use `when (NimMajor, NimMinor) >= (x, y)` guards instead. The principle of version-annotating API additions is sound, but the mechanism differs by context."
+  },
+  {
+   "claim_id": "C16",
+   "original_claim": "Use a template-based pattern like `withValue` when you want missing-key handling without exceptions.",
+   "correction": "Template escape hatches like `withValue` are specialized container APIs, not a default rule for new libraries. Keep the main library surface simple first; add a secondary missing-value API only when the domain clearly needs it."
+  },
+  {
+   "claim_id": "C18",
+   "original_claim": "Mark procs that cannot raise with `{.raises: [].}` to make the exception surface explicit.",
+   "correction": "Use `{.raises: [].}` when non-raising behavior is part of the public contract. Leave raising public procs unannotated by default."
+  },
+  {
+   "claim_id": "C12",
+   "original_claim": "An accessor that silently returns a default value when data is missing is incorrect; it should raise an error instead.",
+   "correction": "This is too broad. Required lookup should raise on missing data, but stdlib also provides explicit optional paths such as `getOrDefault`. The real problem is a silent-default primary accessor that hides absence."
+  },
+  {
+   "claim_id": "C27",
+   "original_claim": "Accept `openArray` for batch inputs when callers naturally have arrays, seqs, or literals.",
+   "correction": "Choose sequence-like batch parameters by required operations: `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` for resizing or replacing the caller's sequence."
+  },
+  {
+   "claim_id": "C30",
+   "original_claim": "Use `ensureMove(x)` when transfer must be explicit and last-use checked.",
+   "correction": "Pass routine sink arguments normally. Use `ensureMove(x)` only when compilation should fail rather than permit a copy."
+  },
+  {
+   "claim_id": "C33",
+   "original_claim": "Keep constraints in types. Use `Natural`, `Positive`, and ranges instead of weakening to `int`.",
+   "correction": "Prefer range types for constrained public parameters and base types for stored fields. Pass base-type arguments directly to range-typed parameters."
+  },
+  {
+   "claim_id": "C38",
+   "original_claim": "For collection operations, use `add`, `del`, and `clear`. Table-style keyed `del` is a no-op for absent keys; indexed deletion removes an existing position.",
+   "correction": "Do not prescribe `add`, `del`, and `clear` for every collection shape. For sequences, use `delete(idx)` when removal must preserve order; `del(idx)` changes the order."
+  }
+ ]
 }
