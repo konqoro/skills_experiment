@@ -45,7 +45,7 @@ description: Design clear public Nim APIs for libraries and modules, including e
 
 - Use `initX()` for value types that copy by value.
 - Use `newX()` for ref types and for value types with reference semantics.
-- Use one `toX()` name for common conversions. Overload on input type.
+- Use one `toX()` name for common conversions. Overload on input type. Do not define converters.
 - Use default parameter values for optional constructor arguments, keeping the no-argument call
   the main path.
 

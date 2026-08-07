@@ -4,9 +4,9 @@
  "nim_version": "2.3.1",
  "mm_mode": "orc",
  "summary": {
-  "total_claims": 51,
-  "testable": 44,
-  "passed": 44,
+  "total_claims": 52,
+  "testable": 45,
+  "passed": 45,
   "failed": 0,
   "not_testable": 7,
   "nuanced": 5,
@@ -420,6 +420,14 @@
    "test_file_path": "tests/nim-style-guide_verification/test_c43_accessor_field_name.nim",
    "test_passed": true,
    "evaluation_notes": "DETERMINISTIC. From the importing module, `s.host = 34` increments the setter counter and `s.host` increments the getter counter. Inside the defining module, `s.host = v` and `s.host` reach the field (both counters stay 0). An exported field `val*` bypasses `val=` (setter counter stays 0)."
+  },
+  {
+   "claim_id": "C53",
+   "claim_text": "Do not define converters for public API types. Use `toX()` conversions instead.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c53_converters_bad.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. An exported converter applies implicitly at call sites in any importing module (`wantsFoo(42)` compiles with no marker). Converters do not chain: `Foo -> string` applies but `int -> Foo -> string` does not (`compiles` false). Two converters from `int` to `Foo` coexist without error; the first wins and the second is reported as declared-but-unused. The ban itself is a design rule; the test verifies the supporting mechanics."
   }
  ],
  "failure_samples": [
