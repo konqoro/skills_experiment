@@ -119,7 +119,7 @@
   },
   {
    "claim_id": "C15",
-   "claim_text": "Constructor tuning knobs should use default parameter values so the no-argument call stays the main path.",
+   "claim_text": "Use default parameter values for optional constructor arguments, keeping the no-argument call the main path.",
    "is_testable": true,
    "test_file_path": "tests/nim-api-design_verification/test_c13_c14_c15_c19_constructor_surface.nim",
    "test_passed": true,
@@ -215,11 +215,11 @@
   },
   {
    "claim_id": "C27",
-   "claim_text": "Choose sequence-like batch parameters by required operations: use `openArray[T]` for read-only traversal, `var openArray[T]` for fixed-length element mutation, and `var seq[T]` when the callee must resize or replace the caller's sequence.",
+   "claim_text": "Choose sequence-like batch parameters by required operation. When a parameter must accept both arrays and seqs, use `openArray[T]` for read-only traversal or `var openArray[T]` for fixed-length element mutation. Resizing or replacement requires `var seq[T]`: an `openArray` is fixed-length.",
    "is_testable": true,
    "test_file_path": "tests/nim-api-design_verification/test_c27_batch_parameter_operations.nim",
    "test_passed": true,
-   "evaluation_notes": "DETERMINISTIC. `openArray[int]` accepts arrays, seqs, and literals for read-only traversal but rejects mutation. `var openArray[int]` accepts arrays and seqs and propagates element mutation while rejecting `setLen` and replacement. `var seq[int]` permits caller-visible resizing."
+   "evaluation_notes": "DETERMINISTIC. `openArray[int]` accepts arrays, seqs, and literals for read-only traversal but rejects mutation. `var openArray[int]` accepts arrays and seqs and propagates element mutation while rejecting `setLen` and replacement. `var seq[int]` permits caller-visible resizing. The must-accept-both guard covers only the `openArray` forms; a resizing parameter must be the concrete `var seq[T]`, which does not accept arrays."
   },
   {
    "claim_id": "C28",
@@ -399,7 +399,7 @@
   },
   {
    "claim_id": "C50",
-   "claim_text": "Use `openArray[T]` only at a public boundary that must accept both arrays and seqs. When you control the callers, name the concrete type (`array[N, T]` or `seq[T]`).",
+   "claim_text": "When you control the callers, name the concrete type (`array[N, T]` or `seq[T]`) instead of `openArray[T]`.",
    "is_testable": true,
    "test_file_path": "tests/nim-api-design_verification/test_c50_openarray_type_erasure.nim",
    "test_passed": true,

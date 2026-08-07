@@ -46,12 +46,16 @@ description: Design clear public Nim APIs for libraries and modules, including e
 - Use `initX()` for value types that copy by value.
 - Use `newX()` for ref types and for value types with reference semantics.
 - Use one `toX()` name for common conversions. Overload on input type.
-- When a parameter must accept both arrays and seqs, choose the batch-parameter shape by
-  required operation: `openArray[T]` for read-only traversal, `var openArray[T]` for
-  fixed-length element mutation, and `var seq[T]` for resizing or replacement.
-- When you control the callers, name the concrete type (`array[N, T]` or `seq[T]`) instead of
-  `openArray[T]`.
-- Keep the zero-argument path simple with sensible defaults.
+- Use default parameter values for optional constructor arguments, keeping the no-argument call
+  the main path.
+
+### Sequence parameters
+
+- When a parameter must accept both arrays and seqs, use `openArray[T]` for read-only
+  traversal or `var openArray[T]` for fixed-length element mutation.
+- Resizing or replacement requires `var seq[T]`: an `openArray` is fixed-length.
+- When you control the callers, name the concrete type (`array[N, T]` or `seq[T]`) 
+  instead of `openArray[T]`.
 
 ### Parameter ownership
 
@@ -61,7 +65,7 @@ description: Design clear public Nim APIs for libraries and modules, including e
   auto-sink moves locals, their fields, tuple fields and indices, and direct-indexed seq/array
   elements with no copy.
 - Use `move(x)` only where auto-sink does not apply: fields of `var` parameters, loop-indexed
-  seq/array elements (`requests[i]`), and values reused later in the same scope.
+  seq/array elements (`arr[i]`), and values reused later in the same scope.
 - Use `ensureMove(x)` to make an accidental copy a compile-time error.
 - Measure copy/move behavior inside a named proc, not at module top level; last-use analysis does
   not fire there. See `nim-debugging` for `--expandArc` and copy-counter diagnosis.
