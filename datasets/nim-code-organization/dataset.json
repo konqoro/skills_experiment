@@ -130,6 +130,15 @@
       "evidence": "modB wraps the parseC call with {.define: modeFlag.} ... {.undef: modeFlag.}; parseC (compiled in modA, flag off) still raises, so chatParseC returns 'caught'. The runtime-parameter variant parseR scopes correctly per call.",
       "check": "skill rule implied define/undef could pin per-module intent; the cross-module scoping an agent expects does not work",
       "next_action": "skill edit: replaced former C12/C13 with a single rule: do not use {.define.}/{.undef.} to scope behavior across modules; use a runtime parameter."
+    },
+    {
+      "source_type": "external critique review",
+      "source_task": "external review of skills/nim-code-organization alleging a mild state-object bias",
+      "bucket": "ambiguous wording",
+      "summary": "The state-object trigger rule read 'When several steps share evolving state or invariants, collect that state in a named object', which any multi-step proc satisfies. The skill's own reference, State Scope table, and mistake table already use the stricter criterion: several operations preserving one invariant.",
+      "evidence": "The SKILL.md rule said 'steps share evolving state' while references/orchestration_pattern.md ('several operations share an invariant'), the State Scope table ('Several operations share an invariant'), and the mistake table ('a state type for a short linear calculation') state the tighter criterion. C10 records the design preference; C02/C06 verify only state-object mechanics. Other review points were evaluated and rejected: the parser assert guard is the verified canonical pattern (nim-error-handling C36, nim-defect-analysis C04), the define/undef rule is deterministically verified and correctly scoped (C12 plus the failure sample above), and the static-variant rule is verified (C11). Deferred: the ReportState example in references/orchestration_pattern.md is borderline over-factored under the tightened criterion and should be rewritten in a later cycle; a new immutable-intermediates State Scope row was rejected pending dataset or benchmark evidence.",
+      "check": "does the rule trigger a state object for state shared only within one short linear operation?",
+      "next_action": "skill edit: tightened the trigger to 'When independently meaningful operations must preserve one invariant, collect that state in a named object and pass it explicitly.'"
     }
   ]
 }

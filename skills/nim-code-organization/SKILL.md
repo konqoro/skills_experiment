@@ -12,8 +12,8 @@ Choose the smallest structure that exposes the real workflow.
 ## State ownership
 
 - Use ordinary locals when a workflow fits clearly in one proc.
-- When several steps share evolving state or invariants, collect that state in
-  a named object and pass it explicitly.
+- When independently meaningful operations must preserve one invariant, collect
+  that state in a named object and pass it explicitly.
 - Start with a plain `object` passed by `var`.
 - Choose `ref object` when identity, aliasing, or shared lifetime is part of
   the design.
