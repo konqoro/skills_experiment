@@ -383,7 +383,7 @@
   },
   {
    "claim_id": "C48",
-   "claim_text": "When an enum's string form is part of the public contract, set explicit strings (`dirNorth = \"north\"`) so `$` and `parseEnum[T]` round-trip.",
+   "claim_text": "When an enum's string spelling is dictated by an external format or protocol, set explicit strings (`dirNorth = \"north\"`); `$` and `parseEnum[T]` always round-trip.",
    "is_testable": true,
    "test_file_path": "tests/nim-api-design_verification/test_c48_c49_enum_string_values.nim",
    "test_passed": true,

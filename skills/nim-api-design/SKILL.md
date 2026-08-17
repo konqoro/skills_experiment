@@ -31,8 +31,8 @@ description: Design clear public Nim APIs for libraries and modules, including e
 - Use range types for constrained public parameters; store their values in the underlying type
   (`int` for `Natural` or `Positive`).
 - Pass arguments directly to range parameters; conversion is implicit, so do not write `Positive(x)`.
-- When an enum's string form is part of the public contract, set explicit strings
-  (`dirNorth = "north"`) so `$` and `parseEnum[T]` round-trip.
+- When an enum's string spelling is dictated by an external format or protocol, set
+  explicit strings (`dirNorth = "north"`); `$` and `parseEnum[T]` always round-trip.
 - Use `static[T]` in public APIs only when callers must supply a compile-time constant.
 - Bare `typedesc` parameters may name different types; share `T` across `typedesc[T]` parameters
   when they must match.
