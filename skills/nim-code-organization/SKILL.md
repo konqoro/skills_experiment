@@ -47,13 +47,6 @@ Choose the smallest structure that exposes the real workflow.
 - Use `method` when runtime subtype dispatch is part of the design, rather than as the default
   way to divide orchestration steps.
 
-## Stateful module pattern
-
-- For an incremental lifecycle, consider the stdlib parser shape: one state object, top-level
-  `open`/`next`/`close`-style procs, and private helpers that mutate `var State`.
-- Keep lifecycle transitions explicit; each operation should make its state requirements and
-  effects apparent.
-
 # Workflow
 
 1. Trace the data flow.
