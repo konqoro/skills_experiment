@@ -47,6 +47,15 @@ Choose the smallest structure that exposes the real workflow.
 - Use `method` when runtime subtype dispatch is part of the design, rather than as the default
   way to divide orchestration steps.
 
+## Incremental APIs
+
+- When the caller drives consumption piecewise, keep the cursor and lifecycle state in
+  the object's fields so it survives between calls.
+- Expose one proc per transition, with `open`/`close`-style lifecycle procs only when a
+  resource or ordering constraint spans calls; keep a one-shot operation a single proc.
+- Enforce that ordering with an assert on the lifecycle field (for example
+  `assert s.opened`) at the start of each `next`-style proc.
+
 # Workflow
 
 1. Trace the data flow.
