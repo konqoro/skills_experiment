@@ -61,14 +61,13 @@ description: Design clear public Nim APIs for libraries and modules, including e
 
 - Use `T` when the caller's variable stays unchanged, `var T` when the proc changes it, `sink T`
   when the proc takes ownership, and `lent T` only for borrowed returns.
+- Passing `x: T` never copies what `x` points to. Do not use `ptr T` or `addr x` to avoid a copy.
 - Pass sink arguments normally — do not wrap them in `move()` or `ensureMove()`. Last-use
   auto-sink moves locals, their fields, tuple fields and indices, and direct-indexed seq/array
   elements with no copy.
 - Use `move(x)` only where auto-sink does not apply: fields of `var` parameters, loop-indexed
   seq/array elements (`arr[i]`), and values reused later in the same scope.
 - Use `ensureMove(x)` to make an accidental copy a compile-time error.
-- Measure copy/move behavior inside a named proc, not at module top level; last-use analysis does
-  not fire there. See `nim-debugging` for `--expandArc` and copy-counter diagnosis.
 
 ### Lookup surface
 

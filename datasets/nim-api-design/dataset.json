@@ -4,9 +4,9 @@
  "nim_version": "2.3.1",
  "mm_mode": "orc",
  "summary": {
-  "total_claims": 52,
-  "testable": 45,
-  "passed": 45,
+  "total_claims": 53,
+  "testable": 46,
+  "passed": 46,
   "failed": 0,
   "not_testable": 7,
   "nuanced": 5,
@@ -15,7 +15,7 @@
  "claims": [
   {
    "claim_id": "C01",
-   "claim_text": "Weakening a proc contract (e.g. replacing Positive with int) and then adding manual checks is incorrect \u2014 the type-level contract should be relied upon instead.",
+   "claim_text": "Weakening a proc contract (e.g. replacing Positive with int) and then adding manual checks is incorrect — the type-level contract should be relied upon instead.",
    "is_testable": true,
    "test_file_path": "tests/nim-api-design_verification/test_c01_contract_weakening.nim",
    "test_passed": true,
@@ -27,7 +27,7 @@
    "is_testable": true,
    "test_file_path": "tests/nim-api-design_verification/test_c02_redundant_checks.nim",
    "test_passed": true,
-   "evaluation_notes": "PASS. A Natural parameter already prevents negative values at runtime (range check). Adding a manual `if i < 0: raise ...` check inside is dead code \u2014 the branch can never execute because Natural guarantees i >= 0."
+   "evaluation_notes": "PASS. A Natural parameter already prevents negative values at runtime (range check). Adding a manual `if i < 0: raise ...` check inside is dead code — the branch can never execute because Natural guarantees i >= 0."
   },
   {
    "claim_id": "C03",
@@ -59,7 +59,7 @@
    "is_testable": true,
    "test_file_path": "tests/nim-api-design_verification/test_c06_noinline_noreturn.nim",
    "test_passed": true,
-   "evaluation_notes": "PASS. Shared {.noinline, noreturn.} helper raises ValueError correctly. Multiple accessors calling the same helper produce identical error messages. noreturn contract verified (code after call is unreachable). Stdlib confirms: tables.nim uses raiseKeyError, dynlib.nim uses raiseInvalidLibrary, syncio.nim uses raiseEIO \u2014 all {.noinline, noreturn.}."
+   "evaluation_notes": "PASS. Shared {.noinline, noreturn.} helper raises ValueError correctly. Multiple accessors calling the same helper produce identical error messages. noreturn contract verified (code after call is unreachable). Stdlib confirms: tables.nim uses raiseKeyError, dynlib.nim uses raiseInvalidLibrary, syncio.nim uses raiseEIO — all {.noinline, noreturn.}."
   },
   {
    "claim_id": "C07",
@@ -167,7 +167,7 @@
   },
   {
    "claim_id": "C21",
-   "claim_text": "Mark only the intended public API with *; keep all internal helpers unexported. A module should have a clear public surface \u2014 typically constructors, accessors, and mutation operations \u2014 with implementation details private.",
+   "claim_text": "Mark only the intended public API with *; keep all internal helpers unexported. A module should have a clear public surface — typically constructors, accessors, and mutation operations — with implementation details private.",
    "is_testable": false,
    "test_file_path": null,
    "test_passed": null,
@@ -428,6 +428,14 @@
    "test_file_path": "tests/nim-api-design_verification/test_c53_converters_bad.nim",
    "test_passed": true,
    "evaluation_notes": "DETERMINISTIC. An exported converter applies implicitly at call sites in any importing module (`wantsFoo(42)` compiles with no marker). Converters do not chain: `Foo -> string` applies but `int -> Foo -> string` does not (`compiles` false). Two converters from `int` to `Foo` coexist without error; the first wins and the second is reported as declared-but-unused. The ban itself is a design rule; the test verifies the supporting mechanics."
+  },
+  {
+   "claim_id": "C54",
+   "claim_text": "Passing `x: T` never copies what `x` points to. Do not use `ptr T` or `addr x` to avoid a copy.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c54_value_param_header_copy.nim",
+   "test_passed": true,
+   "evaluation_notes": "PASS. A `=copy`-counting object proves a read-only value parameter performs no copy hook call (count stays 0) and that an explicit in-callee local copy triggers exactly one `=copy` while the caller's value stays unchanged. Same caller-independence verified for `string` and `seq[int]` value parameters, and `Table` passes without consuming the caller's table. `--expandArc` on read-only procs shows no injected `=copy`/`=dup` for `string`, `seq`, `Table`, and custom-destructor object parameters (Nim 2.3.1, ORC and ARC both pass). The copy a `ptr T` switch would avoid does not exist; the pointer would instead alias caller storage. Note: the compiler may still pass a large value parameter by hidden reference at the ABI level (manual: size-based choice); this is unobservable to callers and irrelevant to the rule, which is about semantic copying of the pointed-to data."
   }
  ],
  "failure_samples": [
@@ -529,6 +537,15 @@
    "evidence": "The rule says to use `add`, `del`, and `clear` for collection operations, while `seq.del(1)` changes `@[10, 20, 30, 40]` to `@[10, 40, 30]`.",
    "check": "A sequence-removal recommendation distinguishes unordered `del` from order-preserving `delete`.",
    "next_action": "skill edit"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "missing rule",
+   "summary": "Agents suggest `ptr T` or `addr x` parameters for `string`, `seq`, and destructor-bearing types to avoid copies that never happen.",
+   "evidence": "Confusing the type's header (pointer + length) with its heap storage leads to `proc foo(x: ptr T)`. Verified with `--expandArc` and a `=copy` counter: a read-only value parameter inserts no copy hook; a copy appears only where the callee explicitly makes a mutable local.",
+   "check": "Parameter mode is chosen for caller-visible behavior, not for copy avoidance.",
+   "next_action": "resolved"
   }
  ],
  "uncovered_topics": [],
@@ -539,7 +556,7 @@
   {
    "claim_id": "C05",
    "original_claim": "Accessors should raise ValueError on invalid index and missing required data.",
-   "correction": "The principle is correct (raise on contract violation), but the exact exception type is flexible. Stdlib tables.nim raises KeyError, not ValueError. The key rule is: raise a specific, catchable exception \u2014 not necessarily ValueError."
+   "correction": "The principle is correct (raise on contract violation), but the exact exception type is flexible. Stdlib tables.nim raises KeyError, not ValueError. The key rule is: raise a specific, catchable exception — not necessarily ValueError."
   },
   {
    "claim_id": "C09",

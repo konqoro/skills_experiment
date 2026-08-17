@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 44,
-    "testable": 38,
-    "passed": 38,
+    "total_claims": 45,
+    "testable": 39,
+    "passed": 39,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 2,
@@ -364,6 +364,16 @@
       "test_file_path": "tests/nim-style-guide_verification/test_c39_expression_body_result.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. In `pick`, the start default \"default\" is overridden to \"positive\"/\"negative\" when a guard fires and is retained when no guard fires. Reassigning `result` is legal Nim; the pattern is a readability preference."
+    },
+    {
+      "claim_id": "C45",
+      "claim_text": "Write enum values unqualified; qualification is needed only when the compiler reports ambiguity.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c45_enum_qualification.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. A field name shared by two non-pure enums resolves from type context: proc argument (`go(north)`), annotated variable (`let flipped: Flip = south`), and set literal (`set[Direction] = {north, west}`). `{.pure.}` fields also resolve unqualified (manual: hidden module-specific scope queried as the last attempt). Caveat found while testing: comparison operators do not disambiguate from the other operand; `north < east` fails when `north` is shared, but works through a typed variable. Bare ambiguous use without type context (`echo aa`) fails to compile: verified by test_c45_enum_qualification_negative.nim (negative compile test). Cross-module: a non-pure enum field clashing with another imported symbol errors; the `{.pure.}` variant lets the closer-scope symbol win, so qualification resolves it.",
+      "source": "manual Enumeration types section",
+      "source_quote": "Instead of north etc., the enum value can also be qualified with the enum type that it resides in, Direction.north. ... Enum value names are overloadable, much like routines."
     }
   ],
   "uncovered_topics": [
