@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 12,
-    "testable": 10,
-    "passed": 9,
+    "total_claims": 13,
+    "testable": 11,
+    "passed": 10,
     "failed": 1,
     "not_testable": 2,
     "nuanced": 0,
@@ -67,7 +67,15 @@
       "is_testable": false,
       "test_file_path": null,
       "test_passed": null,
-      "evaluation_notes": "Design guideline. Stdlib parser-style modules such as parsecfg, parsecsv, and parsexml expose `open`/`next`/`close` on explicit parser objects and keep helper procs top-level."
+      "evaluation_notes": "Design guideline. Stdlib parser-style modules such as parsecfg, parsecsv, and parsexml expose `open`/`next`/`close` on explicit parser objects and keep helper procs top-level. Addendum after the 'Incremental APIs' rewrite: the skill states this guideline without naming stdlib modules and gates `open`/`close` procs on a resource or ordering constraint spanning calls; the design observation itself is unchanged."
+    },
+    {
+      "claim_id": "C13",
+      "claim_text": "An `assert` on a lifecycle field at the start of a `next`-style proc fires as an `AssertionDefect` when the proc is called before `open` in a default build (escaping `except CatchableError` boundaries), and is compiled out under `--assertions:off`, so it is a debug-time ordering guard, not runtime validation.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-code-organization_verification/test_c13_lifecycle_assert_ordering.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC in both configurations. Default build: calling `next` before `open` raises AssertionDefect with the guard message and is not caught as CatchableError; the happy path works after `open`. With `--assertions:off`: the same out-of-order call raises nothing. Mirrors the cross-skill precedent nim-error-handling C36 within this skill's own test suite."
     },
     {
       "claim_id": "C08",
@@ -139,6 +147,15 @@
       "evidence": "The SKILL.md rule said 'steps share evolving state' while references/orchestration_pattern.md ('several operations share an invariant'), the State Scope table ('Several operations share an invariant'), and the mistake table ('a state type for a short linear calculation') state the tighter criterion. C10 records the design preference; C02/C06 verify only state-object mechanics. Other review points were evaluated and rejected: the parser assert guard is the verified canonical pattern (nim-error-handling C36, nim-defect-analysis C04), the define/undef rule is deterministically verified and correctly scoped (C12 plus the failure sample above), and the static-variant rule is verified (C11). Follow-up: the ReportState example in references/orchestration_pattern.md was rewritten to an inventory whose reservation operations preserve one stock invariant across calls, with the mirror test test_ref_orchestration_pattern.nim passing on ORC; a new immutable-intermediates State Scope row was rejected pending dataset or benchmark evidence.",
       "check": "does the rule trigger a state object for state shared only within one short linear operation?",
       "next_action": "skill edit: tightened the trigger to 'When independently meaningful operations must preserve one invariant, collect that state in a named object and pass it explicitly.'"
+    },
+    {
+      "source_type": "user feedback",
+      "source_task": "review of the Stateful module pattern section in skills/nim-code-organization",
+      "bucket": "ambiguous wording",
+      "summary": "The 'Stateful module pattern' section framed the incremental-state pattern as 'the stdlib parser shape', tying generic guidance to the parser domain, its 'incremental lifecycle' trigger invited open/close ceremony without a justifying constraint, and its second bullet was non-directive filler.",
+      "evidence": "User decision plus competing rewrites from two independent agents. C07 records the design observation but cites stdlib parser modules, which should not be named in a rule; C02/C06/C10 verify the object mechanics; the assert-on-lifecycle-field guard is the verified canonical pattern (nim-error-handling C36); the one-shot exclusion comes from the curated parser reference's Key points. The rewrite drops the parser/stdlib framing, gates lifecycle procs on a resource or ordering constraint spanning calls, keeps the one-shot exclusion, and makes the filler bullet directive via the lifecycle assert. Generic rules already stated elsewhere (State ownership, Helper placement) are not restated.",
+      "check": "does the section tie its pattern to one domain or invite lifecycle ceremony without a constraint?",
+      "next_action": "skill edit: replaced the section with 'Incremental APIs' — piecewise caller-driven state in the object's fields, one proc per transition, open/close only under a resource or ordering constraint, one-shot stays a single proc, enforce ordering with a lifecycle assert."
     }
   ]
 }
