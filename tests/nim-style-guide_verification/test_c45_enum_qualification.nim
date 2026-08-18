@@ -3,6 +3,7 @@
 # proc argument, annotated variable, set literal, comparison. `{.pure.}` fields
 # also resolve unqualified because the hidden scope is queried as the last attempt.
 import std/assertions
+import ./test_c45_pure_enum_fixture
 
 type
   Direction = enum north, east, south, west
@@ -19,5 +20,6 @@ doAssert ord(flipped) == 1
 let dir: Direction = north         # annotated variable disambiguates
 doAssert dir < east                # comparison works once the type is pinned
 doAssert hearts < spades          # pure enum: unqualified still resolves
+doAssert ord(collected) == 0      # imported pure enum: unqualified still resolves
 
 echo "C45: PASS"

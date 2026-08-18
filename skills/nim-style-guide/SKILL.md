@@ -155,6 +155,7 @@ See `references/multiline_strings.md`.
 | Hiding reusable helpers inside another proc | It makes the helper harder to reuse and easier to turn into an accidental closure. |
 | Writing one argument per line by default | It adds vertical noise without adding structure. |
 | Using `var` for values that never mutate | It hides which locals actually change. |
+| Assuming `{.pure.}` requires `Type.value` | Pure enum values may be unqualified. |
 | Turning every branch into an early `return` in a multi-step proc | It makes the normal path harder to scan. |
 | Using `continue` | A structured branch keeps the loop invariant visible. |
 

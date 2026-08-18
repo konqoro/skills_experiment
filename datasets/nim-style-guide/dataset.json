@@ -371,7 +371,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-style-guide_verification/test_c45_enum_qualification.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. A field name shared by two non-pure enums resolves from type context: proc argument (`go(north)`), annotated variable (`let flipped: Flip = south`), and set literal (`set[Direction] = {north, west}`). `{.pure.}` fields also resolve unqualified (manual: hidden module-specific scope queried as the last attempt). Caveat found while testing: comparison operators do not disambiguate from the other operand; `north < east` fails when `north` is shared, but works through a typed variable. Bare ambiguous use without type context (`echo aa`) fails to compile: verified by test_c45_enum_qualification_negative.nim (negative compile test). Cross-module: a non-pure enum field clashing with another imported symbol errors; the `{.pure.}` variant lets the closer-scope symbol win, so qualification resolves it.",
+      "evaluation_notes": "DETERMINISTIC. A field name shared by two non-pure enums resolves from type context: proc argument (`go(north)`), annotated variable (`let flipped: Flip = south`), and set literal (`set[Direction] = {north, west}`). `{.pure.}` fields resolve unqualified in the defining module and after import (`ord(collected) == 0`). Caveat found while testing: comparison operators do not disambiguate from the other operand; `north < east` fails when `north` is shared, but works through a typed variable. Bare ambiguous use without type context (`echo aa`) fails to compile: verified by test_c45_enum_qualification_negative.nim (negative compile test).",
       "source": "manual Enumeration types section",
       "source_quote": "Instead of north etc., the enum value can also be qualified with the enum type that it resides in, Direction.north. ... Enum value names are overloadable, much like routines."
     }
@@ -398,6 +398,15 @@
       "evidence": "raw.MY_ENUM_VALUE used throughout instead of importing raw and using MY_ENUM_VALUE",
       "check": "unqualified_import_preferred",
       "next_action": "no action"
+    },
+    {
+      "source_type": "agent report",
+      "source_task": "repository-wide enum qualifier cleanup",
+      "bucket": "ambiguous wording",
+      "summary": "Agent assumed `{.pure.}` required `Type.value` and resisted removing enum qualifiers.",
+      "evidence": "Bare pure-enum values compiled in the defining and importing modules; qualification was needed only for collisions.",
+      "check": "pure_enum_qualification",
+      "next_action": "skill edit: added a Common Mistakes entry."
     },
     {
       "source_type": "project",

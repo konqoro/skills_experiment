@@ -1,5 +1,7 @@
 # Test: C13 - lifecycle assert guard fires on out-of-order incremental-API calls
 when compileOption("assertions"):
+  import std/strutils
+
   type
     WordScanner = object
       input: string

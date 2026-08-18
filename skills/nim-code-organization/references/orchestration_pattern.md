@@ -12,31 +12,31 @@ func initInventory(onHand: int): InventoryState =
 func available(state: InventoryState): int =
   state.onHand - state.reserved
 
-proc check(state: InventoryState) =
+proc ensure(state: InventoryState) =
   assert state.reserved >= 0 and state.reserved <= state.onHand
 
 proc restock(state: var InventoryState; quantity: int) =
   if quantity > 0:
     inc state.onHand, quantity
-    check state
+    ensure state
 
 proc reserve(state: var InventoryState; quantity: int): bool =
   if quantity > 0 and quantity <= state.available:
     inc state.reserved, quantity
-    check state
+    ensure state
     result = true
 
 proc cancelReservation(state: var InventoryState; quantity: int): bool =
   if quantity > 0 and quantity <= state.reserved:
     dec state.reserved, quantity
-    check state
+    ensure state
     result = true
 
 proc shipReserved(state: var InventoryState; quantity: int): bool =
   if quantity > 0 and quantity <= state.reserved:
     dec state.reserved, quantity
     dec state.onHand, quantity
-    check state
+    ensure state
     result = true
 
 proc countNonEmpty(names: openArray[string]): int =
