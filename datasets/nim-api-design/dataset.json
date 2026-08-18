@@ -4,9 +4,9 @@
  "nim_version": "2.3.1",
  "mm_mode": "orc",
  "summary": {
-  "total_claims": 53,
-  "testable": 46,
-  "passed": 46,
+  "total_claims": 54,
+  "testable": 47,
+  "passed": 47,
   "failed": 0,
   "not_testable": 7,
   "nuanced": 5,
@@ -436,6 +436,14 @@
    "test_file_path": "tests/nim-api-design_verification/test_c54_value_param_header_copy.nim",
    "test_passed": true,
    "evaluation_notes": "PASS. A `=copy`-counting object proves a read-only value parameter performs no copy hook call (count stays 0) and that an explicit in-callee local copy triggers exactly one `=copy` while the caller's value stays unchanged. Same caller-independence verified for `string` and `seq[int]` value parameters, and `Table` passes without consuming the caller's table. `--expandArc` on read-only procs shows no injected `=copy`/`=dup` for `string`, `seq`, `Table`, and custom-destructor object parameters (Nim 2.3.1, ORC and ARC both pass). The copy a `ptr T` switch would avoid does not exist; the pointer would instead alias caller storage. Note: the compiler may still pass a large value parameter by hidden reference at the ABI level (manual: size-based choice); this is unobservable to callers and irrelevant to the rule, which is about semantic copying of the pointed-to data."
+  },
+  {
+   "claim_id": "C55",
+   "claim_text": "Never represent a public enumerated choice as a bare string. Use an enum, including reserved values when forward compatibility requires them.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c55_public_enum_and_reserved_slots.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. A proc taking an enum accepts known enum members but rejects both known and arbitrary string literals at compile time; a string-taking proc accepts the arbitrary literal. An enum with explicit contiguous ordinals decodes reserved code 2, re-encodes it unchanged, and reports it as unsupported; an out-of-range code raises ValueError. This tests the compiler and protocol-preservation mechanics supporting the API-design rule."
   }
  ],
  "failure_samples": [
@@ -545,6 +553,15 @@
    "summary": "Agents suggest `ptr T` or `addr x` parameters for `string`, `seq`, and destructor-bearing types to avoid copies that never happen.",
    "evidence": "Confusing the type's header (pointer + length) with its heap storage leads to `proc foo(x: ptr T)`. Verified with `--expandArc` and a `=copy` counter: a read-only value parameter inserts no copy hook; a copy appears only where the callee explicitly makes a mutable local.",
    "check": "Parameter mode is chosen for caller-visible behavior, not for copy avoidance.",
+   "next_action": "resolved"
+  },
+  {
+   "source_type": "user feedback",
+   "source_task": "skills/nim-api-design/SKILL.md",
+   "bucket": "missing rule",
+   "summary": "Agents may expose an enumeration as a raw string instead of an enum or typed extensible-enum representation.",
+   "evidence": "A string parameter accepts arbitrary tokens at compile time, while an enum parameter accepts only declared values. Explicit reserved ordinals let an older implementation preserve a bounded future protocol code without treating it as a supported choice.",
+   "check": "Every enumeration has a typed representation and reserved protocol values remain distinguishable from supported values.",
    "next_action": "resolved"
   }
  ],
