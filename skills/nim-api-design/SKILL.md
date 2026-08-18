@@ -67,8 +67,8 @@ description: Design clear public Nim APIs for libraries and modules, including e
 - Pass sink arguments normally — do not wrap them in `move()` or `ensureMove()`. Last-use
   auto-sink moves locals, their fields, tuple fields and indices, and direct-indexed seq/array
   elements with no copy.
-- Use `move(x)` only where auto-sink does not apply: fields of `var` parameters, loop-indexed
-  seq/array elements (`arr[i]`), and values reused later in the same scope.
+- Use `move(x)` only where auto-sink does not apply: `var` parameters and their fields,
+  loop-indexed seq/array elements (`arr[i]`), and values reused later in the same scope.
 - Use `ensureMove(x)` to make an accidental copy a compile-time error.
 
 ### Lookup surface

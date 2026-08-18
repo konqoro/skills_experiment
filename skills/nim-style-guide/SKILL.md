@@ -36,8 +36,7 @@ description: Write clear, consistent Nim code in a simple stdlib-aligned style, 
 - Use normal word casing such as `parseUrl` and `httpStatus`.
 - Do not stutter the type name into its fields; `Product.name`, not `Product.productName`.
 - Use short names for parameters and locals that echo the type, as in `inv: Inventory` or `s: Session`.
-- Give the most-used representation the base type name. Suffix the others with
-  `Obj`, `Ref`, or `Ptr`.
+- Give the most-used representation the base type name. Suffix the others with `Obj`, `Ref`, or `Ptr`.
 - Suffix catchable exception types with `Error` and programming-bug defect types with `Defect`.
 - For non-pure enums, prefix values such as `pcFile`. For pure enums, use `PascalCase`.
 - Prefix mutable views with `m`, as in `mitems` and `mpairs`.

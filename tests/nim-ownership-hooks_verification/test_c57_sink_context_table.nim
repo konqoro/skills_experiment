@@ -1,6 +1,6 @@
 # C57: Inside a proc, last-use auto-sink fires for let/var locals, their
 # fields, tuples, and direct-indexed seq/array elements (0 copies).
-# It does NOT fire for var-parameter fields or loop-indexed elements.
+# It does NOT fire for var parameters, their fields, or loop-indexed elements.
 
 type
   Shard = object
@@ -21,6 +21,9 @@ proc consume(x: sink Shard) =
 
 proc asParam(c: var Created) =
   consume(c.remote)              # 1 copy (var param field)
+
+proc wholeVarParam(x: var Shard) =
+  consume(x)                     # 1 copy (whole var param)
 
 proc run(report: proc (label: string)) =
   # let local -> 0
@@ -64,6 +67,13 @@ proc run(report: proc (label: string)) =
 
   doAssert copies == 1, "var param field should copy"
   report("var param field")
+
+  # whole var param -> 1 copy
+  var c3 = Shard(s: "y", bytes: 1)
+  wholeVarParam(c3)
+
+  doAssert copies == 1, "whole var param should copy"
+  report("whole var param")
 
   echo "C57: PASS"
 

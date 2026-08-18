@@ -499,21 +499,21 @@
     },
     {
       "claim_id": "C57",
-      "claim_text": "Inside a named proc, last-use auto-sink moves let/var locals, fields of var locals, tuple fields and indices, and direct-indexed seq/array elements into sink parameters with 0 copies. It does NOT fire for fields of var parameters or loop-indexed elements, which copy.",
+      "claim_text": "Inside a named proc, last-use auto-sink moves let/var locals, fields of var locals, tuple fields and indices, and direct-indexed seq/array elements into sink parameters with 0 copies. It does NOT fire for var parameters, their fields, or loop-indexed elements, which copy.",
       "source": "research: nim-sink-move-copies.md",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c57_sink_context_table.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. Copy counter confirms: let local, var-local field, tuple field/index, direct array index = 0 copies; loop-indexed seq element = 2 copies; var-param field = 1 copy. Identical results under --mm:arc and --mm:atomicArc. Verified in -d:release (matches research doc's -d:release evidence) and debug."
+      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. Copy counter confirms: let local, var-local field, tuple field/index, direct array index = 0 copies; loop-indexed seq element = 2 copies; whole var parameter and var-param field = 1 copy each. Identical results under --mm:arc and --mm:atomicArc. Verified in -d:release (matches research doc's -d:release evidence) and debug."
     },
     {
       "claim_id": "C58",
-      "claim_text": "move() eliminates the implicit copy for the cases where last-use auto-sink does not fire: fields of var parameters and loop-indexed seq/array elements. Wrapping those sink arguments in move() yields 0 copies.",
+      "claim_text": "move() eliminates the implicit copy for the cases where last-use auto-sink does not fire: var parameters and their fields, and loop-indexed seq/array elements. Wrapping those sink arguments in move() yields 0 copies.",
       "source": "research: nim-sink-move-copies.md",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c58_move_required_cases.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. move(var-param field) and move(loop-indexed element) both yield 0 copies. Same result under --mm:arc."
+      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. move(whole var param), move(var-param field) and move(loop-indexed element) all yield 0 copies. Same result under --mm:arc."
     },
     {
       "claim_id": "C59",

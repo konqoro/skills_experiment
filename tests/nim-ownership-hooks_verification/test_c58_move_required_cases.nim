@@ -1,5 +1,6 @@
-# C58: move() eliminates the copy for var-param fields and loop-indexed
-# elements — the exact cases where last-use auto-sink does not fire.
+# C58: move() eliminates the copy for var parameters, their fields, and
+# loop-indexed elements. These are exactly the cases where last-use
+# auto-sink does not fire.
 
 type
   Shard = object
@@ -21,6 +22,9 @@ proc consume(x: sink Shard) =
 proc takeVarParamFieldMove(c: var Created) =
   consume(move(c.remote))        # 0 copies with move
 
+proc takeWholeVarParamMove(x: var Shard) =
+  consume(move(x))               # 0 copies with move
+
 proc loopMove() =
   var rows = @[Shard(s: "a", bytes: 1), Shard(s: "b", bytes: 2)]
   for i in 0..<rows.len:
@@ -36,6 +40,12 @@ proc main() =
 
   report("var param field (move)")
   doAssert copies == 0, "move on var param field should not copy"
+
+  var c2 = Shard(s: "w", bytes: 1)
+  takeWholeVarParamMove(c2)
+
+  report("var param (move)")
+  doAssert copies == 0, "move on whole var param should not copy"
 
   loopMove()
 
