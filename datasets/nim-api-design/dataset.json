@@ -439,11 +439,11 @@
   },
   {
    "claim_id": "C55",
-   "claim_text": "Never represent a public enumerated choice as a bare string. Use an enum, including reserved values when forward compatibility requires them.",
+   "claim_text": "Model closed choice sets as enums; add reserved members for future assignments in bounded protocol code spaces; use strings for open-ended or externally extensible token namespaces.",
    "is_testable": true,
-   "test_file_path": "tests/nim-api-design_verification/test_c55_public_enum_and_reserved_slots.nim",
+   "test_file_path": "tests/nim-api-design_verification/test_c55_enum_and_protocol_tokens.nim",
    "test_passed": true,
-   "evaluation_notes": "DETERMINISTIC. A proc taking an enum accepts known enum members but rejects both known and arbitrary string literals at compile time; a string-taking proc accepts the arbitrary literal. An enum with explicit contiguous ordinals decodes reserved code 2, re-encodes it unchanged, and reports it as unsupported; an out-of-range code raises ValueError. This tests the compiler and protocol-preservation mechanics supporting the API-design rule."
+   "evaluation_notes": "DETERMINISTIC. A closed access-mode API accepts enum members and rejects string literals. A bounded wire-code enum gives a reserved member a stable ordinal and string spelling. An HTTP-style request API preserves an arbitrary method token while an enum overload supplies a common token. The representation decision itself remains a design rule; the test verifies its supporting mechanics."
   }
  ],
  "failure_samples": [
@@ -559,9 +559,9 @@
    "source_type": "user feedback",
    "source_task": "skills/nim-api-design/SKILL.md",
    "bucket": "missing rule",
-   "summary": "Agents may expose an enumeration as a raw string instead of an enum or typed extensible-enum representation.",
-   "evidence": "A string parameter accepts arbitrary tokens at compile time, while an enum parameter accepts only declared values. Explicit reserved ordinals let an older implementation preserve a bounded future protocol code without treating it as a supported choice.",
-   "check": "Every enumeration has a typed representation and reserved protocol values remain distinguishable from supported values.",
+   "summary": "Agents treat closed choices and extensible protocol tokens as the same kind of value.",
+   "evidence": "A closed access-mode API rejects raw strings; a bounded wire-code enum can reserve a future ordinal; an HTTP-style request API must preserve an arbitrary method token such as PROPFIND.",
+   "check": "Closed choices use enums, bounded protocol codes reserve future assignments, and extensible tokens remain pass-through strings.",
    "next_action": "resolved"
   }
  ],

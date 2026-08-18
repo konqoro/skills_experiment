@@ -31,8 +31,8 @@ description: Design clear public Nim APIs for libraries and modules, including e
 - Use range types for constrained public parameters; store their values in the underlying type
   (`int` for `Natural` or `Positive`).
 - Pass arguments directly to range parameters; conversion is implicit, so do not write `Positive(x)`.
-- Never represent a public enumerated choice as a bare `string`. Use an `enum`, including
-  reserved values when forward compatibility requires them.
+- Model closed choice sets as enums; add reserved members for future assignments in bounded
+  protocol code spaces; use strings for open-ended or externally extensible token namespaces.
 - When an enum's string spelling is dictated by an external format or protocol, set
   explicit strings (`dirNorth = "north"`); `$` and `parseEnum[T]` always round-trip.
 - Use `static[T]` in public APIs only when callers must supply a compile-time constant.
