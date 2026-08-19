@@ -4,9 +4,9 @@
  "nim_version": "2.3.1",
  "mm_mode": "orc",
  "summary": {
-  "total_claims": 54,
-  "testable": 47,
-  "passed": 47,
+  "total_claims": 56,
+  "testable": 49,
+  "passed": 49,
   "failed": 0,
   "not_testable": 7,
   "nuanced": 5,
@@ -444,9 +444,34 @@
    "test_file_path": "tests/nim-api-design_verification/test_c55_enum_and_protocol_tokens.nim",
    "test_passed": true,
    "evaluation_notes": "DETERMINISTIC. A closed access-mode API accepts enum members and rejects string literals. A bounded wire-code enum gives a reserved member a stable ordinal and string spelling. An HTTP-style request API preserves an arbitrary method token while an enum overload supplies a common token. The representation decision itself remains a design rule; the test verifies its supporting mechanics."
+  },
+  {
+   "claim_id": "C56",
+   "claim_text": "An object variant's fields live in a single namespace spanning the whole object: a field name declared in one branch cannot be redeclared in another branch, and a branch field cannot reuse the name of a field declared before the `case` selector; both fail to compile with `attempt to redefine`.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c56_variant_field_redefine_bad.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Both negative compile tests fail with `attempt to redefine`: the same field name in two branches, and a branch field reusing a common field's name."
+  },
+  {
+   "claim_id": "C57",
+   "claim_text": "When variant branches need fields with the same name, wrap each branch's payload in its own named object type and give the branch a single field of that type. The shared attribute names live in separate payload types, and each branch keeps exactly one field, so the variant's single field namespace and its layout calculation stay simple.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c57_variant_payload_objects.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. An Entry variant with EntryFile/EntryDir/EntryDevice payload objects constructs all three kinds, payload objects repeat the `name` attribute legally, and discriminator dispatch reads per-kind payloads. Design pattern choice itself is a design rule; the test verifies the pattern compiles and behaves normally (Nim 2.3.1, ORC)."
   }
  ],
  "failure_samples": [
+  {
+   "source_type": "user feedback",
+   "source_task": "object variant field naming",
+   "bucket": "missing rule",
+   "summary": "Agents assume variant branches scope their own field names and reuse one name across branches.",
+   "evidence": "`name: string` in two branches, or in a branch after a common `name` field, fails with `attempt to redefine`: variant fields share one namespace spanning the whole object.",
+   "check": "Branch payloads that need the same attribute name are wrapped in per-branch payload objects.",
+   "next_action": "skill edit"
+  },
   {
    "source_type": "agent feedback",
    "source_task": "skills/nim-api-design/SKILL.md",
