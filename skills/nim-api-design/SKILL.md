@@ -126,7 +126,7 @@ description: Design clear public Nim APIs for libraries and modules, including e
 | Assuming a sink call always moves the caller's variable | Nim copies the argument when it cannot prove last use |
 | Wrapping a routine sink argument in `ensureMove` | Sink already performs last-use analysis; use `ensureMove` only when the code must fail instead of copy |
 | Defining `!=`, `>`, or `>=` for a type | These override Nim's derived comparison templates and can make comparisons inconsistent |
-| Assuming variant branches scope their own fields | Reusing a name is a compile error |
+| Assuming variant `of` branches scope their own fields | Reusing a name is a compile error |
 
 ## References
 

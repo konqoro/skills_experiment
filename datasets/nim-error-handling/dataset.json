@@ -3,9 +3,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 34,
-    "testable": 26,
-    "passed": 26,
+    "total_claims": 33,
+    "testable": 25,
+    "passed": 25,
     "failed": 0,
     "nuanced": 2,
     "not_testable": 8
@@ -195,24 +195,6 @@
       "evaluation_notes": "DETERMINISTIC. This is an API-shape rule best checked by manual review in the benchmark task."
     },
     {
-      "claim_id": "C26",
-      "claim_text": "If a handler needs the current exception object, both `except X as e` and `let e = getCurrentException()` inside the handler expose it and support the same translation behavior.",
-      "source": "standalone exception-capture verification",
-      "is_testable": true,
-      "test_file_path": "tests/nim-error-handling_verification/test_c26_c27_exception_capture_styles.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. Both forms expose the current exception object and support the same translation behavior. The test does not show that one form is preferred by Nim/lib."
-    },
-    {
-      "claim_id": "C27",
-      "claim_text": "When a handler only needs the message text for logging or translation, `getCurrentExceptionMsg()` is sufficient.",
-      "source": "standalone exception-message verification",
-      "is_testable": true,
-      "test_file_path": "tests/nim-error-handling_verification/test_c26_c27_exception_capture_styles.nim",
-      "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC. `getCurrentExceptionMsg()` keeps translation handlers short when they only need the current message text."
-    },
-    {
       "claim_id": "C28",
       "claim_text": "Use `{.raises: [].}` when a proc must not raise. Leave raising procs unannotated.",
       "source": "standalone compiler verification and curated user feedback",
@@ -281,6 +263,15 @@
       "test_file_path": "tests/nim-error-handling_verification/test_c36_assert_programming_bug.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. A failing `assert` raises `AssertionDefect`, a `Defect` that escapes `except CatchableError` boundaries, and carries the given message. With `--assertions:off` the assert is a no-op, so it is a debug-mode guard, not runtime validation."
+    },
+    {
+      "claim_id": "C37",
+      "claim_text": "Treat a failed condition as either recoverable or a programming bug, never both.",
+      "source": "standalone failure-channel consistency verification and curated user feedback",
+      "is_testable": true,
+      "test_file_path": "tests/nim-error-handling_verification/test_c37_condition_channel_consistency.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The standalone test shows the same failed condition being reported both as a catchable ValueError and as an AssertionDefect depending on diagnostic context, and then fixed so the condition is always a programming bug (assert) regardless of the message. A condition must be classified from the API contract; diagnostic context may add detail but must not decide between a catchable exception and an assertion defect."
     }
   ],
   "uncovered_topics": [],
