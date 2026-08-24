@@ -479,7 +479,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c53_dup_move_only.nim",
       "test_passed": true,
-      "evaluation_notes": "VERIFIED in cycle 3 via --expandArc and generated C inspection. With =dup {.error.} defined, the compiler correctly rejects =dup at compile time. Without it, =dup compiles but returns a nil/zero object \u2014 compiler-generated C for =copy has empty body under {.error.}."
+      "evaluation_notes": "DETERMINISTIC. Companion tests confirm that omitted =dup lets explicit =dup return a nil moved-from value, explicit =dup {.error.} rejects duplication, and ordinary copying remains rejected by =copy {.error.}."
     },
     {
       "claim_id": "C54",

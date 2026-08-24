@@ -128,18 +128,18 @@ Test these scenarios for every custom-hook type:
 
 | Mistake | Why it is wrong |
 |---------|-----------------|
-| `=destroy` with `var T` | Both compile, but `T` prevents accidental field mutation inside the destructor. |
-| Setting fields to nil inside `=destroy` | Use `=wasMoved` for field reset. The compiler eliminates the subsequent destroy. |
+| `=destroy` with `var T` | Allows accidental mutation during resource release. |
+| Setting fields to nil inside `=destroy` | Mixes resource release with moved-from state handling. |
 | Missing self-assignment guard in deep-copy `=copy` | Destroys source data before reading it. |
-| Self-assignment check in `=sink` | Compiler already eliminates simple `x = x`. The check is dead code. |
-| Missing `{.nodestroy.}` on raw-storage `=dup` | The compiler can run hooks on destination slots that do not hold valid values yet. |
-| Custom `=sink` when synthesized is fine | Adds unnecessary complexity with no benefit. |
+| Self-assignment check in `=sink` | The check is unreachable for simple self-assignment. |
+| Missing `{.nodestroy.}` on raw-storage `=dup` | Destination slots may be destroyed before they contain valid values. |
+| Custom `=sink` when synthesized is fine | Duplicates ownership logic and increases the hook surface. |
 | `copyMem` in `=sink` or `=dup` | Bypasses child hook semantics and breaks the ownership chain for elements that have their own hooks. |
 | Missing zero-length guard | `alloc(0)` may return nil; subsequent indexing crashes. |
-| Using `move` when `ensureMove` would compile | Later reads of the source still compile and silently return its default value. |
-| `alloc` in multi-threaded code | Must use `allocShared`/`deallocShared` instead. |
-| Custom error string in `{.error: "msg"}` on `=copy` | The compiler ignores custom error messages. Use bare `{.error.}`. |
-| Skipping `=dup` on a move-only type | Add `=dup {.error.}`. Without it the compiler synthesizes one that produces nil instead of erroring. |
+| Using `move` when `ensureMove` would compile | Accidental use after the move is not rejected. |
+| `alloc` in multi-threaded code | Cross-thread ownership may access storage through the wrong allocator. |
+| Custom error string in `{.error: "msg"}` on `=copy` | The custom message is not emitted. |
+| Skipping `=dup` on a move-only type | `=dup` can silently return a moved-from value instead of failing. |
 
 ## References
 
