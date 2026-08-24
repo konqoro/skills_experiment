@@ -17,6 +17,8 @@ The compiler auto-manages destruction for primitives, `string`, `seq[T]`, `ref T
 
 Custom hooks are needed only for non-managed resources: raw pointers (`ptr T`) to manually allocated memory, OS file descriptors, socket handles, `distinct` types whose base has no hooks, or similar. `distinct` types whose base already has hooks lift them automatically.
 
+Export custom hooks for exported types.
+
 ### Hook-by-hook rules
 
 **`=destroy`**

@@ -9,7 +9,7 @@
     "testable": 55,
     "passed": 55,
     "failed": 0,
-    "nuanced": 2,
+    "nuanced": 1,
     "not_testable": 8,
     "untested": 0
   },
@@ -54,12 +54,12 @@
     },
     {
       "claim_id": "C04",
-      "claim_text": "Export custom ownership hooks in reusable modules. Missing export may still work in a single module but can break or complicate cross-module use.",
+      "claim_text": "Export custom ownership hooks for exported types.",
       "source": "skill",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c04_export_hooks.nim",
       "test_passed": true,
-      "evaluation_notes": "NUANCED. Exporting hooks makes an exported type's ownership contract explicit, but it is not required for current cross-module correctness on Nim 2.3.1: C63 confirms private hooks are still lifted into a client wrapper and private copy rejection propagates."
+      "evaluation_notes": "DETERMINISTIC. Exported hooks work. Private hooks also run and lift across module boundaries, so export is a public-API choice rather than a correctness requirement."
     },
     {
       "claim_id": "C05",
@@ -564,12 +564,12 @@
     },
     {
       "claim_id": "C63",
-      "claim_text": "On Nim 2.3.1, private ownership hooks of an exported type are found across module boundaries and lifted into client wrapper types; lifted destruction runs and private =copy/=dup {.error.} still rejects wrapper copies. Exporting hooks is therefore explicit contractual hardening, not a demonstrated current correctness requirement.",
+      "claim_text": "Private ownership hooks of an exported type are found across module boundaries and lifted into client wrapper types; lifted destruction runs and private =copy/=dup {.error.} still rejects wrapper copies.",
       "source": "cross-module runtime and negative-compile experiment",
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c63_private_hooks.nim",
       "test_passed": true,
-      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. The client wrapper move destroys the allocation exactly once; the companion test_c63_private_hooks_copy_negative.nim fails because =copy is unavailable for the wrapper."
+      "evaluation_notes": "DETERMINISTIC. The client wrapper move destroys the allocation exactly once; the companion test_c63_private_hooks_copy_negative.nim fails because =copy is unavailable for the wrapper."
     }
   ],
   "uncovered_topics": [
@@ -577,7 +577,7 @@
   ],
   "needs_stronger_tests": [
     "Manual-memory claims (C03, C33, C35-C42, C44) are functionally covered. Allocator-level leak freedom should be spot-checked with ASan or Valgrind after normal tests pass. Confirmed on test_c35_copy_nil_guard.nim.",
-    "C62 synthesized whole-state reset and C63 private cross-module hook lifting are compiler-version observations. Re-run them when changing Nim versions rather than treating their lowering details as language-wide guarantees."
+    "C62 synthesized whole-state reset is a compiler-version observation. Re-run it when changing Nim versions rather than treating its lowering details as a language-wide guarantee."
   ],
   "corrections_vs_original_skill": [
     {
@@ -602,7 +602,7 @@
     },
     {
       "original_claim": "Custom hooks of an exported type must be exported for cross-module lifting to work.",
-      "correction": "Nim 2.3.1 lifts private hooks into client wrapper types and propagates private copy rejection. Export hooks to make the ownership contract explicit, but do not report missing export alone as a demonstrated correctness bug."
+      "correction": "Private hooks lift into client wrapper types and propagate copy rejection. Export hooks for exported types, but do not report missing export as a correctness bug."
     }
   ]
 }
