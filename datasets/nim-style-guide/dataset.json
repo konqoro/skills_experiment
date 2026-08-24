@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 45,
-    "testable": 39,
-    "passed": 39,
+    "total_claims": 46,
+    "testable": 40,
+    "passed": 40,
     "failed": 0,
     "not_testable": 6,
     "nuanced": 2,
@@ -374,6 +374,14 @@
       "evaluation_notes": "DETERMINISTIC. A field name shared by two non-pure enums resolves from type context: proc argument (`go(north)`), annotated variable (`let flipped: Flip = south`), and set literal (`set[Direction] = {north, west}`). `{.pure.}` fields resolve unqualified in the defining module and after import (`ord(collected) == 0`). Caveat found while testing: comparison operators do not disambiguate from the other operand; `north < east` fails when `north` is shared, but works through a typed variable. Bare ambiguous use without type context (`echo aa`) fails to compile: verified by test_c45_enum_qualification_negative.nim (negative compile test).",
       "source": "manual Enumeration types section",
       "source_quote": "Instead of north etc., the enum value can also be qualified with the enum type that it resides in, Direction.north. ... Enum value names are overloadable, much like routines."
+    },
+    {
+      "claim_id": "C46",
+      "claim_text": "Write `addr x`, not the deprecated `unsafeAddr x`. `addr` accepts immutable operands too, so `unsafeAddr` has no remaining use.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-style-guide_verification/test_c46_unsafeaddr_alias.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `addr` compiles on immutable `let` string elements, seq elements as copyMem sources, and array elements passed to C-style pointer APIs (Nim 2.3.1). `unsafeAddr` is documented in system.nim as a deprecated alias for `addr` but carries no compiler .deprecated pragma, so it compiles silently; agents get no signal without a rule."
     }
   ],
   "uncovered_topics": [

@@ -36,7 +36,7 @@ proc initMyString(s: string): MyString =
   result = MyString(len: s.len, data: nil)
   if s.len > 0:
     result.data = cast[ptr char](alloc(s.len + 1))
-    copyMem(result.data, unsafeAddr s[0], s.len + 1)
+    copyMem(result.data, addr s[0], s.len + 1)
 
 proc test() =
   # Empty string must not crash

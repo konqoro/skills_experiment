@@ -52,7 +52,7 @@ let handle = rawOpen(config)
 doAssert handle != nil
 
 let values = [1.cint, 4.cint, 7.cint]
-let snapshot = rawApply(handle, unsafeAddr values[0], csize_t(values.len))
+let snapshot = rawApply(handle, addr values[0], csize_t(values.len))
 doAssert snapshot.count == 3
 doAssert snapshot.total == 54
 
