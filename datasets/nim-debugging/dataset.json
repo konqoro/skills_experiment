@@ -4,9 +4,9 @@
   "nim_version": "2.3.1",
   "mm_mode": "orc",
   "summary": {
-    "total_claims": 32,
-    "testable": 31,
-    "passed": 31,
+    "total_claims": 35,
+    "testable": 34,
+    "passed": 34,
     "failed": 0,
     "nuanced": 2,
     "not_testable": 1
@@ -268,6 +268,30 @@
       "test_file_path": "tests/nim-debugging_verification/test_c32_autosink_proc_vs_toplevel.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. Same let-local-to-sink pattern: 0 copies inside a proc, 1 copy at top level. Confirmed in debug and -d:release. Pair a copy counter with --expandArc for runtime confirmation of generated ops."
+    },
+    {
+      "claim_id": "C33",
+      "claim_text": "`fields` and `fieldPairs` are compile-time constructs, not runtime reflection: the compiler unrolls the loop, each iteration sees the actual field type, and the field name `k` is a compile-time constant usable in `when`.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-debugging_verification/test_c33_fieldpairs_compiletime_when.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. `fieldPairs` supports `when` by field name and type; `fields` supports `when` by field type. system/iterators.nim documents both iterators as magic: Fields/FieldPairs, 'this really transforms the for and unrolls the loop' (Nim 2.3.1)."
+    },
+    {
+      "claim_id": "C34",
+      "claim_text": "Inside a `fields` or `fieldPairs` loop, a runtime `if` cannot guard code that is valid for only one field name or type: every iteration must type-check for every field type.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-debugging_verification/test_c34_fieldpairs_runtime_if_bad.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The linked `fieldPairs` negative test and companion `test_c34_fields_runtime_if_bad.nim` both fail with 'Error: type mismatch': runtime `if` does not keep `inc value` from being checked for the string and bool fields."
+    },
+    {
+      "claim_id": "C35",
+      "claim_text": "`fieldPairs` iterates the expression's declared (static) type, not the concrete runtime subtype. A base-typed expression omits fields added by its derived value, and a `RootRef` expression yields no fields after dereferencing.",
+      "is_testable": true,
+      "test_file_path": "tests/nim-debugging_verification/test_c35_fieldpairs_rootref_static_type.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC. The same derived value exposes both fields through its derived type, only the base field through its base type, and zero fields through `RootRef`."
     }
   ],
   "corrections": [
@@ -278,5 +302,15 @@
   ],
   "uncovered_topics": [],
   "needs_stronger_tests": [],
-  "failure_samples": []
+  "failure_samples": [
+    {
+      "source_type": "user report",
+      "source_task": "recurring agent claims during skill work",
+      "bucket": "incorrect claim",
+      "summary": "Coding agents repeatedly call the fields/fieldPairs iterator runtime reflection",
+      "evidence": "system/iterators.nim defines both as magic: Fields/FieldPairs and unrolls the loop; runtime if on the field name cannot dispatch per field type, and a RootRef yields zero fields",
+      "check": "fieldpairs_compiletime_not_runtime",
+      "next_action": "skill edit"
+    }
+  ]
 }

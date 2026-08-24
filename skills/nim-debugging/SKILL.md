@@ -65,6 +65,9 @@ Default build behavior:
   the hypothesis.
 - `compiles(expr)` is a compile-time boolean probe. If it returns `false`,
   compile the candidate normally to obtain the actual diagnostic.
+- `fields` and `fieldPairs` iterate the expression's static type. Use `when`
+  for code specific to a field name or type; a runtime `if` must type-check for
+  every field. These iterators do not expose fields added by a runtime subtype.
 
 ## Compiler-generated code
 
