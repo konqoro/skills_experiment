@@ -26,7 +26,7 @@ Custom hooks are needed only for non-managed resources: raw pointers (`ptr T`) t
 - Use the signature `=destroy(x: T)`, not `var T`. Both compile, but `T` prevents accidental field mutation.
 
 **`=wasMoved`**
-- Reset every field that `=destroy` checks, so that `=destroy` becomes a no-op on the same variable. For pointer fields, set to `nil`.
+- Define a valid moved-from state. Reset only the fields needed by `=destroy` and the operations permitted in that state.
 - The compiler eliminates a `=destroy` call that follows `=wasMoved` on the same variable.
 
 **`=sink`**
@@ -117,6 +117,7 @@ Test these scenarios for every custom-hook type:
 - Copy independence (mutating copy does not affect original)
 - Dup independence
 - Destroy-after-move (destroy is a no-op)
+- Test every operation the type permits on a moved-from value
 - Self-copy (`x = x` does not crash)
 - Sink from temporaries
 - Zero-length initialization (if the type has constructors)

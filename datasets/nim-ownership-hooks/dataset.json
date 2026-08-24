@@ -5,14 +5,25 @@
   "mm_mode": "orc",
   "official_docs_version": "2.3.1 (2026-04-07)",
   "summary": {
-    "total_claims": 60,
-    "testable": 52,
-    "passed": 52,
+    "total_claims": 63,
+    "testable": 55,
+    "passed": 55,
     "failed": 0,
-    "nuanced": 0,
+    "nuanced": 2,
     "not_testable": 8,
     "untested": 0
   },
+  "failure_samples": [
+    {
+      "source_type": "experiment",
+      "source_task": "JsonWriter moved-from reuse reproducer",
+      "bucket": "missing rule",
+      "summary": "A =wasMoved hook that cleared only the owned pointer remained destroy-safe but retained stale position and capacity metadata.",
+      "evidence": "After var b = move(a), reusing a skipped realloc because stale pos + 1 <= stale capacity, then wrote through nil and raised SIGSEGV.",
+      "check": "exercise the operations permitted on the moved-from value",
+      "next_action": "skill edit"
+    }
+  ],
   "claims": [
     {
       "claim_id": "C01",
@@ -48,7 +59,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c04_export_hooks.nim",
       "test_passed": true,
-      "evaluation_notes": "VERIFIED as a practical rule. Exported hooks work, while single-module behavior alone is not enough evidence that an unexported hook is safe for reuse."
+      "evaluation_notes": "NUANCED. Exporting hooks makes an exported type's ownership contract explicit, but it is not required for current cross-module correctness on Nim 2.3.1: C63 confirms private hooks are still lifted into a client wrapper and private copy rejection propagates."
     },
     {
       "claim_id": "C05",
@@ -75,7 +86,7 @@
       "is_testable": true,
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c06_c07_sentinel.nim",
       "test_passed": true,
-      "evaluation_notes": "VERIFIED. After wasMoved, destroy was a no-op."
+      "evaluation_notes": "NUANCED. Making destroy a no-op is necessary but insufficient. C61 demonstrates that stale metadata can remain destroy-safe yet crash when the moved-from value is legally reused."
     },
     {
       "claim_id": "C08",
@@ -532,13 +543,41 @@
       "test_file_path": "tests/nim-ownership-hooks_verification/test_c60_ensuremove_sink_arg_bad.nim",
       "test_passed": true,
       "evaluation_notes": "DETERMINISTIC. Compiling test_c60_ensuremove_sink_arg_bad.nim fails with: Error: cannot move 'rows[i]', passing 'rows[i]' to a sink parameter introduces an implicit copy. Confirms ensureMove is not a drop-in for move() on sink arguments."
+    },
+    {
+      "claim_id": "C61",
+      "claim_text": "A custom =wasMoved defines a type-specific moved-from state. Reset only the fields needed to make =destroy and every operation permitted in that state correct. Other fields may remain unchanged.",
+      "source": "user-provided JsonWriter failure reproducer",
+      "is_testable": true,
+      "test_file_path": "tests/nim-ownership-hooks_verification/test_c61_wasmoved_reuse.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. The full reset passes and reuses the source as a fresh writer. Compiling the same test with -d:buggy reproduces SIGSEGV when stale pos/capacity suppress allocation before a nil-pointer write."
+    },
+    {
+      "claim_id": "C62",
+      "claim_text": "On Nim 2.3.1, omitting an explicit =wasMoved for a plain zero-default raw-owner object can synthesize the correct whole-state reset. For the tested Writer, move resets data, pos, and capacity, so a partial explicit hook is less correct than synthesis.",
+      "source": "user-provided synthesis finding + runtime experiment",
+      "is_testable": true,
+      "test_file_path": "tests/nim-ownership-hooks_verification/test_c62_synthesized_wasmoved_default.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC for the tested plain object. After move, data is nil and both integer metadata fields are zero. This does not establish raw zeroing as a portable implementation rule for every type or compiler."
+    },
+    {
+      "claim_id": "C63",
+      "claim_text": "On Nim 2.3.1, private ownership hooks of an exported type are found across module boundaries and lifted into client wrapper types; lifted destruction runs and private =copy/=dup {.error.} still rejects wrapper copies. Exporting hooks is therefore explicit contractual hardening, not a demonstrated current correctness requirement.",
+      "source": "cross-module runtime and negative-compile experiment",
+      "is_testable": true,
+      "test_file_path": "tests/nim-ownership-hooks_verification/test_c63_private_hooks.nim",
+      "test_passed": true,
+      "evaluation_notes": "DETERMINISTIC on Nim 2.3.1 ORC. The client wrapper move destroys the allocation exactly once; the companion test_c63_private_hooks_copy_negative.nim fails because =copy is unavailable for the wrapper."
     }
   ],
   "uncovered_topics": [
     "Detach-on-mutation behavior for the inverted-counter CoW path: share/copy/destroy are verified but the actual detach-then-mutate sequence needs its own claim and test."
   ],
   "needs_stronger_tests": [
-    "Manual-memory claims (C03, C33, C35-C42, C44) are functionally covered. Allocator-level leak freedom should be spot-checked with ASan or Valgrind after normal tests pass. Confirmed on test_c35_copy_nil_guard.nim."
+    "Manual-memory claims (C03, C33, C35-C42, C44) are functionally covered. Allocator-level leak freedom should be spot-checked with ASan or Valgrind after normal tests pass. Confirmed on test_c35_copy_nil_guard.nim.",
+    "C62 synthesized whole-state reset and C63 private cross-module hook lifting are compiler-version observations. Re-run them when changing Nim versions rather than treating their lowering details as language-wide guarantees."
   ],
   "corrections_vs_original_skill": [
     {
@@ -556,6 +595,14 @@
     {
       "original_claim": "Custom hooks are needed for distinct types used as handles.",
       "correction": "Distinct types that wrap a type with custom hooks lift all hooks automatically. Custom hooks are needed only when the base type has no hooks (e.g. distinct int for FD handles) or when you need different destroy behavior."
+    },
+    {
+      "original_claim": "=wasMoved only needs to reset the fields that make =destroy a no-op.",
+      "correction": "That is only the destruction minimum. The chosen moved-from state must also support every operation the type permits in that state. Fields irrelevant to those operations may remain unchanged."
+    },
+    {
+      "original_claim": "Custom hooks of an exported type must be exported for cross-module lifting to work.",
+      "correction": "Nim 2.3.1 lifts private hooks into client wrapper types and propagates private copy rejection. Export hooks to make the ownership contract explicit, but do not report missing export alone as a demonstrated correctness bug."
     }
   ]
 }
