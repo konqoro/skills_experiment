@@ -128,17 +128,9 @@ Test these scenarios for every custom-hook type:
 
 | Mistake | Why it is wrong |
 |---------|-----------------|
-| `=destroy` with `var T` | Allows accidental mutation during resource release. |
 | Setting fields to nil inside `=destroy` | Mixes resource release with moved-from state handling. |
-| Missing self-assignment guard in deep-copy `=copy` | Destroys source data before reading it. |
-| Self-assignment check in `=sink` | The check is unreachable for simple self-assignment. |
-| Missing `{.nodestroy.}` on raw-storage `=dup` | Destination slots may be destroyed before they contain valid values. |
-| Custom `=sink` when synthesized is fine | Duplicates ownership logic and increases the hook surface. |
-| `copyMem` in `=sink` or `=dup` | Bypasses child hook semantics and breaks the ownership chain for elements that have their own hooks. |
-| Missing zero-length guard | `alloc(0)` may return nil; subsequent indexing crashes. |
 | Using `move` when `ensureMove` would compile | Accidental use after the move is not rejected. |
 | `alloc` in multi-threaded code | Cross-thread ownership may access storage through the wrong allocator. |
-| Custom error string in `{.error: "msg"}` on `=copy` | The custom message is not emitted. |
 | Skipping `=dup` on a move-only type | `=dup` can silently return a moved-from value instead of failing. |
 
 ## References
