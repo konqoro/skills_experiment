@@ -4,9 +4,9 @@
  "nim_version": "2.3.1",
  "mm_mode": "orc",
  "summary": {
-  "total_claims": 56,
-  "testable": 49,
-  "passed": 49,
+  "total_claims": 57,
+  "testable": 50,
+  "passed": 50,
   "failed": 0,
   "not_testable": 7,
   "nuanced": 5,
@@ -460,9 +460,26 @@
    "test_file_path": "tests/nim-api-design_verification/test_c57_variant_payload_objects.nim",
    "test_passed": true,
    "evaluation_notes": "DETERMINISTIC. An Entry variant with EntryFile/EntryDir/EntryDevice payload objects constructs all three kinds, payload objects repeat the `name` attribute legally, and discriminator dispatch reads per-kind payloads. Design pattern choice itself is a design rule; the test verifies the pattern compiles and behaves normally (Nim 2.3.1, ORC)."
+  },
+  {
+   "claim_id": "C58",
+   "claim_text": "Template parameters are syntax fragments substituted into the template body. They can supply expressions, identifiers, and statement blocks.",
+   "is_testable": true,
+   "test_file_path": "tests/nim-api-design_verification/test_c58_template_parameter_substitution.nim",
+   "test_passed": true,
+   "evaluation_notes": "DETERMINISTIC. Substituting the same expression twice evaluates it twice, while identifier and statement-block parameters create and use a caller-named local."
   }
  ],
  "failure_samples": [
+  {
+   "source_type": "user feedback",
+   "source_task": "template parameter semantics",
+   "bucket": "missing rule",
+   "summary": "Agents can design template parameters as if they were proc values instead of substituted syntax.",
+   "evidence": "Focused tests demonstrate expression, identifier, and statement-block substitution.",
+   "check": "Template parameters correspond to syntax the caller supplies to the template body.",
+   "next_action": "skill edit"
+  },
   {
    "source_type": "user feedback",
    "source_task": "object variant field naming",
